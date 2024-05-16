@@ -1,0 +1,15 @@
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\bin\Debug\net8.0\LoggerService.deps.json
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\bin\Debug\net8.0\LoggerService.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\bin\Debug\net8.0\LoggerService.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\bin\Debug\net8.0\Contracts.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\bin\Debug\net8.0\Contracts.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.csproj.AssemblyReference.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.GeneratedMSBuildEditorConfig.editorconfig
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.AssemblyInfoInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.AssemblyInfo.cs
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.csproj.CoreCompileInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerSe.E7AEA5A8.Up2Date
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\refint\LoggerService.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\LoggerService.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\LoggerService\obj\Debug\net8.0\ref\LoggerService.dll

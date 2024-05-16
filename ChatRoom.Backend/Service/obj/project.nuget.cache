@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "MwEEw7nbOlOw15IzoAhv0MPD1/p6Qh7OklW0vWwAodHvcpnA4l/C397r/6RRf1FsPka9VeF1V8oqU6sWPMoM4g==",
+  "success": true,
+  "projectFilePath": "D:\\Repositories\\ChatRoom\\Backend\\ChatRoom.Backend\\Service\\Service.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Administrator\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\6.0.0\\microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.extensions.options\\6.0.0\\microsoft.extensions.options.6.0.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\microsoft.extensions.primitives\\6.0.0\\microsoft.extensions.primitives.6.0.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

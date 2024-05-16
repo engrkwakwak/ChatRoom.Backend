@@ -1,0 +1,11 @@
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\bin\Debug\net8.0\Contracts.deps.json
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\bin\Debug\net8.0\Contracts.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\bin\Debug\net8.0\Contracts.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.GeneratedMSBuildEditorConfig.editorconfig
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.AssemblyInfoInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.AssemblyInfo.cs
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.csproj.CoreCompileInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\refint\Contracts.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\Contracts.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\Contracts\obj\Debug\net8.0\ref\Contracts.dll

@@ -1,0 +1,17 @@
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\ChatRoom.Backend.Presentation.deps.json
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\ChatRoom.Backend.Presentation.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\ChatRoom.Backend.Presentation.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\Service.Contracts.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\Shared.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\Service.Contracts.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\bin\Debug\net8.0\Shared.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.csproj.AssemblyReference.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.GeneratedMSBuildEditorConfig.editorconfig
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.AssemblyInfoInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.AssemblyInfo.cs
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.csproj.CoreCompileInputs.cache
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.0739BEA1.Up2Date
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\refint\ChatRoom.Backend.Presentation.dll
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ChatRoom.Backend.Presentation.pdb
+D:\Repositories\ChatRoom\Backend\ChatRoom.Backend\ChatRoom.Backend.Presentation\obj\Debug\net8.0\ref\ChatRoom.Backend.Presentation.dll
