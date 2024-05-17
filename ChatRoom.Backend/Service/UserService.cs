@@ -20,5 +20,17 @@ namespace Service {
                 return false;
             }
         }
+
+        public async Task<bool> HasDuplicateUsername(string username)
+        {
+            if (await _repository.User.HasDuplicateUsername(username) > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

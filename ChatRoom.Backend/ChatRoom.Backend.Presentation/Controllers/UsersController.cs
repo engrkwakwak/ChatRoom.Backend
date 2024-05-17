@@ -12,5 +12,11 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         {
             return Ok(await _service.UserService.HasDuplicateEmail(email));
         }
+
+        [HttpGet("has-duplicate-username")]
+        public async Task<IActionResult> HasDuplicateUsername(string username)
+        {
+            return Ok(await _service.UserService.HasDuplicateUsername(username));
+        }
     }
 }
