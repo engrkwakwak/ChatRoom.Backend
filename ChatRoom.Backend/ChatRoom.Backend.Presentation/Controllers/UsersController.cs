@@ -6,5 +6,6 @@ namespace ChatRoom.Backend.Presentation.Controllers {
     [ApiController]
     public class UsersController(IServiceManager service) : ControllerBase {
         private readonly IServiceManager _service = service;
+
     }
 }
