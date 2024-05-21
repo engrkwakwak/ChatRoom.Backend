@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.DataTransferObjects {
-    public record UserDto {
+namespace Shared.DataTransferObjects.User
+{
+    public record UserDto
+    {
         public int UserId { get; init; }
 
         // other properties...
