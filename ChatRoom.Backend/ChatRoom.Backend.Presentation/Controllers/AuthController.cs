@@ -1,42 +1,40 @@
-﻿
-using Entities.Models;
+﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
-using Shared.DataTransferObjects.Users;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace ChatRoom.Backend.Presentation.Controllers
-{
+namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController(IServiceManager service) : ControllerBase
-    {
+    public class AuthController(IServiceManager service) : ControllerBase {
         private readonly IServiceManager _service = service;
 
+        [HttpPost("signin")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Authenticate([FromBody] SignInDto user) {
+            if (!await _service.AuthService.ValidateUser(user))
+                return Unauthorized();
+
+            return Ok(new {
+                Token = _service.AuthService.CreateToken()
+            });
+        }
+
         [HttpPost("signup")]
-        public async Task<IActionResult> SignUp([FromBody] SignUpDto signUpData )
-        {
+        public async Task<IActionResult> SignUp([FromBody] SignUpDto signUpData) {
             // check email has no duplicate
-            if (await _service.UserService.HasDuplicateEmail(signUpData.Email))
-            {
+            if (await _service.UserService.HasDuplicateEmail(signUpData.Email)) {
                 throw new ValidationException($"The email {signUpData.Email} is already in used by another user.");
             }
 
             // check if username has no duplicate
-            if (await _service.UserService.HasDuplicateUsername(signUpData.Username))
-            {
+            if (await _service.UserService.HasDuplicateUsername(signUpData.Username)) {
                 throw new ValidationException($"The username {signUpData.Username} is already in used by another user.");
             }
 
             // check if password and password confirmation matches
-            if(signUpData.Password != signUpData.PasswordConfirmation) 
-            {
+            if (signUpData.Password != signUpData.PasswordConfirmation) {
                 throw new ValidationException($"The Password and Password Confirmation didnt match.");
             }
 

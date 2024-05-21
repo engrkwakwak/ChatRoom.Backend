@@ -1,10 +1,13 @@
 ﻿using Contracts;
 using LoggerService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using Repository;
 using Service;
 using Service.Contracts;
 using System.Data;
+using System.Text;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
@@ -27,5 +30,27 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureDapperConnection(this IServiceCollection services, IConfiguration configuration) =>
             services.AddScoped<IDbConnection>(sp => new SqlConnection(configuration.GetConnectionString("SqlConnection")));
+
+        public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration) {
+            var jwtSetting = configuration.GetSection("JwtSettings");
+            string secretKey = jwtSetting["secretKey"] ?? string.Empty;
+
+            services.AddAuthentication(opt => {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(options => {
+                    options.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = jwtSetting["validIssuer"],
+                        ValidAudience = jwtSetting["validAudience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                    };
+                });
+        }
     }
 }
