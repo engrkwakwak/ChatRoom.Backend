@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Entities.ConfigurationModels;
 using LoggerService;
 using Microsoft.Data.SqlClient;
 using Repository;
@@ -27,5 +28,11 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureDapperConnection(this IServiceCollection services, IConfiguration configuration) =>
             services.AddScoped<IDbConnection>(sp => new SqlConnection(configuration.GetConnectionString("SqlConnection")));
+
+        public static void ConfigureSMTPServer(this IServiceCollection services, IConfiguration configuration)
+        {
+            var emailConfig = configuration.GetSection("SMTPConfiguration").Get<EmailConfiguration>();
+            services.AddSingleton(emailConfig!);
+        }
     }
 }

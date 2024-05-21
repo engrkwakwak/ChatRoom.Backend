@@ -47,5 +47,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
             return Ok(createdUser);
         }
+
     }
 }
