@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
-using System.Threading.Tasks;
+using Shared.DataTransferObjects.Users;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/auth")]
@@ -22,6 +23,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         }
 
         [HttpPost("signup")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> SignUp([FromBody] SignUpDto signUpData) {
             // check email has no duplicate
             if (await _service.UserService.HasDuplicateEmail(signUpData.Email)) {

@@ -4,8 +4,7 @@ using Entities.Models;
 using System.Data;
 
 namespace Repository {
-    public class UserRepository(IDbConnection connection) : IUserRepository
-    {
+    public class UserRepository(IDbConnection connection) : IUserRepository {
         private readonly IDbConnection _connection = connection;
 
         public async Task<User?> GetUserByUsernameAsync(string username) {
@@ -20,24 +19,19 @@ namespace Repository {
             parameters.Add("email", email);
 
             User? user = await _connection.QuerySingleOrDefaultAsync<User>("spGetUserByEmail", parameters, commandType: CommandType.StoredProcedure);
-            return user;    
+            return user;
         }
 
-        public async Task<int> HasDuplicateEmail(string email)
-        {
+        public async Task<int> HasDuplicateEmail(string email) {
             return await _connection.ExecuteScalarAsync<int>("spHasDuplicateEmail", new { Email = email }, commandType: CommandType.StoredProcedure);
-
         }
 
-        public async Task<int> HasDuplicateUsername(string username)
-        {
+        public async Task<int> HasDuplicateUsername(string username) {
             return await _connection.ExecuteScalarAsync<int>("spHasDuplicateUsername", new { Username = username }, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<User> InsertUser(User user)
-        {
-            return await _connection.QueryFirstAsync<User>("spInsertUser", new
-            {
+        public async Task<User> InsertUser(User user) {
+            return await _connection.QueryFirstAsync<User>("spInsertUser", new {
                 user.Username,
                 user.DisplayName,
                 user.Email,
