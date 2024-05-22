@@ -22,9 +22,8 @@ namespace Service {
             User? user = null;
             string username = userForAuth.Username ?? throw new UsernameNotFoundException(string.Empty);
             string password = userForAuth.Password ?? string.Empty;
-            if(IsEmail(username)) {
+            if(IsEmail(username))
                 user = await _repository.User.GetUserByEmailAsync(username);
-            }
             else
                 user = await _repository.User.GetUserByUsernameAsync(username);
 
@@ -43,16 +42,16 @@ namespace Service {
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
 
-        private bool CheckPassword(string inputtedPassword, string hashedPassword) => BCrypt.Net.BCrypt.Verify(inputtedPassword, hashedPassword);
+        private static bool CheckPassword(string inputtedPassword, string hashedPassword) => BCrypt.Net.BCrypt.Verify(inputtedPassword, hashedPassword);
 
-        private SigningCredentials GetSigningCredentials(IConfigurationSection jwtSetting) {
+        private static SigningCredentials GetSigningCredentials(IConfigurationSection jwtSetting) {
             byte[] key = Encoding.UTF8.GetBytes(jwtSetting["secretKey"] ?? "");
             var secret = new SymmetricSecurityKey(key);
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
 
-        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims, IConfigurationSection jwtSetting) {
+        private static JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims, IConfigurationSection jwtSetting) {
             var tokenOptions = new JwtSecurityToken(
                 issuer: jwtSetting["validIssuer"],
                 audience: jwtSetting["validAudience"],
@@ -63,7 +62,7 @@ namespace Service {
             return tokenOptions;
         }
 
-        private bool IsEmail(string input) {
+        private static bool IsEmail(string input) {
             string emailPattern = @"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$";
             Regex regex = new(emailPattern);
             return regex.IsMatch(input);
