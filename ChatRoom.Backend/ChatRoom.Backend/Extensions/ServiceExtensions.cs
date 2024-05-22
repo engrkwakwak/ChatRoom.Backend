@@ -1,11 +1,13 @@
 ﻿using Contracts;
 using Entities.ConfigurationModels;
 using LoggerService;
+using MailKit.Net.Smtp;
 using Microsoft.Data.SqlClient;
 using Repository;
 using Service;
 using Service.Contracts;
 using System.Data;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
@@ -29,10 +31,12 @@ namespace ChatRoom.Backend.Extensions {
         public static void ConfigureDapperConnection(this IServiceCollection services, IConfiguration configuration) =>
             services.AddScoped<IDbConnection>(sp => new SqlConnection(configuration.GetConnectionString("SqlConnection")));
 
-        public static void ConfigureSMTPServer(this IServiceCollection services, IConfiguration configuration)
+        public static void ConfigureSmtpCredentials(this IServiceCollection services, IConfiguration configuration)
         {
-            var emailConfig = configuration.GetSection("SMTPConfiguration").Get<EmailConfiguration>();
-            services.AddSingleton(emailConfig!);
+            var config = configuration
+            .GetSection("SMTPConfiguration")
+            .Get<EmailConfiguration>();
+            services.AddSingleton(config!);
         }
     }
 }

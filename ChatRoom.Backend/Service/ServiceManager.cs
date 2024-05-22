@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.ConfigurationModels;
+using FluentEmail.Core;
 using Service.Contracts;
 
 namespace Service {

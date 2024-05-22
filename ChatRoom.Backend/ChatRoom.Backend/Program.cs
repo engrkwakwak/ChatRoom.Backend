@@ -2,6 +2,7 @@ using ChatRoom.Backend.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
+using Service.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureDapperConnection(builder.Configuration);
-builder.Services.ConfigureSMTPServer(builder.Configuration);
+builder.Services.ConfigureSmtpCredentials(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddControllers()

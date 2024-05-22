@@ -8,10 +8,10 @@ namespace Entities.ConfigurationModels
 {
     public class EmailConfiguration
     {
-        public string From { get; set; }
-        public string Server { get; set; }
-        public int Port { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string From { get; set; }  = String.Empty;
+        public string Server { get; set; } = String.Empty;
+        public int Port { get; set; } = 0;
+        public string Username { get; set; } = String.Empty;
+        public string Password { get; set; } = String.Empty;
     }
 }

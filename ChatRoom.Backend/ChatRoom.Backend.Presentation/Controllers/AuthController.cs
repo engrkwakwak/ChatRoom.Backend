@@ -1,8 +1,10 @@
 ﻿
 using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
+using Razor.Templating.Core;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
+using Shared.DataTransferObjects.Email;
 using Shared.DataTransferObjects.Users;
 using System;
 using System.Collections.Generic;
@@ -43,10 +45,21 @@ namespace ChatRoom.Backend.Presentation.Controllers
             // store user
             UserDto createdUser = await _service.UserService.InsertUser(signUpData);
 
-            // send email later
+            // send email 
+            EmailDto email = new EmailDto
+            {
+                Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/EmailVerification.cshtml", createdUser),
+                To = createdUser.Email,
+                Subject = "Complete Your Registration with Chatroom",
+                User = createdUser
+            };
+
+            if (!await _service.EmailService.SendEmail(email))
+            {
+                return BadRequest("Something went wrong while sending the email.");
+            };
 
             return Ok(createdUser);
         }
-
     }
 }

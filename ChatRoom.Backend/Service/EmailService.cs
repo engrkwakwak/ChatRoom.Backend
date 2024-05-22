@@ -2,12 +2,10 @@
 using Contracts;
 using Entities.ConfigurationModels;
 using Service.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+using MailKit.Net.Smtp;
+using Shared.DataTransferObjects.Email;
+using MimeKit.Text;
+using MimeKit;
 
 namespace Service
 {
@@ -17,10 +15,34 @@ namespace Service
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly EmailConfiguration _emailConfig = emailConfig;
+        private readonly SmtpClient smtp = new SmtpClient();
 
-        public bool SendEmailVerification()
+        public async Task<bool> SendEmail(EmailDto request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var email = new MimeMessage();
+                email.From.Add(MailboxAddress.Parse(_emailConfig.From));
+                email.To.Add(MailboxAddress.Parse(request.To));
+                email.Subject = request.Subject;
+                email.Body = new TextPart(TextFormat.Html) { Text = request.Body };
+
+
+                using var smtp = new SmtpClient();
+                await smtp.ConnectAsync(_emailConfig.Server, _emailConfig.Port, true);
+                await smtp.AuthenticateAsync(_emailConfig.Username, _emailConfig.Password);
+                await smtp.SendAsync(email);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                smtp.Disconnect(true);
+            }
         }
+
     }
 }
