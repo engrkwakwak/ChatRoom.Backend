@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared.DataTransferObjects;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -15,6 +14,4 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             return Ok("User is here.");
         }
     }
-
-
 }

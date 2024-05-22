@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Shared.CustomValidations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DataTransferObjects.Auth {
     public record SignInDto {
         [Required(ErrorMessage = "Username is required.")]
-        [MaxLength(20, ErrorMessage = "Maximum length for the Username is 20 characters.")]
+        [UsernameOrEmail]
         public string? Username { get; init; }
 
         [Required(ErrorMessage = "Password is required")]
