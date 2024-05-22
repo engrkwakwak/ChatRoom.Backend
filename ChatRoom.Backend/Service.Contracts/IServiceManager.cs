@@ -5,5 +5,6 @@
         IContactService ContactService { get; }
         IMessageService MessageService { get; }
         IUserService UserService { get; }
+        IAuthService AuthService { get; }
     }
 }
