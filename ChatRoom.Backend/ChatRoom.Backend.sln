@@ -13,13 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entities", "Entities\Entiti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{CAD91550-D8B3-4B8A-9E4D-5C0320673157}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Contracts", "Service.Contracts\Service.Contracts.csproj", "{94D7BECC-AD26-4742-BDD8-3D0998D643A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service.Contracts", "Service.Contracts\Service.Contracts.csproj", "{94D7BECC-AD26-4742-BDD8-3D0998D643A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{9706751C-0682-42C2-A7BA-867C2450EECB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{9706751C-0682-42C2-A7BA-867C2450EECB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatRoom.Backend.Presentation", "ChatRoom.Backend.Presentation\ChatRoom.Backend.Presentation.csproj", "{D95B8C56-0C9C-4F55-BA49-CB000EDF17BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatRoom.Backend.Presentation", "ChatRoom.Backend.Presentation\ChatRoom.Backend.Presentation.csproj", "{D95B8C56-0C9C-4F55-BA49-CB000EDF17BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{8BFD4042-F5E9-4D47-86B5-5114CD997049}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{8BFD4042-F5E9-4D47-86B5-5114CD997049}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
