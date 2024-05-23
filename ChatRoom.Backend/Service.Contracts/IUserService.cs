@@ -9,5 +9,7 @@ namespace Service.Contracts {
         public Task<bool> HasDuplicateUsername(string username);
 
         public Task<UserDto> InsertUser(SignUpDto signUp);
+
+        public Task<UserDto> GetUserById(int id);
     }
 }

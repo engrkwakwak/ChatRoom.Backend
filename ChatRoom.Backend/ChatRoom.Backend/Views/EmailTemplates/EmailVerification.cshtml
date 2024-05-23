@@ -1,17 +1,29 @@
-﻿@using Shared.DataTransferObjects.Users
+﻿@using Shared.DataTransferObjects.Email;
+@using Microsoft.AspNetCore.Http;
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    string ok = "Im fine kenchana";
 }
-@model UserDto
+@model EmailVerificationViewModel
 
 <div>
-    <h3>Hello @Model.DisplayName,</h3>
+    <h3>Hello @Model.User.DisplayName,</h3>
     <p>Welcome to Chatroom! We're excited to have you join our community of vibrant and engaging conversations.</p>
     <p>Thank you for registering with us. You're just one click away from activating your account and diving into the discussions.</p>
     <p>Please verify your account by clicking on the button below:</p>
-    <button style="color: white; background: black; padding-box: .5rem;">Verify My Account</button>
+    <a href="@Model.VerificationLink"
+        style="
+            color: white; 
+            background: black; 
+            padding: .7rem;
+            border-radius: 0.3rem;
+            font-style: normal;
+            outline: none;">
+        Verify My Account 
+        
+    </a>
     <p>Once verified, you'll be able to access all the features, connect with like-minded individuals, and participate in our forums.</p>
     <p>
         Welcome aboard,<br />

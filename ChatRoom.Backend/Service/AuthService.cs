@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
+using Shared.DataTransferObjects.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,29 +18,61 @@ namespace Service {
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly IConfiguration _configuration = configuration;
+        private User? User { get; set; }
 
         public async Task<bool> ValidateUser(SignInDto userForAuth) {
-            User? user = null;
-            string username = userForAuth.Username ?? throw new UsernameNotFoundException(string.Empty);
-            string password = userForAuth.Password ?? string.Empty;
-            if(IsEmail(username))
-                user = await _repository.User.GetUserByEmailAsync(username);
+            if (IsEmail(userForAuth.Username!))
+                User = await _repository.User.GetUserByEmailAsync(userForAuth.Username!);
             else
-                user = await _repository.User.GetUserByUsernameAsync(username);
+                User = await _repository.User.GetUserByUsernameAsync(userForAuth.Username!);
 
-            bool result = user != null && CheckPassword(password, user.PasswordHash);
-            if(!result) {
+            bool result = User != null && CheckPassword(userForAuth.Password!, User.PasswordHash);
+            if (!result)
+            {
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
             }
-            return result;
+
+            return (result);
         }
-        public string CreateToken() {
+        public string CreateToken()
+        {
             IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
             SigningCredentials signingCredentials = GetSigningCredentials(jwtSetting);
-            var claims = new List<Claim>();
+            var claims = GetClaims();
             JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
+
+        public string CreateEmailVerificationToken(UserDto user)
+        {
+            IConfigurationSection? jwtSetting = _configuration.GetSection("EmailJwtSettings");
+            SigningCredentials signingCredentials = GetSigningCredentials(jwtSetting);
+            User = _mapper.Map<User>(user);
+            var claims = GetClaims();
+            JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
+
+            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
+
+        public JwtPayload VerifyJwtToken(string token)
+        {
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
+            
+            if(IsSecurityTokenExpired(securityToken))
+            {
+                _logger.LogError($"{nameof(VerifyJwtToken)}: Verification Failed. The token has expired.");
+                throw new Exception("Verification Failed. The token has expired.");
+            }
+
+            return securityToken.Payload;
+        }
+
+        private static bool IsSecurityTokenExpired(JwtSecurityToken token)
+        {
+            return (DateTime.Compare(DateTime.UtcNow, token.Payload.ValidTo.ToUniversalTime()) > 0);
         }
 
         private static bool CheckPassword(string inputtedPassword, string hashedPassword) => BCrypt.Net.BCrypt.Verify(inputtedPassword, hashedPassword);
@@ -62,10 +95,20 @@ namespace Service {
             return tokenOptions;
         }
 
+        private  List<Claim> GetClaims()
+        {
+            return [
+                new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
+                new("display-name", User.DisplayName),
+                new("display-picture", User.DisplayPictureUrl ?? "")
+            ];
+        }
+
         private static bool IsEmail(string input) {
             string emailPattern = @"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$";
             Regex regex = new(emailPattern);
             return regex.IsMatch(input);
         }
+
     }
 }
