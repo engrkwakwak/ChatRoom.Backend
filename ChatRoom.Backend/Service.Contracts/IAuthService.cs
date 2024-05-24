@@ -8,6 +8,7 @@ namespace Service.Contracts {
         string CreateToken();
         string CreateEmailVerificationToken(UserDto user);
         public JwtPayload VerifyJwtToken(string token);
+        public Task<bool> VerifyEmail(int userId);
 
     }
 }

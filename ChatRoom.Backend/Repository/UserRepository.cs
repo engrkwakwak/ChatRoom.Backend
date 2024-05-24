@@ -48,5 +48,12 @@ namespace Repository {
             },
             commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<int> VerifyEmailAsync(int id)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("userid", id);
+            return await _connection.ExecuteAsync("spVerifyEmail", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

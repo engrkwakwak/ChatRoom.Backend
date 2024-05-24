@@ -29,9 +29,9 @@ namespace Service {
             bool result = User != null && CheckPassword(userForAuth.Password!, User.PasswordHash);
             if (!result)
             {
-                _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
+                _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password."); 
             }
-
+            
             return (result);
         }
         public string CreateToken()
@@ -70,6 +70,15 @@ namespace Service {
             return securityToken.Payload;
         }
 
+        public async Task<bool> VerifyEmail(int userId)
+        {
+            int affectedRows = await _repository.User.VerifyEmailAsync(userId);
+            return affectedRows > 0;
+        }
+
+        /*
+            Private Methods 
+        */
         private static bool IsSecurityTokenExpired(JwtSecurityToken token)
         {
             return (DateTime.Compare(DateTime.UtcNow, token.Payload.ValidTo.ToUniversalTime()) > 0);
