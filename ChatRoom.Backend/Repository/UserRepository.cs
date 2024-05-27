@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Dapper;
 using Entities.Models;
+using Shared.RequestFeatures;
 using System.Data;
 
 namespace Repository {
@@ -22,11 +23,11 @@ namespace Repository {
             return user;
         }
 
-        public async Task<int> HasDuplicateEmail(string email) {
+        public async Task<int> HasDuplicateEmailAsync(string email) {
             return await _connection.ExecuteScalarAsync<int>("spHasDuplicateEmail", new { Email = email }, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<int> HasDuplicateUsername(string username) {
+        public async Task<int> HasDuplicateUsernameAsync(string username) {
             return await _connection.ExecuteScalarAsync<int>("spHasDuplicateUsername", new { Username = username }, commandType: CommandType.StoredProcedure);
         }
 
@@ -38,6 +39,16 @@ namespace Repository {
                 user.PasswordHash
             },
             commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<IEnumerable<User>> SearchUsersByNameAsync(UserParameters userParameters)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("PageSize", userParameters.PageSize);
+            parameters.Add("PageNumber", userParameters.PageNumber);
+            parameters.Add("Name", userParameters.Name);
+
+            return _connection.QueryAsync<User>("spSearchUsersByName", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

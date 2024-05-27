@@ -12,11 +12,11 @@ namespace Service {
         private readonly IMapper _mapper = mapper;
 
         public async Task<bool> HasDuplicateEmail(string email) {
-            return await _repository.User.HasDuplicateEmail(email) > 0;
+            return await _repository.User.HasDuplicateEmailAsync(email) > 0;
         }
 
         public async Task<bool> HasDuplicateUsername(string username) {
-            return await _repository.User.HasDuplicateUsername(username) > 0;
+            return await _repository.User.HasDuplicateUsernameAsync(username) > 0;
         }
 
         public async Task<UserDto> InsertUser(SignUpDto userSignUpData) {

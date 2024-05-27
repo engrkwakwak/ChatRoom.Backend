@@ -8,6 +8,7 @@ namespace Repository {
         private readonly Lazy<IContactRepository> _contactRepo = new(() => new ContactRepository(connection));
         private readonly Lazy<IMessageRepository> _messageRepo = new(() => new MessageRepository(connection));
         private readonly Lazy<IUserRepository> _userRepo = new(() => new UserRepository(connection));        
+        private readonly Lazy<IStatusRepository> _statusRepo = new(() => new StatusRepository(connection));        
 
         public IChatMemberRepository ChatMember => _chatMemberRepo.Value;
 
@@ -18,5 +19,7 @@ namespace Repository {
         public IMessageRepository Message => _messageRepo.Value;
 
         public IUserRepository User => _userRepo.Value;
+
+        public IStatusRepository Status => _statusRepo.Value;
     }
 }
