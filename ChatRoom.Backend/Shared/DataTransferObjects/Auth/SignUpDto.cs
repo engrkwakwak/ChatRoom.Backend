@@ -6,23 +6,23 @@ namespace Shared.DataTransferObjects.Auth
     {
         [Required]
         [StringLength(50)]
-        public required string DisplayName { get; set; }
+        public  string? DisplayName { get; set; }
 
         [Required]
         [StringLength(20)]
-        public required string Username { get; set; }
+        public  string? Username { get; set; }
 
         [Required]
         [StringLength(100)]
-        public required string Email { get; set; }
+        public  string? Email { get; set; }
 
         [Required]
         [MinLength(8)]
-        public required string Password { get; set; }
+        public  string? Password { get; set; }
 
         [Required]
         [MinLength(8)]
-        public required string PasswordConfirmation { get; set; }
+        public  string? PasswordConfirmation { get; set; }
 
     }
 }

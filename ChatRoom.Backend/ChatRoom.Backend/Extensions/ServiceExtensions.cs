@@ -1,6 +1,8 @@
 ﻿using Contracts;
+using Entities.ConfigurationModels;
 using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using MailKit.Net.Smtp;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -8,6 +10,7 @@ using Service;
 using Service.Contracts;
 using System.Data;
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
@@ -51,6 +54,14 @@ namespace ChatRoom.Backend.Extensions {
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
                     };
                 });
+        }
+        
+        public static void ConfigureSmtpCredentials(this IServiceCollection services, IConfiguration configuration)
+        {
+            var config = configuration
+            .GetSection("SMTPConfiguration")
+            .Get<EmailConfiguration>();
+            services.AddSingleton(config!);
         }
     }
 }
