@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entities.Models;
 using Shared.DataTransferObjects.Auth;
+using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Users;
 
 namespace ChatRoom.Backend {
@@ -9,6 +10,7 @@ namespace ChatRoom.Backend {
         {
             CreateMap<SignUpDto, User>();
             CreateMap<User, UserDto>();
+            CreateMap<Contact, ContactDto>();
         }
     }
 }

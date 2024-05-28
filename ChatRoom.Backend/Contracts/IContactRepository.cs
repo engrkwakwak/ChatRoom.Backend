@@ -6,5 +6,6 @@ namespace Contracts {
         public Task<Contact> InsertContactAsync(Contact contact);
         public Task<IEnumerable<Contact>> GetContactsByUserIdAsync(ContactParameters contactParameter);
         public Task<int> DeleteContactByUserIdContactIdAsync(int id);
+        public Task<Contact> GetContactByUserIdContactIdAsync(int userId, int contactId);
     }
 }
