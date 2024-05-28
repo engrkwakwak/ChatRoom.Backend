@@ -19,12 +19,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpGet("has-duplicate-email/{email}")]
         public async Task<IActionResult> HasDuplicateEmail(string email) {
-            return Ok(await _service.UserService.HasDuplicateEmail(email));
+            return Ok(await _service.UserService.HasDuplicateEmailAsync(email));
         }
 
         [HttpGet("has-duplicate-username/{username}")]
         public async Task<IActionResult> HasDuplicateUsername(string username) {
-            return Ok(await _service.UserService.HasDuplicateUsername(username));
+            return Ok(await _service.UserService.HasDuplicateUsernameAsync(username));
         }
 
         [HttpPut("{userId}")]

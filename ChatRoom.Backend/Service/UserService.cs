@@ -19,14 +19,14 @@ namespace Service {
             return userDto;
         }
 
-        public async Task<bool> HasDuplicateEmail(string email) {
+        public async Task<bool> HasDuplicateEmailAsync(string email) {
             return await _repository.User.HasDuplicateEmailAsync(email) > 0;
         }
-        public async Task<bool> HasDuplicateUsername(string username) {
+        public async Task<bool> HasDuplicateUsernameAsync(string username) {
             return await _repository.User.HasDuplicateUsernameAsync(username) > 0;
         }
 
-        public async Task<UserDto> InsertUser(SignUpDto userSignUpData) {
+        public async Task<UserDto> InsertUserAsync(SignUpDto userSignUpData) {
             User userEntity = _mapper.Map<User>(userSignUpData);
             userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userSignUpData.Password);
 
@@ -51,7 +51,6 @@ namespace Service {
                 throw new UserUpdateFailedException(user.UserId);
             }
         }
-
 
         private async Task<User> GetUserAndCheckIfItExists(int userId) {
             User? user = await _repository.User.GetUserByIdAsync(userId);
