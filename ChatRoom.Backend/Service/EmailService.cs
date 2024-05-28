@@ -9,7 +9,6 @@ using MimeKit;
 using Microsoft.Extensions.Configuration;
 using Shared.DataTransferObjects.Users;
 using Razor.Templating.Core;
-using Microsoft.AspNetCore.Http;
 
 namespace Service
 {

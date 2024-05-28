@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ChatRoom.Backend.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects.Users;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -8,16 +10,30 @@ namespace ChatRoom.Backend.Presentation.Controllers {
     public class UsersController(IServiceManager service) : ControllerBase {
         private readonly IServiceManager _service = service;
 
-        [HttpGet("has-duplicate-email")]
-        public async Task<IActionResult> HasDuplicateEmail(string email)
-        {
-            return Ok(await _service.UserService.HasDuplicateEmail(email));
+        [HttpGet("{userId}")]
+        [Authorize]
+        public async Task<IActionResult> GetUserById(int userId) {
+            UserDto user = await _service.UserService.GetUserByIdAsync(userId);
+            return Ok(user);
         }
 
-        [HttpGet("has-duplicate-username")]
-        public async Task<IActionResult> HasDuplicateUsername(string username)
-        {
-            return Ok(await _service.UserService.HasDuplicateUsername(username));
+        [HttpGet("has-duplicate-email/{email}")]
+        public async Task<IActionResult> HasDuplicateEmail(string email) {
+            return Ok(await _service.UserService.HasDuplicateEmailAsync(email));
+        }
+
+        [HttpGet("has-duplicate-username/{username}")]
+        public async Task<IActionResult> HasDuplicateUsername(string username) {
+            return Ok(await _service.UserService.HasDuplicateUsernameAsync(username));
+        }
+
+        [HttpPut("{userId}")]
+        [Authorize]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserForUpdateDto userForUpdate) {
+            await _service.UserService.UpdateUserAsync(userId, userForUpdate);
+
+            return NoContent();
         }
     }
 }

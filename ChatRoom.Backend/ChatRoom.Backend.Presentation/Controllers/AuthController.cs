@@ -1,15 +1,10 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
-using Entities.ErrorModel;
 using Entities.Exceptions;
-using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
-using Razor.Templating.Core;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
-using Shared.DataTransferObjects.Email;
 using Shared.DataTransferObjects.Users;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
@@ -37,11 +32,11 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [HttpPost("signup")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> SignUp([FromBody] SignUpDto signUpData) {
-            if (await _service.UserService.HasDuplicateEmail(signUpData.Email!)) {
+            if (await _service.UserService.HasDuplicateEmailAsync(signUpData.Email!)) {
                 throw new ValidationException($"The email {signUpData.Email} is already in used by another user.");
             }
 
-            if (await _service.UserService.HasDuplicateUsername(signUpData.Username!)) {
+            if (await _service.UserService.HasDuplicateUsernameAsync(signUpData.Username!)) {
                 throw new ValidationException($"The username {signUpData.Username} is already in used by another user.");
             }
             
@@ -49,7 +44,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new ValidationException($"The Password and Password Confirmation didnt match.");
             }
 
-            UserDto createdUser = await _service.UserService.InsertUser(signUpData);
+            UserDto createdUser = await _service.UserService.InsertUserAsync(signUpData);
 
             string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={_service.AuthService.CreateEmailVerificationToken(createdUser)}";
             if (!await _service.EmailService.SendVerificationEmail(createdUser,  verificationLink)) {
@@ -84,7 +79,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
 
-            UserDto user =  await _service.UserService.GetUserById(id);
+            UserDto user =  await _service.UserService.GetUserByIdAsync(id);
             return Ok(user.IsEmailVerified);
         }
 
@@ -97,7 +92,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
 
-            UserDto user = await _service.UserService.GetUserById(id);
+            UserDto user = await _service.UserService.GetUserByIdAsync(id);
 
             if (user.IsEmailVerified)
             {

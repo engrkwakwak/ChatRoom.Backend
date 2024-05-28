@@ -9,6 +9,7 @@ namespace ChatRoom.Backend {
         {
             CreateMap<SignUpDto, User>();
             CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<UserForUpdateDto, User>();
         }
     }
 }
