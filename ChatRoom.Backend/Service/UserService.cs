@@ -23,12 +23,20 @@ namespace Service {
             User userEntity = _mapper.Map<User>(userSignUpData);
             userEntity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userSignUpData.Password);
 
-            userEntity = await _repository.User.InsertUser(userEntity);
+            userEntity = await _repository.User.InsertUserAsync(userEntity);
 
             UserDto userToReturn = _mapper.Map<UserDto>(userEntity);
 
             return userToReturn;
         }
+
+        public async Task<UserDto> GetUserById(int id)
+        {
+            User user = await _repository.User.GetUserByIdAsync(id);
+            return _mapper.Map<UserDto>(user);
+        }
+
+
 
     }
 }

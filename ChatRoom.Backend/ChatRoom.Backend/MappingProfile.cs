@@ -9,7 +9,7 @@ namespace ChatRoom.Backend {
         public MappingProfile() 
         {
             CreateMap<SignUpDto, User>();
-            CreateMap<User, UserDto>();
+            CreateMap<User, UserDto>().ReverseMap();
             CreateMap<Contact, ContactDto>();
         }
     }
