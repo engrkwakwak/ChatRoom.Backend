@@ -48,7 +48,7 @@ namespace Service {
 
             if (rowsAffected <= 0) {
                 _logger.LogWarn($"Failed to update the user with id {user.UserId}. Total rows affected: {rowsAffected}. At {nameof(UserService)} - {nameof(UpdateUserAsync)}.");
-                throw new Exception("The server failed to update the user.");
+                throw new UserUpdateFailedException(user.UserId);
             }
         }
 
