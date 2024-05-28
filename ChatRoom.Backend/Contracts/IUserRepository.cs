@@ -1,13 +1,19 @@
 ﻿using Entities.Models;
+using System.Threading.Tasks;
 
 namespace Contracts {
     public interface IUserRepository {
         Task<User?> GetUserByUsernameAsync(string username);
         Task<User?> GetUserByEmailAsync(string email);
-        public Task<int> HasDuplicateEmailAsync(string email);
-        public Task<int> HasDuplicateUsernameAsync(string username);
-        public Task<User> InsertUserAsync(User user);
-        public Task<User> GetUserByIdAsync(int id);
-        public Task<int> VerifyEmailAsync(int id); 
+        Task<User?> GetUserByIdAsync(int userId);
+
+        Task<int> HasDuplicateEmail(string email);
+        Task<int> HasDuplicateUsername(string username);
+
+        Task<User> InsertUserAsync(User user);
+
+        Task<int> UpdateUserAsync(User user);
+
+        Task<int> VerifyEmailAsync(int id);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Contracts;
-using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -27,12 +26,10 @@ namespace Service {
                 User = await _repository.User.GetUserByUsernameAsync(userForAuth.Username!);
 
             bool result = User != null && CheckPassword(userForAuth.Password!, User.PasswordHash);
-            if (!result)
-            {
-                _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password."); 
+            if(!result) {
+                _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
             }
-            
-            return (result);
+            return result;
         }
         public string CreateToken()
         {
@@ -104,8 +101,7 @@ namespace Service {
             return tokenOptions;
         }
 
-        private  List<Claim> GetClaims()
-        {
+        private List<Claim> GetClaims() {
             return [
                 new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
                 new("display-name", User.DisplayName),
