@@ -9,12 +9,13 @@ namespace Repository
     {
         private readonly IDbConnection _connection = connection;
 
-        public Task<Status> GetStatusByIdAsync(int id)
+        public async Task<Status?> GetStatusByIdAsync(int id)
         {
             DynamicParameters parameters = new();
             parameters.Add("StatusId", id);
 
-            return _connection.QueryFirstAsync<Status>("spGetStatusById", parameters, commandType: CommandType.StoredProcedure);
+            Status? status = await  _connection.QuerySingleOrDefaultAsync<Status>("spGetStatusById", parameters, commandType: CommandType.StoredProcedure);
+            return status;
         }
     }
 }

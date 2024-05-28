@@ -8,21 +8,23 @@ namespace Repository {
     public class ContactRepository(IDbConnection connection) : IContactRepository {
         private readonly IDbConnection _connection = connection;
 
-        public async Task<int> DeleteContactByUserIdContactIdAsync(int id)
+        public async Task<int> DeleteContactByUserIdContactIdAsync(int userId, int contactId)
         {
             DynamicParameters parameters = new();
-            parameters.Add("UserId", id);
+            parameters.Add("UserId", userId);
+            parameters.Add("ContactId", contactId);
 
             return await _connection.ExecuteAsync("spDeleteContactByUserIdContactId", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Contact> GetContactByUserIdContactIdAsync(int userId, int contactId)
+        public async Task<Contact?> GetContactByUserIdContactIdAsync(int userId, int contactId)
         {
             DynamicParameters parameters = new();
             parameters.Add("user_id", userId);
             parameters.Add("contact_id", contactId);
 
-            return await _connection.QueryFirstAsync<Contact>("spGetContactByUserIdContactId", parameters, commandType: CommandType.StoredProcedure);
+            Contact? contact = await _connection.QuerySingleOrDefaultAsync<Contact>("spGetContactByUserIdContactId", parameters, commandType: CommandType.StoredProcedure);
+            return contact;
         }
 
         public async Task<IEnumerable<Contact>> GetContactsByUserIdAsync(ContactParameters contactParameter)
@@ -35,14 +37,26 @@ namespace Repository {
             return await _connection.QueryAsync<Contact>("spGetContactsByUserId", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Contact> InsertContactAsync(Contact contact)
+        public async Task<Contact?> InsertContactAsync(Contact contact)
         {
             DynamicParameters parameters = new();
             parameters.Add("UserId", contact.UserId);
             parameters.Add("ContactId", contact.ContactId);
             parameters.Add("StatusId", contact.StatusId);
 
-            return await _connection.QueryFirstAsync<Contact>("spInsertContact", parameters, commandType: CommandType.StoredProcedure);
+            Contact? _contact = await _connection.QuerySingleOrDefaultAsync<Contact>("spInsertContact", parameters, commandType: CommandType.StoredProcedure);
+            return _contact;
+        }
+
+        public async Task<int> UpdateContactStatusAsync(Contact contact)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("user_id", contact.UserId);
+            parameters.Add("contact_id", contact.ContactId);
+            parameters.Add("status_id", contact.StatusId);
+
+            int affectedRows = await _connection.ExecuteAsync("spUpdateContactStatus", parameters, commandType: CommandType.StoredProcedure);
+            return affectedRows;
         }
     }
 }

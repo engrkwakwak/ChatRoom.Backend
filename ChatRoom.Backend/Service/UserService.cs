@@ -32,7 +32,7 @@ namespace Service {
 
         public async Task<UserDto> GetUserById(int id)
         {
-            User user = await _repository.User.GetUserByIdAsync(id);
+            User? user = await _repository.User.GetUserByIdAsync(id);
             return _mapper.Map<UserDto>(user);
         }
 

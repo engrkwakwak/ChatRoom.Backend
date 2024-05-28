@@ -4,6 +4,6 @@ namespace Contracts
 {
     public interface IStatusRepository
     {
-        public Task<Status> GetStatusByIdAsync(int id);
+        public Task<Status?> GetStatusByIdAsync(int id);
     }
 }

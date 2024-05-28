@@ -1,4 +1,5 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
+using Entities.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Contacts;
@@ -11,42 +12,56 @@ namespace ChatRoom.Backend.Presentation.Controllers
     public class ContactsController(IServiceManager service) : ControllerBase
     {
         private IServiceManager _service = service;
-        // add contact
+
         [HttpPost("")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Create([FromBody] ContactForCreationDto contact)
         {
-            if (!ModelState.IsValid)
+            if (contact.UserId == contact.ContactId)
             {
-                // temp
-                return BadRequest("Error");
+                throw new InvalidParameterException("Something went wrong. The request parameters are invalid");
             }
 
-            if(contact.UserId == contact.ContactId)
+            if (await _service.UserService.GetUserById((int)contact.UserId!) == null 
+                || await _service.UserService.GetUserById((int)contact.ContactId!) == null
+                || await _service.StatusService.GetStatusById((int)contact.StatusId!) == null)
             {
-                return BadRequest("Invalid Request ");
+                throw new InvalidParameterException("Something went wrong. Record doesnt exist");
             }
 
-            // check if userid, contactid and status id exist in the database
-            // if exist update
-            // if not create
-            //if(_service.)
-            ContactDto contactDto = await _service.ContactService.GetContactByUserIdContactId((int)contact.UserId!, (int)contact.ContactId!);
-            return Ok(contactDto);
+            if (!await _service.ContactService.InsertOrUpdateContact(contact))
+            {
+                throw new Exception("Something went wrong while processing the request.");
+            }
+
+            return new CreatedResult();
         }
 
-        // delete contact
         [HttpDelete("{userId}/{contactId}")]
-        public IActionResult Delete(int userId, int contactId)
+        public async Task<IActionResult> Delete(int userId, int contactId)
         {
-            return Ok("Contacts Deleted");
+            if(userId < 1 || contactId < 1)
+            {
+                throw new InvalidParameterException("The request parameters are invalid");
+            }
+
+            if(!await _service.ContactService.DeleteContactByUserIdContactId(userId, contactId))
+            {
+                throw new Exception("Something went wrong while deleting the contact.");
+            }
+            return new OkResult();
         }
 
         // view contacts
         [HttpGet("")]
-        public IActionResult ViewContacts([FromRoute] ContactParameters contactParameters)
+        public async Task<IActionResult> ViewContacts([FromQuery] ContactParameters contactParameters)
         {
-            return Ok("Contacts Fetched");
+            if(contactParameters.UserId < 1)
+            {
+                throw new InvalidParameterException("The request parameters are invalid");
+            }
+            IEnumerable<ContactDto> contactDtos = await  _service.ContactService.GetContactsByUserId(contactParameters);
+            return Ok(contactDtos);
         }
 
     }

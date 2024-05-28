@@ -20,7 +20,7 @@ namespace Shared.RequestFeatures
             }
             set
             {
-                _pageSize = (value > maxPageSize) ? value : maxPageSize;
+                _pageSize = (value < maxPageSize) ? value : maxPageSize;
             }
         }
     }

@@ -7,5 +7,6 @@
         IUserService UserService { get; }
         IEmailService EmailService { get; }
         IAuthService AuthService { get; }
+        IStatusService StatusService { get; }
     }
 }

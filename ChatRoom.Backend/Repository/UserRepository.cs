@@ -8,11 +8,11 @@ namespace Repository {
     public class UserRepository(IDbConnection connection) : IUserRepository {
         private readonly IDbConnection _connection = connection;
 
-        public async Task<User> GetUserByIdAsync(int id) {
+        public async Task<User?> GetUserByIdAsync(int id) {
             DynamicParameters parameters = new();
             parameters.Add("userid", id);
 
-            User user = await _connection.QueryFirstAsync<User>("spGetUserById", parameters, commandType: CommandType.StoredProcedure);
+            User? user = await _connection.QuerySingleOrDefaultAsync<User>("spGetUserById", parameters, commandType: CommandType.StoredProcedure);
             return user;
         }
         
