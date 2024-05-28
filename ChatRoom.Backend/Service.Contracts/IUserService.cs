@@ -1,13 +1,15 @@
-﻿using Entities.Models;
-using Shared.DataTransferObjects.Auth;
+﻿using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
 
 namespace Service.Contracts {
     public interface IUserService {
-        public Task<bool> HasDuplicateEmail(string email);
+        Task<UserDto> GetUserByIdAsync(int userId);
 
-        public Task<bool> HasDuplicateUsername(string username);
+        Task<bool> HasDuplicateEmail(string email);
+        Task<bool> HasDuplicateUsername(string username);
 
-        public Task<UserDto> InsertUser(SignUpDto signUp);
+        Task<UserDto> InsertUser(SignUpDto signUp);
+
+        Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate);
     }
 }

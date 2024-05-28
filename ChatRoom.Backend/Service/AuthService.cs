@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Contracts;
-using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,26 +16,25 @@ namespace Service {
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly IConfiguration _configuration = configuration;
+        private User? User { get; set; }
 
         public async Task<bool> ValidateUser(SignInDto userForAuth) {
-            User? user = null;
-            string username = userForAuth.Username ?? throw new UsernameNotFoundException(string.Empty);
-            string password = userForAuth.Password ?? string.Empty;
-            if(IsEmail(username))
-                user = await _repository.User.GetUserByEmailAsync(username);
+            if(IsEmail(userForAuth.Username!))
+                User = await _repository.User.GetUserByEmailAsync(userForAuth.Username!);
             else
-                user = await _repository.User.GetUserByUsernameAsync(username);
+                User = await _repository.User.GetUserByUsernameAsync(userForAuth.Username!);
 
-            bool result = user != null && CheckPassword(password, user.PasswordHash);
+            bool result = User != null && CheckPassword(userForAuth.Password!, User.PasswordHash);
             if(!result) {
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
             }
-            return result;
+
+            return (result);
         }
         public string CreateToken() {
             IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
             SigningCredentials signingCredentials = GetSigningCredentials(jwtSetting);
-            var claims = new List<Claim>();
+            var claims = GetClaims();
             JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
@@ -60,6 +58,14 @@ namespace Service {
                 signingCredentials: signingCredentials);
 
             return tokenOptions;
+        }
+
+        private List<Claim> GetClaims() {
+            return [
+                new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
+                new("display-name", User.DisplayName),
+                new("display-picture", User.DisplayPictureUrl ?? "")
+            ];
         }
 
         private static bool IsEmail(string input) {
