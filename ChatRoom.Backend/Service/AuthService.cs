@@ -29,7 +29,8 @@ namespace Service {
             if(!result) {
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
             }
-            return result;
+
+            return (result);
         }
         public string CreateToken()
         {
@@ -114,6 +115,5 @@ namespace Service {
             Regex regex = new(emailPattern);
             return regex.IsMatch(input);
         }
-
     }
 }
