@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
+using System.Net.Http.Headers;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -34,6 +35,31 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             await _service.UserService.UpdateUserAsync(userId, userForUpdate);
 
             return NoContent();
+        }
+
+        [HttpPost("{userId}/picture"), DisableRequestSizeLimit]
+        [Authorize]
+        public async Task<IActionResult> UploadDisplayPicture(int userId) {
+            var formCollection = await Request.ReadFormAsync();
+            var file = formCollection.Files[0];
+            string folderName = Path.Combine("Resources", "Images", userId.ToString());
+            string pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+            if(!Directory.Exists(pathToSave)) 
+                Directory.CreateDirectory(pathToSave);
+            if (file.Length > 0) {
+                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
+                var fileExtension = Path.GetExtension(fileName);
+                fileName = $"{userId}-display-picture{fileExtension}";
+                var fullPath = Path.Combine(pathToSave, fileName);
+                var dbPath = Path.Combine(folderName, fileName);
+                using (var stream = new FileStream(fullPath, FileMode.Create)) {
+                    file.CopyTo(stream);
+                }
+                return Ok(dbPath);
+            }
+            else {
+                return BadRequest();
+            }
         }
     }
 }
