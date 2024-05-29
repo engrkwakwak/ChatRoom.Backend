@@ -2,7 +2,6 @@
 using Entities.ConfigurationModels;
 using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using MailKit.Net.Smtp;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -10,7 +9,6 @@ using Service;
 using Service.Contracts;
 using System.Data;
 using System.Text;
-using System.Security.Cryptography.X509Certificates;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {

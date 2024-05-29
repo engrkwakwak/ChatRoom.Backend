@@ -14,6 +14,7 @@ namespace ChatRoom.Backend {
             CreateMap<Contact, ContactDto>();
             CreateMap<ContactForCreationDto, Contact>();
             CreateMap<Status, StatusDto>();
+            CreateMap<UserForUpdateDto, User>();
         }
     }
 }
