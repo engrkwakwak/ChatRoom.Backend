@@ -5,6 +5,6 @@ namespace Service.Contracts
 {
     public interface IStatusService
     {
-        public Task<StatusDto?> GetStatusById(int id);
+        public Task<StatusDto?> GetStatusByIdAsync(int id);
     }
 }

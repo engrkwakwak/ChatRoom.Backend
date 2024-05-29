@@ -1,5 +1,6 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using Entities.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Contacts;
@@ -15,6 +16,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
         [HttpPost("")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] ContactForCreationDto contact)
         {
             if (contact.UserId == contact.ContactId)
@@ -22,14 +24,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 throw new InvalidParameterException("Something went wrong. The request parameters are invalid");
             }
 
-            if (await _service.UserService.GetUserById((int)contact.UserId!) == null 
-                || await _service.UserService.GetUserById((int)contact.ContactId!) == null
-                || await _service.StatusService.GetStatusById((int)contact.StatusId!) == null)
+            if (await _service.UserService.GetUserByIdAsync((int)contact.UserId!) == null 
+                || await _service.UserService.GetUserByIdAsync((int)contact.ContactId!) == null
+                || await _service.StatusService.GetStatusByIdAsync((int)contact.StatusId!) == null)
             {
                 throw new InvalidParameterException("Something went wrong. Record doesnt exist");
             }
 
-            if (!await _service.ContactService.InsertOrUpdateContact(contact))
+            if (!await _service.ContactService.InsertOrUpdateContactAsync(contact))
             {
                 throw new Exception("Something went wrong while processing the request.");
             }
@@ -38,6 +40,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         }
 
         [HttpDelete("{userId}/{contactId}")]
+        [Authorize]
         public async Task<IActionResult> Delete(int userId, int contactId)
         {
             if(userId < 1 || contactId < 1)
@@ -45,7 +48,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 throw new InvalidParameterException("The request parameters are invalid");
             }
 
-            if(!await _service.ContactService.DeleteContactByUserIdContactId(userId, contactId))
+            if(!await _service.ContactService.DeleteContactByUserIdContactIdAsync(userId, contactId))
             {
                 throw new Exception("Something went wrong while deleting the contact.");
             }
@@ -54,13 +57,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
         // view contacts
         [HttpGet("")]
+        [Authorize]
         public async Task<IActionResult> ViewContacts([FromQuery] ContactParameters contactParameters)
         {
             if(contactParameters.UserId < 1)
             {
                 throw new InvalidParameterException("The request parameters are invalid");
             }
-            IEnumerable<ContactDto> contactDtos = await  _service.ContactService.GetContactsByUserId(contactParameters);
+            IEnumerable<ContactDto> contactDtos = await  _service.ContactService.GetContactsByUserIdAsync(contactParameters);
             return Ok(contactDtos);
         }
 

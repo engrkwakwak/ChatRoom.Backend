@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -34,6 +35,15 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             await _service.UserService.UpdateUserAsync(userId, userForUpdate);
 
             return NoContent();
+        }
+
+        [HttpGet("search/{Name}")]
+        [Authorize]
+        public async Task<IActionResult> SearchUserByName([FromQuery] UserParameters userParameter, string Name)
+        {
+            userParameter.Name = Name;
+            IEnumerable<UserDto> userDtos = await _service.UserService.SearchUsersByNameAsync(userParameter);
+            return Ok(userDtos);
         }
     }
 }

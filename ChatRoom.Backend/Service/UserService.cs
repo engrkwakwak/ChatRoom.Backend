@@ -2,9 +2,11 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
 using System.Threading.Tasks;
 
 namespace Service {
@@ -63,6 +65,13 @@ namespace Service {
         private async Task<User> GetUserAndCheckIfItExists(int userId) {
             User? user = await _repository.User.GetUserByIdAsync(userId);
             return user is null ? throw new UserIdNotFoundException(userId) : user;
+        }
+
+        public async Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter)
+        {
+            IEnumerable<User> users = await _repository.User.SearchUsersByNameAsync(userParameter);
+            IEnumerable<UserDto> userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+            return userDtos;
         }
     }
 }

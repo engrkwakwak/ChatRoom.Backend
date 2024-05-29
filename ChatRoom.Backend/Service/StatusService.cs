@@ -17,7 +17,7 @@ namespace Service
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<StatusDto?> GetStatusById(int id)
+        public async Task<StatusDto?> GetStatusByIdAsync(int id)
         {
             Status? status = await _repository.Status.GetStatusByIdAsync(id);
             return status == null ? null : _mapper.Map<StatusDto?>(status);

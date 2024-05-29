@@ -3,9 +3,9 @@ using Shared.RequestFeatures;
 
 namespace Service.Contracts {
     public interface IContactService {
-        public Task<ContactDto?> GetContactByUserIdContactId(int userId, int contactId);
-        public Task<bool> InsertOrUpdateContact(ContactForCreationDto contactForCreationDto);
-        public Task<bool> DeleteContactByUserIdContactId(int userId, int contactId);
-        public Task<IEnumerable<ContactDto>> GetContactsByUserId(ContactParameters contactParameters);
+        public Task<ContactDto?> GetContactByUserIdContactIdAsync(int userId, int contactId);
+        public Task<bool> InsertOrUpdateContactAsync(ContactForCreationDto contactForCreationDto);
+        public Task<bool> DeleteContactByUserIdContactIdAsync(int userId, int contactId);
+        public Task<IEnumerable<ContactDto>> GetContactsByUserIdAsync(ContactParameters contactParameters);
     }
 }

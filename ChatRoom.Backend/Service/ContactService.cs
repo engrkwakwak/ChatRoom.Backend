@@ -11,12 +11,12 @@ namespace Service {
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<bool> DeleteContactByUserIdContactId(int userId, int contactId)
+        public async Task<bool> DeleteContactByUserIdContactIdAsync(int userId, int contactId)
         {
             return await _repository.Contact.DeleteContactByUserIdContactIdAsync(userId, contactId) > 0;
         }
 
-        public async Task<ContactDto?> GetContactByUserIdContactId(int userId, int contactId)
+        public async Task<ContactDto?> GetContactByUserIdContactIdAsync(int userId, int contactId)
         {
             Contact? contact = await _repository.Contact.GetContactByUserIdContactIdAsync(userId, contactId);
             if(contact == null)
@@ -26,14 +26,14 @@ namespace Service {
             return _mapper.Map<ContactDto>(contact);
         }
 
-        public async Task<IEnumerable<ContactDto>> GetContactsByUserId(ContactParameters contactParameters)
+        public async Task<IEnumerable<ContactDto>> GetContactsByUserIdAsync(ContactParameters contactParameters)
         {
             IEnumerable<Contact> contacts = await _repository.Contact.GetContactsByUserIdAsync(contactParameters);
             IEnumerable<ContactDto> contactDtos = _mapper.Map<IEnumerable<ContactDto>>(contacts);
             return contactDtos;
         }
 
-        public async Task<bool> InsertOrUpdateContact(ContactForCreationDto contactForCreationDto)
+        public async Task<bool> InsertOrUpdateContactAsync(ContactForCreationDto contactForCreationDto)
         {
             Contact contactToSave = _mapper.Map<Contact>(contactForCreationDto);
             Contact? contact = await _repository.Contact.GetContactByUserIdContactIdAsync((int)contactForCreationDto.UserId!, (int)contactForCreationDto.ContactId!);
