@@ -2,7 +2,6 @@
 using Entities.ErrorModel;
 using Entities.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
-using System.Net;
 
 namespace ChatRoom.Backend {
     public class GlobalExceptionHandler(ILoggerManager logger) : IExceptionHandler {
