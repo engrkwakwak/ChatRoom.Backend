@@ -42,20 +42,14 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         public async Task<IActionResult> UploadDisplayPicture(int userId) {
             var formCollection = await Request.ReadFormAsync();
             var file = formCollection.Files[0];
-            string folderName = Path.Combine("Resources", "Images", userId.ToString());
-            string pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-            if(!Directory.Exists(pathToSave)) 
-                Directory.CreateDirectory(pathToSave);
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Invalid file type. Only image files are allowed.");
+
             if (file.Length > 0) {
-                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
-                var fileExtension = Path.GetExtension(fileName);
-                fileName = $"{userId}-display-picture{fileExtension}";
-                var fullPath = Path.Combine(pathToSave, fileName);
-                var dbPath = Path.Combine(folderName, fileName);
-                using (var stream = new FileStream(fullPath, FileMode.Create)) {
-                    file.CopyTo(stream);
-                }
-                return Ok(dbPath);
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
+                string fileUrl = await _service.FileService.UploadAsync(file.OpenReadStream(), filename, file.ContentType, userId);
+
+                return Ok(fileUrl);
             }
             else {
                 return BadRequest();
