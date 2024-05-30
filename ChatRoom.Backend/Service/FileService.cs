@@ -21,7 +21,7 @@ namespace Service {
 
             BlobClient blob = container.GetBlobClient(AssignPictureName(fileName, "display-picture"));
             await blob.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
-            using var imageConvertedStream = ConvertAndResizeImageToJpg(fileStream);
+            using var imageConvertedStream = await ConvertAndResizeImageToJpg(fileStream);
             await blob.UploadAsync(imageConvertedStream, new BlobHttpHeaders { ContentType = contentType });
 
             return blob.Uri.ToString();
@@ -32,16 +32,21 @@ namespace Service {
             return newName + extension;
         }
 
-        private static MemoryStream ConvertAndResizeImageToJpg(Stream imageStream) {
-            var jpegStream = new MemoryStream();
-            using var image = Image.Load(imageStream);
-
-            image.Mutate(x => x.Resize(width: 500, height: 500, KnownResamplers.Bicubic));
-            image.Save(jpegStream, new JpegEncoder { Quality = 100 });
-
-            jpegStream.Seek(0, SeekOrigin.Begin);
-
-            return jpegStream;
+        private static async Task<MemoryStream> ConvertAndResizeImageToJpg(Stream imageStream) {
+            var memoryStream = new MemoryStream();
+            if (imageStream.Length < 500 * 1024) {
+                await imageStream.CopyToAsync(memoryStream);
+                memoryStream.Seek(0, SeekOrigin.Begin); // Reset the position to the beginning
+                return memoryStream;
+            }
+            else {
+                using var image = await Image.LoadAsync(imageStream);
+                image.Mutate(x => x.Resize(width: 500, height: 500, KnownResamplers.Bicubic));
+                image.Save(memoryStream, new JpegEncoder { Quality = 100 });
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                return memoryStream;
+            }
+            
         }
     }
 }
