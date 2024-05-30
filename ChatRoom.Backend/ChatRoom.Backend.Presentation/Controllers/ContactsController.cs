@@ -68,5 +68,17 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(contactDtos);
         }
 
+        [HttpGet("active/{userId}/{contactId}")]
+        [Authorize]
+        public async Task<IActionResult> GetActiveContactInfo(int userId, int contactId)
+        {
+            ContactDto? contact = await _service.ContactService.GetContactByUserIdContactIdAsync(userId, contactId);
+            if(contact == null || contact.StatusId != 2)
+            {
+                return Ok(null);
+            }
+            return Ok(contact);
+        }
+
     }
 }
