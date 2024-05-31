@@ -77,5 +77,13 @@ namespace Repository {
 
             return _connection.QueryAsync<User>("spSearchUsersByName", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public Task<IEnumerable<User>> GetUsersByIdsAsync(string ids)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserIds", ids);
+
+            return _connection.QueryAsync<User>("spGetUsersByIds", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Contacts;
+using Shared.DataTransferObjects.Users;
 using Shared.RequestFeatures;
 
 namespace ChatRoom.Backend.Presentation.Controllers
@@ -55,7 +56,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return new OkResult();
         }
 
-        // view contacts
         [HttpGet("")]
         [Authorize]
         public async Task<IActionResult> ViewContacts([FromQuery] ContactParameters contactParameters)
@@ -64,8 +64,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             {
                 throw new InvalidParameterException("The request parameters are invalid");
             }
-            IEnumerable<ContactDto> contactDtos = await  _service.ContactService.GetContactsByUserIdAsync(contactParameters);
-            return Ok(contactDtos);
+            IEnumerable<UserDto> userDtos = await  _service.ContactService.SearchContactsByNameUserIdAsync(contactParameters);
+            return Ok(userDtos);
         }
 
         [HttpGet("active/{userId}/{contactId}")]

@@ -48,6 +48,17 @@ namespace Repository {
             return _contact;
         }
 
+        public async Task<IEnumerable<User>> SearchContactsByNameUserIdAsync(ContactParameters contactParameter)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserId", contactParameter.UserId);
+            parameters.Add("PageSize", contactParameter.PageSize);
+            parameters.Add("PageNumber", contactParameter.PageNumber);
+            parameters.Add("Name", contactParameter.Name);
+
+            return await _connection.QueryAsync<User>("spSearchContactsByNameUserId", parameters, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<int> UpdateContactStatusAsync(Contact contact)
         {
             DynamicParameters parameters = new();
