@@ -3,8 +3,9 @@ using ChatRoom.Backend.Extensions;
 using ChatRoom.Backend.Presentation.ActionFilters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using NLog;
-using Service.Contracts;
+using Microsoft.Extensions.Azure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,12 +24,17 @@ builder.Services.Configure<ApiBehaviorOptions>(options => {
 });
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddScoped<ValidationFilterAttribute>();
+builder.Services.ConfigureFileUploads();
 
 builder.Services.AddControllers(config => {
     config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true;
 })
 .AddApplicationPart(typeof(ChatRoom.Backend.Presentation.AssemblyReference).Assembly);
+builder.Services.AddAzureClients(clientBuilder => {
+    clientBuilder.AddBlobServiceClient(builder.Configuration["ChatroomLocalStorage:blob"]!, preferMsi: true);
+    clientBuilder.AddQueueServiceClient(builder.Configuration["ChatroomLocalStorage:queue"]!, preferMsi: true);
+});
 
 var app = builder.Build();
 
@@ -39,7 +45,9 @@ if(app.Environment.IsProduction())
     app.UseHsts();
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
+
 app.UseForwardedHeaders(new ForwardedHeadersOptions {
     ForwardedHeaders = ForwardedHeaders.All
 });

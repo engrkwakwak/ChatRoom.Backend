@@ -2,6 +2,7 @@
 using Entities.ConfigurationModels;
 using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
@@ -60,6 +61,14 @@ namespace ChatRoom.Backend.Extensions {
             .GetSection("SMTPConfiguration")
             .Get<EmailConfiguration>();
             services.AddSingleton(config!);
+        }
+
+        public static void ConfigureFileUploads(this IServiceCollection services) {
+            services.Configure<FormOptions>(o => {
+                o.ValueLengthLimit = int.MaxValue;
+                o.MultipartBodyLengthLimit = int.MaxValue;
+                o.MemoryBufferThreshold = int.MaxValue;
+            });
         }
     }
 }

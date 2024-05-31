@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
+using System.Net.Http.Headers;
 using Shared.RequestFeatures;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
@@ -44,6 +45,25 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             userParameter.Name = Name;
             IEnumerable<UserDto> userDtos = await _service.UserService.SearchUsersByNameAsync(userParameter);
             return Ok(userDtos);
+        }
+
+        [HttpPost("{userId}/picture"), DisableRequestSizeLimit]
+        [Authorize]
+        public async Task<IActionResult> UploadDisplayPicture(int userId) {
+            var formCollection = await Request.ReadFormAsync();
+            var file = formCollection.Files[0];
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Invalid file type. Only image files are allowed.");
+
+            if (file.Length > 0) {
+                var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
+                string fileUrl = await _service.FileService.UploadAsync(file.OpenReadStream(), filename, file.ContentType, userId);
+
+                return Ok(fileUrl);
+            }
+            else {
+                return BadRequest();
+            }
         }
     }
 }

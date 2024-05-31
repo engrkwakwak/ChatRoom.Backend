@@ -57,6 +57,7 @@ namespace Repository {
             parameters.Add("address", user.Address);
             parameters.Add("displayName", user.DisplayName);
             parameters.Add("isEmailVerified", user.IsEmailVerified);
+            parameters.Add("displayPictureUrl", user.DisplayPictureUrl);
 
             return await _connection.ExecuteAsync("spUpdateUser", parameters, commandType: CommandType.StoredProcedure);
         }
