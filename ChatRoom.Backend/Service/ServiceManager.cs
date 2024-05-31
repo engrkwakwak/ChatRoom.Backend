@@ -12,6 +12,7 @@ namespace Service {
         private readonly Lazy<IUserService> _userService = new(() => new UserService(repository, logger, mapper));
         private readonly Lazy<IAuthService> _authService = new(() => new AuthService(repository, logger, mapper, configuration));
         private readonly Lazy<IEmailService> _emailService = new(() => new EmailService(repository, logger, mapper, configuration));
+        private readonly Lazy<IStatusService> _statusService = new(() => new StatusService(repository, logger, mapper));
         private readonly Lazy<IFileService> _fileService = new(() => new FileService(configuration));
 
         public IChatMemberService ChatMemberService => _chatMemberService.Value;
@@ -21,6 +22,7 @@ namespace Service {
         public IUserService UserService => _userService.Value;
         public IEmailService EmailService => _emailService.Value;
         public IAuthService AuthService => _authService.Value;
+        public IStatusService StatusService => _statusService.Value;
         public IFileService FileService => _fileService.Value;
     }
 }

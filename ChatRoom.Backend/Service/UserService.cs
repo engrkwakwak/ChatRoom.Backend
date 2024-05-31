@@ -2,9 +2,12 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
+using System.Threading.Tasks;
 
 namespace Service {
     internal sealed class UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IUserService {
@@ -37,13 +40,20 @@ namespace Service {
             return userToReturn;
         }
 
+        public async Task<UserDto> GetUserById(int id)
+        {
+            User? user = await _repository.User.GetUserByIdAsync(id);
+            return _mapper.Map<UserDto>(user);
+        }
+
+
         public async Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate) {
             User user = await GetUserAndCheckIfItExists(userId);
 
             if (user.Email != userForUpdate.Email)
                 user.IsEmailVerified = false;
             _mapper.Map(userForUpdate, user);         
-
+        
             int rowsAffected = await _repository.User.UpdateUserAsync(user);
 
             if (rowsAffected <= 0) {
@@ -55,6 +65,13 @@ namespace Service {
         private async Task<User> GetUserAndCheckIfItExists(int userId) {
             User? user = await _repository.User.GetUserByIdAsync(userId);
             return user is null ? throw new UserIdNotFoundException(userId) : user;
+        }
+
+        public async Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter)
+        {
+            IEnumerable<User> users = await _repository.User.SearchUsersByNameAsync(userParameter);
+            IEnumerable<UserDto> userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
+            return userDtos;
         }
     }
 }

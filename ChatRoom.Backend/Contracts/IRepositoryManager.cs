@@ -5,5 +5,6 @@
         IContactRepository Contact { get; }
         IMessageRepository Message { get; }
         IUserRepository User { get; }
+        IStatusRepository Status { get; }
     }
 }

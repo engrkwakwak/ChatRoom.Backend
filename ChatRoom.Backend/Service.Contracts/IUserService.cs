@@ -1,5 +1,6 @@
 ﻿using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
 
 namespace Service.Contracts {
     public interface IUserService {
@@ -11,5 +12,7 @@ namespace Service.Contracts {
         Task<UserDto> InsertUserAsync(SignUpDto signUp);
 
         Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate);
+
+        Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter);
     }
 }

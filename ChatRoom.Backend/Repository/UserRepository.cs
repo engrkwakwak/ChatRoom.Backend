@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Dapper;
 using Entities.Models;
+using Shared.RequestFeatures;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -66,6 +67,24 @@ namespace Repository {
             DynamicParameters parameters = new();
             parameters.Add("userid", id);
             return await _connection.ExecuteAsync("spVerifyEmail", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<IEnumerable<User>> SearchUsersByNameAsync(UserParameters userParameters)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("PageSize", userParameters.PageSize);
+            parameters.Add("PageNumber", userParameters.PageNumber);
+            parameters.Add("Name", userParameters.Name);
+
+            return _connection.QueryAsync<User>("spSearchUsersByName", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<IEnumerable<User>> GetUsersByIdsAsync(string ids)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserIds", ids);
+
+            return _connection.QueryAsync<User>("spGetUsersByIds", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }
