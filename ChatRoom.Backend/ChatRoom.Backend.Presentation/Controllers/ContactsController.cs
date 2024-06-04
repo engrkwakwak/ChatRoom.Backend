@@ -13,7 +13,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
     [ApiController]
     public class ContactsController(IServiceManager service) : ControllerBase
     {
-        private IServiceManager _service = service;
+        private readonly IServiceManager _service = service;
 
         [HttpPost("")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
@@ -79,6 +79,5 @@ namespace ChatRoom.Backend.Presentation.Controllers
             }
             return Ok(contact);
         }
-
     }
 }

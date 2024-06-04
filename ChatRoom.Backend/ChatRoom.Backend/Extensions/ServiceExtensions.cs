@@ -18,7 +18,8 @@ namespace ChatRoom.Backend.Extensions {
                 options.AddPolicy("CorsPolicy", builder =>
                     builder.AllowAnyOrigin() //Change to WithOrigins("https://example.com")
                     .AllowAnyMethod() //Change to WithMethods("POST", "GET")
-                    .AllowAnyHeader()); //Change to WithHeaders("accept", "content-type")
+                    .AllowAnyHeader() //Change to WithHeaders("accept", "content-type")
+                    .WithExposedHeaders("X-Pagination")); 
             });
 
         public static void ConfigureLoggerService(this IServiceCollection services) =>
