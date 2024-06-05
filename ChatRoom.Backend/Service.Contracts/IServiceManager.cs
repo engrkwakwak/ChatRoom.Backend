@@ -1,4 +1,5 @@
-﻿namespace Service.Contracts {
+﻿
+namespace Service.Contracts {
     public interface IServiceManager {
         IChatMemberService ChatMemberService { get; }
         IChatService ChatService { get; }
