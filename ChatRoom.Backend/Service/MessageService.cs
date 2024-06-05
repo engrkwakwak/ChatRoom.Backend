@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects.Messages;
+using Shared.RequestFeatures;
 
 namespace Service {
     internal sealed class MessageService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IMessageService {
@@ -20,6 +21,12 @@ namespace Service {
                 throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
             }
             return _mapper.Map<MessageDto>(createdMessage);
+        }
+
+        public async Task<(IEnumerable<MessageDto> messages, MetaData? metaData)> GetMessagesByChatIdAsync(MessageParameters messageParameters, int chatId) {
+            PagedList<Message> messagesWithMetaData = await _repository.Message.GetMessagesByChatIdAsync(messageParameters, chatId);
+            IEnumerable<MessageDto> messagesDto = _mapper.Map<IEnumerable<MessageDto>>(messagesWithMetaData);
+            return (messages: messagesDto, metaData: messagesWithMetaData.MetaData);
         }
     }
 }
