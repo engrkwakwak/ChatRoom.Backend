@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Shared.DataTransferObjects.Status
 {
-    public class StatusDto
+    public record StatusDto
     {
-        public int StatusId { get; set; }
-        public string StatusName { get; set; } = string.Empty;
+        public int StatusId { get; init; }
+        public string StatusName { get; init; } = string.Empty;
     }
 }
