@@ -27,14 +27,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(chatId);
         }
 
-        [HttpGet("get-by-id{chatId}")]
+        [HttpGet("{chatId}")]
         public async Task<IActionResult> GetById([FromRoute] int chatId)
         {
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
             return Ok(chat);
         }
 
-        [HttpGet("get-active-members{chatId}")]
+        [HttpGet("{chatId}/members")]
         public async Task<IActionResult> GetMembers([FromRoute] int chatId)
         {
             if(chatId < 1)
@@ -44,13 +44,13 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(await _service.ChatService.GetActiveChatMembersByChatIdAsync(chatId));
         }
 
-        [HttpPost("send-message")]
-        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
-        {
-            message.MsgTypeId = 1;
-            MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
-            return Ok(createdMessage);
-        }
+        //[HttpPost("send-message")]
+        //public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
+        //{
+        //    message.MsgTypeId = 1;
+        //    MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
+        //    return Ok(createdMessage);
+        //}
 
         [HttpPost("send-message-to-new-chat")]
         public async Task<IActionResult> SendMessageToNewChat([FromBody] MessageForNewChatDto message)

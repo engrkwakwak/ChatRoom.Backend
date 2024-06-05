@@ -8,11 +8,11 @@ namespace Repository {
     public class MessageRepository(IDbConnection connection) : IMessageRepository {
         private readonly IDbConnection _connection = connection;
 
-        public async Task<PagedList<Message>> GetMessagesByChatIdAsync(MessageParameters teacherParameters, int chatId) {
+        public async Task<PagedList<Message>> GetMessagesByChatIdAsync(MessageParameters messageParameters, int chatId) {
             DynamicParameters parameters = new();
             parameters.Add("chatId", chatId);
-            parameters.Add("pageNumber", teacherParameters.PageNumber);
-            parameters.Add("pageSize", teacherParameters.PageSize);
+            parameters.Add("pageNumber", messageParameters.PageNumber);
+            parameters.Add("pageSize", messageParameters.PageSize);
 
             IEnumerable<Message> messages = (await _connection.QueryAsync<Message, User, MessageType, Status, Message>(
                 "spGetMessagesByChatId",
@@ -29,7 +29,7 @@ namespace Repository {
 
             int count = await GetMessageCountByChatIdAsync(chatId);
 
-            return new PagedList<Message>(messages.ToList(), count, teacherParameters.PageNumber, teacherParameters.PageSize);
+            return new PagedList<Message>(messages.ToList(), count, messageParameters.PageNumber, messageParameters.PageSize);
         }
 
         private async Task<int> GetMessageCountByChatIdAsync(int chatId) {
