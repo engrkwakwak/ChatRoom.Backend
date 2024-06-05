@@ -17,7 +17,8 @@ namespace ChatRoom.Backend.Migrations
 				BEGIN
 					SELECT COUNT(1)
 					FROM [Messages]
-					WHERE f_chat_id = @chatId;
+					WHERE f_chat_id = @chatId
+                        AND f_status_id <> 3;
 				END
             ");
         }

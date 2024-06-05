@@ -37,6 +37,7 @@ namespace ChatRoom.Backend.Migrations
 					INNER JOIN [Status] s
 						ON m.f_status_id = s.f_status_id
 					WHERE m.f_chat_id = @chatId
+						AND m.f_status_id <> 3 
 					ORDER BY m.f_message_id DESC
 					OFFSET (@pageNumber - 1) * @pageSize ROWS
 					FETCH NEXT @pageSize ROWS ONLY;
