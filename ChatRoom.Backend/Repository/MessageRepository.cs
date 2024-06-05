@@ -50,5 +50,28 @@ namespace Repository {
 
             return await _connection.QueryFirstOrDefaultAsync<Message?>("spInsertMessage", parameters, commandType:  CommandType.StoredProcedure);
         }
+
+        public async Task<Message?> GetMessageByMessageIdAsync(int messageId)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("MessageId", messageId);
+
+            Message? message = (await _connection.QueryAsync<Message, User, MessageType, Status, Message>(
+                "spGetMessageByMessageId",
+                (message, sender, msgType, status) =>
+                {
+                    message.User = sender;
+                    message.MessageType = msgType;
+                    message.Status = status;
+                    return message;
+                },
+                parameters,
+                commandType: CommandType.StoredProcedure,
+                splitOn: "UserId, MsgTypeId, StatusId"
+                ))
+                .ToList()
+                .FirstOrDefault();
+            return message;
+        }
     }
 }

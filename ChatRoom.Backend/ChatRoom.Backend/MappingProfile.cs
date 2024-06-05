@@ -30,7 +30,6 @@ namespace ChatRoom.Backend {
             CreateMap<UserForUpdateDto, User>();
             CreateMap<Chat, ChatDto>().ReverseMap();
             CreateMap<MessageForCreationDto, Message > ();
-            CreateMap<Message, MessageDto > ();
             CreateMap<User, UserDisplayDto>();
         }
     }

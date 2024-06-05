@@ -1,6 +1,7 @@
 ﻿
 
 using Entities.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Service.Contracts;
@@ -17,6 +18,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         private readonly IServiceManager _service = service;
 
         [HttpGet("get-p2p-chatid-by-userids")]
+        [Authorize]
         public async Task<IActionResult> GetP2PChatByUserIdPair(int userId1, int userId2)
         {
             if (userId1 < 1 || userId2 < 1)
@@ -28,6 +30,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         }
 
         [HttpGet("{chatId}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int chatId)
         {
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
@@ -35,6 +38,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         }
 
         [HttpGet("{chatId}/members")]
+        [Authorize]
         public async Task<IActionResult> GetMembers([FromRoute] int chatId)
         {
             if(chatId < 1)
@@ -44,15 +48,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(await _service.ChatService.GetActiveChatMembersByChatIdAsync(chatId));
         }
 
-        //[HttpPost("send-message")]
-        //public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
-        //{
-        //    message.MsgTypeId = 1;
-        //    MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
-        //    return Ok(createdMessage);
-        //}
-
         [HttpPost("send-message-to-new-chat")]
+        [Authorize]
         public async Task<IActionResult> SendMessageToNewChat([FromBody] MessageForNewChatDto message)
         {
             ChatDto chatDto;

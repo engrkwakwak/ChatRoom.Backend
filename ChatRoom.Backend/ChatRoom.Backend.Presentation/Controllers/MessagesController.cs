@@ -13,7 +13,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         private readonly IServiceManager _service = service;
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetMessagesForChat(int chatId, [FromQuery] MessageParameters messageParameters) {
             (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
@@ -21,11 +21,15 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             return Ok(messages);
         }
 
-        [HttpPost("")]
+        [HttpPost]
+        [Authorize]
         public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
         {
             message.MsgTypeId = 1;
             MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
+
+            // emit signalR here
+
             return Ok(createdMessage);
         }
     }
