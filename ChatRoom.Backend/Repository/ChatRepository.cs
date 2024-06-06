@@ -7,14 +7,13 @@ namespace Repository {
     public class ChatRepository(IDbConnection connection) : IChatRepository {
         private readonly IDbConnection _connection = connection;
 
-        public async Task<int> AddP2PChatMembersAsync(int chatId, int userId1, int userId2)
+        public async Task<int> AddChatMembersAsync(int chatId, DataTable userIds)
         {
             DynamicParameters parameters = new();
-            parameters.Add("UserId1", userId1);
-            parameters.Add("UserId2", userId2);
+            parameters.Add("UserIds", userIds.AsTableValuedParameter());
             parameters.Add("ChatId", chatId);
 
-            return await _connection.ExecuteAsync("spAddP2PChatMembers", parameters, commandType: CommandType.StoredProcedure);
+            return await _connection.ExecuteAsync("spAddChatMembers", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<Chat?> CreateChatAsync(int chatTypeId)

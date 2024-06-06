@@ -11,10 +11,9 @@ namespace ChatRoom.Backend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"
-                CREATE PROCEDURE [dbo].[spAddP2PChatMembers]
+                CREATE PROCEDURE [dbo].[spAddChatMembers]
                     @ChatId int, 
-                    @UserId1 int,
-                    @UserId2 int
+                    @UserIds tvpUserIds READONLY
                 AS
                 BEGIN
                     INSERT INTO ChatMembers(
@@ -22,9 +21,8 @@ namespace ChatRoom.Backend.Migrations
 	                    f_is_admin,
 	                    f_status_id,
 	                    f_user_id)
-                    VALUES
-	                    (@ChatId, 0, 1, @UserId1),
-	                    (@ChatId, 0, 1, @UserId2);
+                    SELECT 
+                        @ChatId, 0, 1, UserId FROM @UserIds
                 END
             ");
         }
@@ -32,7 +30,7 @@ namespace ChatRoom.Backend.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP PROCEDURE [dbo].[spAddP2PChatMembers]");
+            migrationBuilder.Sql("DROP PROCEDURE [dbo].[spAddChatMembers]");
         }
     }
 }

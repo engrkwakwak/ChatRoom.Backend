@@ -5,6 +5,7 @@ using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Users;
+using System.Data;
 
 namespace Service {
     internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IChatService {
@@ -15,12 +16,16 @@ namespace Service {
         public async Task<ChatDto> CreateP2PChatAndAddMembersAsync(int userId1, int userId2)
         {
             Chat? chat = await _repository.Chat.CreateChatAsync(1);
+            DataTable userIds = new DataTable("UserIds");
+            userIds.Columns.Add("UserId", typeof(int));
+            userIds.Rows.Add(userId1);
+            userIds.Rows.Add(userId2);
             if(chat == null)
             {
                 throw new ChatNotCreatedException("Looks like there was a problem while trying to create the chat. No worries, just give it another shot later on.");
             }
 
-            int affectedRows = await _repository.Chat.AddP2PChatMembersAsync(chat!.ChatId, userId1, userId2);
+            int affectedRows = await _repository.Chat.AddChatMembersAsync(chat!.ChatId, userIds);
             if (affectedRows < 2)
             {
                 throw new AddChatMembersFailedException("There was an issue when trying to add chat members. Let's try that again later.");

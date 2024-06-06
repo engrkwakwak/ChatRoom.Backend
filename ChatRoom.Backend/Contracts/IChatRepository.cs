@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using System.Data;
 
 namespace Contracts {
     public interface IChatRepository {
@@ -9,7 +10,7 @@ namespace Contracts {
         ///</summary>
         Task<int?> GetP2PChatIdByUserIdsAsync(int userId1, int userId2);
         Task<Chat?> CreateChatAsync(int chatTypeId);
-        Task<int> AddP2PChatMembersAsync(int chatId, int userId1, int userId2);
+        Task<int> AddChatMembersAsync(int chatId, DataTable userIds);
         Task<Chat?> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<User>> GetActiveChatMembersByChatIdAsync(int chatId);
     }
