@@ -14,7 +14,8 @@ namespace Repository {
             parameters.Add("UserId", userId);
             parameters.Add("ContactId", contactId);
 
-            return await _connection.ExecuteAsync("spDeleteContactByUserIdContactId", parameters, commandType: CommandType.StoredProcedure);
+            int affected = await _connection.ExecuteAsync("spDeleteContactByUserIdContactId", parameters, commandType: CommandType.StoredProcedure);
+            return affected;
         }
 
         public async Task<Contact?> GetContactByUserIdContactIdAsync(int userId, int contactId)

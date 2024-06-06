@@ -34,5 +34,22 @@ namespace Service {
             IEnumerable<MessageDto> messagesDto = _mapper.Map<IEnumerable<MessageDto>>(messagesWithMetaData);
             return (messages: messagesDto, metaData: messagesWithMetaData.MetaData);
         }
+
+        public async Task<bool> DeleteMessageAsync(int messageId)
+        {
+            int affectedRows = await _repository.Message.DeleteMessageAsync(messageId);
+            return affectedRows > 0;
+        }
+
+        public async Task<MessageDto> GetMessageByMessageIdAsync(int messageId)
+        {
+            Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(messageId);
+            if (createdMessage == null)
+            {
+                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
+            }
+
+            return _mapper.Map<MessageDto>(createdMessage);
+        }
     }
 }

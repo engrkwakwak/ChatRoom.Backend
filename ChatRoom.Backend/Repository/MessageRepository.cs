@@ -73,5 +73,14 @@ namespace Repository {
                 .FirstOrDefault();
             return message;
         }
+
+        public async Task<int> DeleteMessageAsync(int messageId)
+        {
+            DynamicParameters parameter = new();
+            parameter.Add("MessageId", messageId);
+
+            int affected = await _connection.ExecuteAsync("spDeleteMessage", parameter, commandType: CommandType.StoredProcedure);
+            return affected;
+        }
     }
 }

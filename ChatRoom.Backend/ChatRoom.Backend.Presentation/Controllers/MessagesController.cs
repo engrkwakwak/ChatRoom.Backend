@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Entities.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
@@ -31,6 +32,31 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             // emit signalR here
 
             return Ok(createdMessage);
+        }
+
+        [HttpDelete("{messageId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int messageId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            MessageDto message = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
+            if(message.Sender?.UserId != userId)
+            {
+                throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
+            }
+            if (!await _service.MessageService.DeleteMessageAsync(messageId))
+            {
+                throw new MessageUpdateFailedException("Something went wrong while deleting the message. Please try again later.");
+            }
+            return Ok();
+        }
+
+        [HttpPut("{messageId}")]
+        [Authorize]
+        public async Task<IActionResult> Update(int messageId)
+        {
+            return Ok("Updated");
         }
     }
 }

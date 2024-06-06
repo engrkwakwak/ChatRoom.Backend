@@ -16,6 +16,7 @@ namespace ChatRoom.Backend {
                     NotFoundException => StatusCodes.Status404NotFound,
                     BadRequestException => StatusCodes.Status400BadRequest,
                     NoAffectedRowsException => StatusCodes.Status500InternalServerError,
+                    UnauthorizedException => StatusCodes.Status401Unauthorized,
                     _ => StatusCodes.Status500InternalServerError
                 };
 
