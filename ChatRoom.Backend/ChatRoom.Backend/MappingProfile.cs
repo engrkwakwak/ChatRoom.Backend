@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entities.Models;
 using Shared.DataTransferObjects.Auth;
+using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Messages;
 using Shared.DataTransferObjects.Status;
@@ -27,6 +28,8 @@ namespace ChatRoom.Backend {
             CreateMap<SignUpDto, User>();
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<UserForUpdateDto, User>();
+            CreateMap<Chat, ChatDto>().ReverseMap();
+            CreateMap<MessageForCreationDto, Message > ();
             CreateMap<User, UserDisplayDto>();
         }
     }

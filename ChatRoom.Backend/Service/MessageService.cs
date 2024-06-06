@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects.Messages;
@@ -10,6 +11,23 @@ namespace Service {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
+
+        public async Task<MessageDto> InsertMessageAsync(MessageForCreationDto message)
+        {
+            Message _message = _mapper.Map<Message>(message);
+            Message? _createdMessage = await _repository.Message.InsertMessageAsync(_message);
+            if (_createdMessage == null)
+            {
+                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
+            }
+            Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(_createdMessage!.MessageId);
+            if (createdMessage == null)
+            {
+                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
+            }
+
+            return _mapper.Map<MessageDto>(createdMessage);
+        }
 
         public async Task<(IEnumerable<MessageDto> messages, MetaData? metaData)> GetMessagesByChatIdAsync(MessageParameters messageParameters, int chatId) {
             PagedList<Message> messagesWithMetaData = await _repository.Message.GetMessagesByChatIdAsync(messageParameters, chatId);

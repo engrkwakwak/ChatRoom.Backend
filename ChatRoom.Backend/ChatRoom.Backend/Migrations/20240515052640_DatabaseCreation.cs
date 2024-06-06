@@ -185,7 +185,7 @@ namespace ChatRoom.Backend.Migrations
                     f_chat_id = table.Column<int>(type: "int", nullable: false),
                     f_user_id = table.Column<int>(type: "int", nullable: false),
                     f_is_admin = table.Column<bool>(type: "bit", nullable: false),
-                    f_last_seen_message_id = table.Column<int>(type: "int", nullable: false),
+                    f_last_seen_message_id = table.Column<int>(type: "int", nullable: true),
                     f_status_id = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

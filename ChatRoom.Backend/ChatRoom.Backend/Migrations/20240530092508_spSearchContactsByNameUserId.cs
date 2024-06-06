@@ -31,7 +31,7 @@ namespace ChatRoom.Backend.Migrations
                     FROM Contacts WITH (NOLOCK)
                     RIGHT JOIN Users WITH (NOLOCK)
                     ON Users.f_user_id=Contacts.f_contact_id
-                    WHERE Contacts.f_user_id=1
+                    WHERE Contacts.f_user_id=@UserId
                         AND Contacts.f_status_id = 2
                         AND (Users.f_display_name LIKE '%' + @Name + '%' 
 	                        OR Users.f_display_name LIKE @Name + '%'

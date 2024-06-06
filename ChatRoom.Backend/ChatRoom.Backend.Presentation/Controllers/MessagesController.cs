@@ -20,5 +20,17 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             return Ok(messages);
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
+        {
+            message.MsgTypeId = 1;
+            MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
+
+            // emit signalR here
+
+            return Ok(createdMessage);
+        }
     }
 }
