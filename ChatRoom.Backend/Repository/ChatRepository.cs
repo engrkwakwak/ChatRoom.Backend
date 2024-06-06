@@ -23,6 +23,15 @@ namespace Repository {
             return await _connection.QueryFirstOrDefaultAsync<Chat?>("spCreateChat", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<Chat?> CreateChatAsync(Chat chatToCreate) {
+            DynamicParameters parameters = new();
+            parameters.Add("chatTypeId", chatToCreate.ChatTypeId);
+            parameters.Add("statusId", chatToCreate.StatusId);
+
+            Chat? createdChat = await _connection.QueryFirstOrDefaultAsync<Chat>("spCreateChat", parameters, commandType: CommandType.StoredProcedure);
+            return createdChat;
+        }
+
         public async Task<Chat?> GetChatByChatIdAsync(int chatId)
         {
             DynamicParameters parameters = new();
@@ -46,6 +55,14 @@ namespace Repository {
             parameters.Add("UserId2", userId2);
 
             return await _connection.ExecuteScalarAsync<int?>("spGetPToPChatIdByUserIds", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<Chat>> GetChatsByUserIdAsync(int userId) {
+            DynamicParameters parameters = new();
+            parameters.Add("userId", userId);
+
+            IEnumerable<Chat> chats = await _connection.QueryAsync<Chat>("spGetChatsByUserIdAsync", parameters, commandType: CommandType.StoredProcedure);
+            return chats;
         }
     }
 }

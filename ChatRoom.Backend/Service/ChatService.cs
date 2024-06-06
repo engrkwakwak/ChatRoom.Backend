@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Users;
@@ -34,6 +35,18 @@ namespace Service {
             return _mapper.Map<ChatDto>(chat);
         }
 
+        public async Task<ChatDto> CreateChatWithMembersAsync(ChatForCreationDto chatDto) {
+            Chat chatEntity = _mapper.Map<Chat>(chatDto);
+            Chat? createdChat = await _repository.Chat.CreateChatAsync(chatEntity) ?? throw new ChatNotCreatedException($"{string.Join(",", chatDto.ChatMemberIds!)}");
+
+            createdChat.Members = await _repository.ChatMember.InsertChatMembers(createdChat.ChatId, chatDto.ChatMemberIds!);
+            if (createdChat.Members.Count() != chatDto.ChatMemberIds!.Count())
+                throw new InsertedChatMemberRowsMismatchException(createdChat.Members.Count(), chatDto.ChatMemberIds!.Count());
+
+            ChatDto chatToReturn = _mapper.Map<ChatDto>(createdChat);
+            return chatToReturn;
+        }
+
         public async Task<IEnumerable<UserDto>> GetActiveChatMembersByChatIdAsync(int chatId)
         {
             IEnumerable<User> users = await _repository.Chat.GetActiveChatMembersByChatIdAsync(chatId);
@@ -42,17 +55,20 @@ namespace Service {
 
         public async Task<ChatDto> GetChatByChatIdAsync(int chatId)
         {
-            Chat? chat = await _repository.Chat.GetChatByChatIdAsync(chatId);
-            if(chat == null )
-            {
-                throw new ChatNotFoundException("An error occurred while retrieving the chat messages. Please try again later.");
-            }
+            Chat chat = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
             return _mapper.Map<ChatDto>(chat);
         }
 
         public async Task<int?> GetP2PChatIdByUserIdsAsync(int userId1, int userId2)
         {
             return await _repository.Chat.GetP2PChatIdByUserIdsAsync(userId1, userId2);
+        }
+
+        public async Task<IEnumerable<ChatDto>> GetChatsByUserIdAsync(int userId) {
+            IEnumerable<Chat> userChats = await _repository.Chat.GetChatsByUserIdAsync(userId);
+            IEnumerable<ChatDto> userChatsToReturn = _mapper.Map<IEnumerable<ChatDto>>(userChats);
+
+            return userChatsToReturn;
         }
     }
 }

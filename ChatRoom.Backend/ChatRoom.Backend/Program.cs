@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using NLog;
 using Microsoft.Extensions.Azure;
+using ChatRoom.Backend.Presentation.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,5 +59,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatRoomHub>("/chatHub");
 
 app.Run();

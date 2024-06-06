@@ -10,8 +10,10 @@ namespace Contracts {
         ///</summary>
         Task<int?> GetP2PChatIdByUserIdsAsync(int userId1, int userId2);
         Task<Chat?> CreateChatAsync(int chatTypeId);
+        Task<Chat?> CreateChatAsync(Chat chatToCreate);
         Task<int> AddChatMembersAsync(int chatId, DataTable userIds);
         Task<Chat?> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<User>> GetActiveChatMembersByChatIdAsync(int chatId);
+        Task<IEnumerable<Chat>> GetChatsByUserIdAsync(int userId);
     }
 }

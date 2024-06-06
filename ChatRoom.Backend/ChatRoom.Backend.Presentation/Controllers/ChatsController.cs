@@ -1,21 +1,26 @@
 ﻿
 
+using ChatRoom.Backend.Presentation.ActionFilters;
+using ChatRoom.Backend.Presentation.Hubs;
 using Entities.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Messages;
+using Shared.Utilities;
 
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
     [ApiController]
-    public class ChatsController(IServiceManager service) : ControllerBase
+    public class ChatsController(IServiceManager service, IHubContext<ChatRoomHub> hubContext) : ControllerBase
     {
         private readonly IServiceManager _service = service;
+        private readonly IHubContext<ChatRoomHub> _hubContext = hubContext;
 
         [HttpGet("get-p2p-chatid-by-userids")]
         [Authorize]
@@ -29,7 +34,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(chatId);
         }
 
-        [HttpGet("{chatId}")]
+        [HttpGet("{chatId}", Name = "GetChatByChatId")]
         [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int chatId)
         {
@@ -90,6 +95,28 @@ namespace ChatRoom.Backend.Presentation.Controllers
             // emit signalR here
 
             return Ok(createdMessage);
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateChat([FromBody] ChatForCreationDto chat) {
+            /* Checking if chat already exists for peer to peer chat */
+            if(chat.ChatTypeId == (int)EnumHelper.ChatTypes.P2P) {
+                ChatDto? existingChat = await _service.ChatService.GetP2PChatByUserIdsAsync(chat.ChatMemberIds!.ElementAtOrDefault(0), chat.ChatMemberIds!.ElementAtOrDefault(1));
+
+                if (existingChat != null)
+                    return Ok(existingChat);
+            }
+
+            ChatDto createdChat = await _service.ChatService.CreateChatWithMembersAsync(chat);
+
+            /* After chat creation, the system will add all chat members to the signalR group via frontend. Including the current user */
+            foreach(var member in createdChat.Members!) {
+                await _hubContext.Clients.User(member.UserId.ToString()).SendAsync("NewChatCreated", createdChat);
+            }
+
+            return CreatedAtRoute("GetChatByChatId", new { chatId = createdChat.ChatId }, createdChat);
         }
     }
 }
