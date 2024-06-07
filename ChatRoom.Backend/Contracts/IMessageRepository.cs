@@ -7,5 +7,7 @@ namespace Contracts {
         Task<Message?> GetMessageByMessageIdAsync(int messageId);
         Task<Message?> InsertMessageAsync(Message message);
         Task<int> DeleteMessageAsync(int messageId);
+        Task<int> UpdateMessageAsync(Message message);
+
     }
 }

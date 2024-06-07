@@ -15,17 +15,8 @@ namespace Service {
         public async Task<MessageDto> InsertMessageAsync(MessageForCreationDto message)
         {
             Message _message = _mapper.Map<Message>(message);
-            Message? _createdMessage = await _repository.Message.InsertMessageAsync(_message);
-            if (_createdMessage == null)
-            {
-                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
-            }
-            Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(_createdMessage!.MessageId);
-            if (createdMessage == null)
-            {
-                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
-            }
-
+            Message? _createdMessage = await _repository.Message.InsertMessageAsync(_message) ?? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
+            Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(_createdMessage!.MessageId) ?? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
             return _mapper.Map<MessageDto>(createdMessage);
         }
 
@@ -44,12 +35,28 @@ namespace Service {
         public async Task<MessageDto> GetMessageByMessageIdAsync(int messageId)
         {
             Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(messageId);
-            if (createdMessage == null)
+            return createdMessage == null
+                ? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.")
+                : _mapper.Map<MessageDto>(createdMessage);
+        }
+
+        public async Task<MessageDto> UpdateMessageAsync(MessageForUpdateDto message)
+        {
+            Message _message = new Message
             {
-                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
+                MessageId = message.MessageId,
+                Content = message.Content,
+            };
+
+            int affectedRows = await _repository.Message.UpdateMessageAsync(_message);
+            if(affectedRows < 1){
+                throw new MessageUpdateFailedException("Something went wrong while deleting the message. Please try again later.");
             }
 
-            return _mapper.Map<MessageDto>(createdMessage);
+            Message? updatedMessage = await _repository.Message.GetMessageByMessageIdAsync(_message.MessageId);
+            return updatedMessage == null
+                ? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.")
+                : _mapper.Map<MessageDto>(updatedMessage);
         }
     }
 }

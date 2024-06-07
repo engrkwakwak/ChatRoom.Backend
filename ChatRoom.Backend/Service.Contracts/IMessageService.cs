@@ -7,5 +7,6 @@ namespace Service.Contracts {
         Task<MessageDto> InsertMessageAsync(MessageForCreationDto message);
         Task<bool> DeleteMessageAsync(int messageId);
         Task<MessageDto> GetMessageByMessageIdAsync(int messageId);
+        Task<MessageDto> UpdateMessageAsync(MessageForUpdateDto message);
     }
 }

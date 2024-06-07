@@ -1,4 +1,5 @@
 ﻿using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,13 +39,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         public async Task<IActionResult> Delete(int messageId)
         {
-            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
-            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
-            MessageDto message = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
-            if(message.Sender?.UserId != userId)
-            {
-                throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
-            }
+            await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
             if (!await _service.MessageService.DeleteMessageAsync(messageId))
             {
                 throw new MessageUpdateFailedException("Something went wrong while deleting the message. Please try again later.");
@@ -54,9 +49,21 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpPut("{messageId}")]
         [Authorize]
-        public async Task<IActionResult> Update(int messageId)
+        public async Task<IActionResult> Update(int messageId, MessageForUpdateDto message)
         {
-            return Ok("Updated");
+            await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
+            MessageDto updatedMessage = await _service.MessageService.UpdateMessageAsync(message);
+            return Ok(updatedMessage);
+        }
+        
+        private async Task AuthorizedAction(string token, int messageId)
+        {
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            MessageDto message = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
+            if (message.Sender?.UserId != userId)
+            {
+                throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
+            }
         }
     }
 }
