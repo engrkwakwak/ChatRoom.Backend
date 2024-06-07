@@ -1,10 +1,13 @@
 ﻿
 
 using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using Service.Contracts;
+using Shared.DataTransferObjects.ChatMembers;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Messages;
@@ -34,6 +37,10 @@ namespace ChatRoom.Backend.Presentation.Controllers
         public async Task<IActionResult> GetById([FromRoute] int chatId)
         {
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+            if(chat.ChatTypeId == 3)
+            {
+                throw new ChatNotFoundException("The chat you are trying to access does not exist.");
+            }
             return Ok(chat);
         }
 
@@ -41,7 +48,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> GetMembers([FromRoute] int chatId)
         {
-            if(chatId < 1)
+            if (chatId < 1)
             {
                 throw new InvalidParameterException("Something went wrong with your request. Please try again later.");
             }
@@ -78,18 +85,38 @@ namespace ChatRoom.Backend.Presentation.Controllers
                     UserId = message.SenderId,
                     StatusId = 2,
                 };
-                if(!await _service.ContactService.InsertOrUpdateContactAsync(contact))
+                if (!await _service.ContactService.InsertOrUpdateContactAsync(contact))
                 {
                     throw new ContactsNotCreatedException("Something went wrong while adding the user as your contacts.");
                 }
                 messageForCreationDto.ChatId = chatDto.ChatId;
                 createdMessage = await _service.MessageService.InsertMessageAsync(messageForCreationDto);
-                
             }
 
             // emit signalR here
 
             return Ok(createdMessage);
+        }
+
+        [HttpDelete("{chatId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId,userId);
+            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+
+            if(chat.ChatTypeId == 2 && !member.IsAdmin)
+            {
+                throw new UnauthorizedChatDeletion("Unauthorized Action detected. Access for this action is for chat admins only.");
+            }
+
+            if (!(await _service.ChatService.DeleteChatAsync(chatId)))
+            {
+                throw new ChatNotDeletedException("Something went wrong while deleting the chat. Please try again later");
+            }
+            return Ok();
         }
     }
 }

@@ -34,6 +34,11 @@ namespace Service {
             return _mapper.Map<ChatDto>(chat);
         }
 
+        public async Task<bool> DeleteChatAsync(int chatId)
+        {
+            return await _repository.Chat.DeleteChatAsync(chatId) > 0;
+        }
+
         public async Task<IEnumerable<UserDto>> GetActiveChatMembersByChatIdAsync(int chatId)
         {
             IEnumerable<User> users = await _repository.Chat.GetActiveChatMembersByChatIdAsync(chatId);

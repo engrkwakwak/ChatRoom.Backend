@@ -47,5 +47,13 @@ namespace Repository {
 
             return await _connection.ExecuteScalarAsync<int?>("spGetPToPChatIdByUserIds", parameters, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<int> DeleteChatAsync(int chatId)
+        {
+            DynamicParameters parameter = new();
+            parameter.Add("ChatId", chatId);
+
+            return await _connection.ExecuteAsync("spDeleteChat", parameter, commandType: CommandType.StoredProcedure);
+        }
     }
 }

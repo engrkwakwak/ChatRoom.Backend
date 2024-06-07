@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Messages;
 using Shared.RequestFeatures;
 using System.Text.Json;
@@ -17,6 +18,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetMessagesForChat(int chatId, [FromQuery] MessageParameters messageParameters) {
+            await CheckChatExistance(chatId);
             (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
 
@@ -25,9 +27,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
+        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message, int chatId)
         {
             message.MsgTypeId = 1;
+
+            await CheckChatExistance(chatId);
+
             MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
 
             // emit signalR here
@@ -63,6 +68,15 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             if (message.Sender?.UserId != userId)
             {
                 throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
+            }
+        }
+
+        private async Task CheckChatExistance(int chatId)
+        {
+            ChatDto chatDto = await _service.ChatService.GetChatByChatIdAsync(chatId);
+            if (chatDto.StatusId == 3)
+            {
+                throw new ChatNotFoundException("The conversation you are trying to access may have been deleted and doesnt exist anymore.");
             }
         }
     }

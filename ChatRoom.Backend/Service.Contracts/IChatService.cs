@@ -8,5 +8,7 @@ namespace Service.Contracts {
         Task<ChatDto> CreateP2PChatAndAddMembersAsync(int userId1, int userId2);
         Task<ChatDto> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<UserDto>> GetActiveChatMembersByChatIdAsync(int chatId);
+        Task<bool> DeleteChatAsync(int chatId);
+
     }
 }

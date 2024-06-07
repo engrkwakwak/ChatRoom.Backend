@@ -13,5 +13,6 @@ namespace Contracts {
         Task<int> AddChatMembersAsync(int chatId, DataTable userIds);
         Task<Chat?> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<User>> GetActiveChatMembersByChatIdAsync(int chatId);
+        Task<int> DeleteChatAsync(int chatId);
     }
 }
