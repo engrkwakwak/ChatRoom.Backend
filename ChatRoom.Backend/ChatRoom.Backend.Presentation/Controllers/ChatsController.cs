@@ -118,5 +118,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
             }
             return Ok();
         }
+
+        [HttpGet("{chatId}/can-view")]
+        [Authorize]
+        public async Task<bool> CanViewChat(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            return await _service.ChatService.CanViewAsync(chatId, userId);
+        }
     }
 }

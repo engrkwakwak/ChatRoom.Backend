@@ -9,6 +9,7 @@ namespace Service.Contracts {
         Task<ChatDto> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<UserDto>> GetActiveChatMembersByChatIdAsync(int chatId);
         Task<bool> DeleteChatAsync(int chatId);
+        Task<bool> CanViewAsync(int chatId, int userId);
 
     }
 }

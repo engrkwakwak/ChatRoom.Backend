@@ -13,6 +13,19 @@ namespace Service {
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
 
+        public async Task<bool> CanViewAsync(int chatId, int userId)
+        {
+            IEnumerable<User> chatMembers = await _repository.Chat.GetActiveChatMembersByChatIdAsync(chatId);
+            foreach (var user in chatMembers)
+            {
+                if(user.UserId == userId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<ChatDto> CreateP2PChatAndAddMembersAsync(int userId1, int userId2)
         {
             Chat? chat = await _repository.Chat.CreateChatAsync(1);
