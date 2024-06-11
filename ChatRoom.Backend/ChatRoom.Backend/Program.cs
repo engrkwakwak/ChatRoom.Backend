@@ -14,7 +14,12 @@ LogManager.Setup().LoadConfigurationFromFile(string.Concat(Directory.GetCurrentD
 builder.Services.ConfigureCors();
 builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConn");
+});
 builder.Services.ConfigureServiceManager();
+builder.Services.ConfigureRedisCacheService();
 builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureSmtpCredentials(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));

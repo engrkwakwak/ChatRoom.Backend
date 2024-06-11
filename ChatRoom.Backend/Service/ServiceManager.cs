@@ -1,14 +1,16 @@
 ﻿using AutoMapper;
 using Contracts;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
+using RedisCacheService;
 using Service.Contracts;
 
 namespace Service {
-    public class ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration configuration) : IServiceManager {
+    public class ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration configuration, IRedisCacheManager cache) : IServiceManager {
         private readonly Lazy<IChatMemberService> _chatMemberService = new(() => new ChatMemberService(repository, logger, mapper));
         private readonly Lazy<IChatService> _chatService = new(() => new ChatService(repository, logger, mapper));
         private readonly Lazy<IContactService> _contactService = new(() => new ContactService(repository, logger, mapper));
-        private readonly Lazy<IMessageService> _messageService = new(() => new MessageService(repository, logger, mapper));
+        private readonly Lazy<IMessageService> _messageService = new(() => new MessageService(repository, logger, mapper, cache));
         private readonly Lazy<IUserService> _userService = new(() => new UserService(repository, logger, mapper));
         private readonly Lazy<IAuthService> _authService = new(() => new AuthService(repository, logger, mapper, configuration));
         private readonly Lazy<IEmailService> _emailService = new(() => new EmailService(repository, logger, mapper, configuration));

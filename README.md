@@ -4,6 +4,13 @@ TODO: 简要介绍你的项目。通过此节说明此项目的目标或动机�
 #入门
 TODO: 指导用户在自己的系统上设置和运行代码。在本节中，可讨论:
 1.	安装过程
+	## Setup Redis
+	To setup redis just insert the redis connection string to the `appSettings.json` file.
+	
+	```json
+	"ConnectionStrings": {
+    		"RedisConn": "YOUR_CONNECTION_STRING"
+ 	}```
 2.	软件依赖项
 3.	最新发布
 4.	API 参考
