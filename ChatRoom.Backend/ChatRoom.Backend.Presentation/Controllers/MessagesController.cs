@@ -32,5 +32,19 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             return Ok(createdMessage);
         }
+
+        [HttpGet("latest")]
+        [Authorize]
+        public async Task<IActionResult> GetLatestMessage(int chatId)
+        {
+            MessageParameters messageParameters = new MessageParameters
+            {
+                PageNumber = 1,
+                PageSize = 1,
+            };
+            (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
+
+            return Ok(messages.First());
+        }
     }
 }

@@ -5,6 +5,7 @@ using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
 using System.Data;
 
 namespace Service {
@@ -48,6 +49,12 @@ namespace Service {
                 throw new ChatNotFoundException("An error occurred while retrieving the chat messages. Please try again later.");
             }
             return _mapper.Map<ChatDto>(chat);
+        }
+
+        public async Task<IEnumerable<ChatDto>> GetChatListByChatIdAsync(ChatParameters chatParameters)
+        {
+            IEnumerable<Chat> chats = await _repository.Chat.SearchChatlistAsync(chatParameters);
+            return _mapper.Map<IEnumerable<ChatDto>>(chats);
         }
 
         public async Task<int?> GetP2PChatIdByUserIdsAsync(int userId1, int userId2)

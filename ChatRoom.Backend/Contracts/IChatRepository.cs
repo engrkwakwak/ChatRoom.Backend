@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Shared.RequestFeatures;
 using System.Data;
 
 namespace Contracts {
@@ -13,5 +14,7 @@ namespace Contracts {
         Task<int> AddChatMembersAsync(int chatId, DataTable userIds);
         Task<Chat?> GetChatByChatIdAsync(int chatId);
         Task<IEnumerable<User>> GetActiveChatMembersByChatIdAsync(int chatId);
+        Task<IEnumerable<Chat>> GetChatListByUserIdAsync(ChatParameters chatParameters);
+        Task<IEnumerable<Chat>> SearchChatlistAsync(ChatParameters chatParameters);
     }
 }

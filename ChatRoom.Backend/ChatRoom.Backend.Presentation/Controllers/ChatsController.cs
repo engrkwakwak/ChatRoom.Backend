@@ -8,6 +8,7 @@ using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Messages;
+using Shared.RequestFeatures;
 
 namespace ChatRoom.Backend.Presentation.Controllers
 {
@@ -91,5 +92,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
             return Ok(createdMessage);
         }
+
+        [HttpGet("get-by-user-id")]
+        [Authorize]
+        public async Task<IActionResult> GetChatListByUserId([FromQuery] ChatParameters chatParameters)
+        {
+            IEnumerable<ChatDto> chats = await _service.ChatService.GetChatListByChatIdAsync(chatParameters);
+            return Ok(chats);
+        }
+
     }
 }
