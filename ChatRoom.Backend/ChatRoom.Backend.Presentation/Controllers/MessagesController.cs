@@ -9,6 +9,7 @@ using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Contacts;
 using Shared.DataTransferObjects.Messages;
 using Shared.DataTransferObjects.Users;
+using Shared.Enums;
 using Shared.RequestFeatures;
 using System.Text.Json;
 
@@ -38,8 +39,11 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             ChatDto currentChat = await _service.ChatService.GetChatByChatIdAsync(message.ChatId);
             IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(message.ChatId);
 
-            //insert to contacts automatically
-            IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId).ToList());
+            //insert to contacts automatically if p2p
+            if(currentChat.ChatTypeId == (int)ChatTypes.P2P) {
+                IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId).ToList());
+            }
+            
 
             MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
             string groupName = ChatRoomHub.GetGroupName(createdMessage.ChatId);
