@@ -1,11 +1,13 @@
-﻿using Shared.DataTransferObjects.Users;
+﻿using Shared.CustomValidations;
 
 namespace Shared.DataTransferObjects.Chats {
-    public record ChatMemberDto {
-        public int ChatId { get; init; }
-        public UserDisplayDto? User { get; init; }
+    public class ChatMemberForUpdateDto {
         public bool IsAdmin { get; init; }
+
+        [MinimumValue(1)]
         public int LastSeenMessageId { get; init; }
+
+        [MinimumValue(1)]
         public int StatusId { get; init; }
     }
 }

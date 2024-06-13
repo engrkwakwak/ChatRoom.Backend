@@ -9,5 +9,6 @@ namespace Service.Contracts {
         public Task<bool> DeleteContactByUserIdContactIdAsync(int userId, int contactId);
         public Task<IEnumerable<ContactDto>> GetContactsByUserIdAsync(ContactParameters contactParameters);
         public Task<IEnumerable<UserDto>> SearchContactsByNameUserIdAsync(ContactParameters contactParameters);
+        Task<IEnumerable<ContactDto>> InsertContactsAsync(int userId, List<int> contactIds);
     }
 }

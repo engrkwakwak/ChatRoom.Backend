@@ -10,5 +10,6 @@ namespace Service.Contracts {
         IAuthService AuthService { get; }
         IFileService FileService { get; }
         IStatusService StatusService { get; }
+        ISignalRService SignalRService {  get; }
     }
 }

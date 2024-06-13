@@ -94,12 +94,14 @@ namespace Service {
             return tokenOptions;
         }
         private List<Claim> GetClaims() {
-            return [
+            return new List<Claim> {
                 new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
                 new("display-name", User.DisplayName),
-                new("display-picture", User.DisplayPictureUrl ?? "")
-            ];
+                new("display-picture", User.DisplayPictureUrl ?? ""),
+                new(ClaimTypes.NameIdentifier, User.UserId.ToString())
+            };
         }
+
 
         private static bool IsSecurityTokenExpired(JwtSecurityToken token) {
             return (DateTime.Compare(DateTime.UtcNow, token.Payload.ValidTo.ToUniversalTime()) > 0);

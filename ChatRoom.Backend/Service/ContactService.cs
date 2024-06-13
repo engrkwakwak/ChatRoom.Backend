@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
@@ -68,6 +69,15 @@ namespace Service {
             users = await _repository.User.GetUsersByIdsAsync(_userIds);
             userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
             return userDtos;
+        }
+
+        public async Task<IEnumerable<ContactDto>> InsertContactsAsync(int userId, List<int> contactIds) {
+            IEnumerable<Contact> chatContacts = await _repository.Contact.InsertContactsAsync(userId, contactIds);
+            IEnumerable<ContactDto> chatContactsToReturn = _mapper.Map<IEnumerable<ContactDto>>(chatContacts);
+            
+            if(chatContactsToReturn.Count() != contactIds.Count) throw new InsertedContactRowsMismatchException(chatContactsToReturn.Count(), contactIds.Count);
+
+            return chatContactsToReturn;
         }
     }
 }

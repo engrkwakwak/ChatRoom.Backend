@@ -3,7 +3,6 @@ using ChatRoom.Backend.Extensions;
 using ChatRoom.Backend.Presentation.ActionFilters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
 using NLog;
 using Microsoft.Extensions.Azure;
 using ChatRoom.Backend.Presentation.Hubs;
@@ -26,6 +25,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options => {
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.ConfigureFileUploads();
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers(config => {
     config.RespectBrowserAcceptHeader = true;
@@ -59,6 +59,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<ChatRoomHub>("/chatHub");
+app.MapHub<ChatRoomHub>("/chatRoomHub");
 
 app.Run();

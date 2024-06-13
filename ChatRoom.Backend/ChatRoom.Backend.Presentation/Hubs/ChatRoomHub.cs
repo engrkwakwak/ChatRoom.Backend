@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Microsoft.AspNetCore.SignalR;
 using Service.Contracts;
+using Shared.DataTransferObjects.Chats;
 using System.Security.Claims;
 
 namespace ChatRoom.Backend.Presentation.Hubs {
@@ -9,32 +10,21 @@ namespace ChatRoom.Backend.Presentation.Hubs {
         private readonly ILoggerManager _logger = logger;
 
         public override async Task OnConnectedAsync() {
-            var userId = GetUserIdFromSession();
+            await RegisterUserGroups();
+            await base.OnConnectedAsync();
+        }
+
+        public async Task RegisterUserGroups() {
+            int userId = GetUserIdFromSession();
             if (userId == 0) {
                 Context.Abort();
                 return;
             }
 
-            var userChats = await _service.ChatService.GetChatsByUserIdAsync(userId);
-            foreach (var chat in userChats) {
-                var groupName = GetGroupName(chat.ChatId);
-                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            IEnumerable<ChatDto> userChats = await _service.ChatService.GetChatsByUserIdAsync(userId);
+            foreach (ChatDto chat in userChats) {
+                await AddToGroup(chat.ChatId);
             }
-
-            await base.OnConnectedAsync();
-        }
-
-        public override async Task OnDisconnectedAsync(Exception? exception) {
-            var userId = GetUserIdFromSession();
-            if (userId != 0) {
-                var userChats = await _service.ChatService.GetChatsByUserIdAsync(userId);
-                foreach (var chat in userChats) {
-                    var groupName = GetGroupName(chat.ChatId);
-                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-                }
-            }
-
-            await base.OnDisconnectedAsync(exception);
         }
 
         public async Task AddToGroup(int chatId) {
@@ -48,9 +38,9 @@ namespace ChatRoom.Backend.Presentation.Hubs {
         }
 
         private int GetUserIdFromSession() {
-            var userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userIdClaim = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userIdClaim == null) {
+            if (string.IsNullOrEmpty(userIdClaim)) {
                 _logger.LogError("The user id found in the jwt token is null.");
                 return 0;
             }
@@ -58,6 +48,6 @@ namespace ChatRoom.Backend.Presentation.Hubs {
             return int.Parse(userIdClaim);
         }
 
-        private static string GetGroupName(int chatId) => $"chat-{chatId}";
+        public static string GetGroupName(int chatId) => $"chat-{chatId}";
     }
 }
