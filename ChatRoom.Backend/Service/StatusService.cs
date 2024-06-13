@@ -1,25 +1,28 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Models;
+using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Status;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Service
 {
-    internal sealed class StatusService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IStatusService
+    internal sealed class StatusService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IStatusService
     {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
+        private readonly IRedisCacheManager _cache = cache;
 
         public async Task<StatusDto?> GetStatusByIdAsync(int id)
         {
-            Status? status = await _repository.Status.GetStatusByIdAsync(id);
+            string cacheKey = $"status:{id}";
+            Status? status = await _cache.GetCachedDataAsync<Status>(cacheKey);
+            if (status != null)
+            {
+                return _mapper.Map<StatusDto?>(status);
+            }
+            status = await _repository.Status.GetStatusByIdAsync(id);
             return status == null ? null : _mapper.Map<StatusDto?>(status);
         }
     }

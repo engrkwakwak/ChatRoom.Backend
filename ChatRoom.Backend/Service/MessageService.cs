@@ -28,9 +28,6 @@ namespace Service {
             {
                 throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
             }
-
-
-            _cache.SetCachedData<Message>($"message:{_createdMessage.MessageId}", _createdMessage, TimeSpan.FromMinutes(1));
             return _mapper.Map<MessageDto>(createdMessage);
         }
 
