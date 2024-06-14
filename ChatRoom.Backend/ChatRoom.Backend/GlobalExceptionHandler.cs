@@ -1,9 +1,10 @@
 ﻿using Contracts;
 using Entities.ErrorModel;
-using Entities.Exceptions;
+using Entities.Exceptions.Base;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace ChatRoom.Backend {
+namespace ChatRoom.Backend
+{
     public class GlobalExceptionHandler(ILoggerManager logger) : IExceptionHandler {
         private readonly ILoggerManager _logger = logger;
 

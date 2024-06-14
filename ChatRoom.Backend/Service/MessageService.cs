@@ -58,5 +58,6 @@ namespace Service {
                 ? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.")
                 : _mapper.Map<MessageDto>(updatedMessage);
         }
+
     }
 }

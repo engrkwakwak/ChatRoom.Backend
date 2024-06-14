@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Exceptions.Base;
 
-namespace Entities.Exceptions
-{
-    public class ChatMemberNotFoundException(string message) : NotFoundException(message)
-    {
+namespace Entities.Exceptions {
+    public class ChatMemberNotFoundException(int chatId, int userId) : NotFoundException($"The chat with id {chatId} does not contain a member with id {userId}.") {
+
     }
 }

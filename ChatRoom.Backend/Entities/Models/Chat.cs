@@ -27,7 +27,7 @@ namespace Entities.Models {
         public int StatusId { get; set; }
         public Status? Status { get; set; }
 
-        public ICollection<ChatMember>? Members { get; set; }
-        public ICollection<Message>? Messages { get; set; }
+        public IEnumerable<ChatMember>? Members { get; set; }
+        public IEnumerable<Message>? Messages { get; set; }
     }
 }

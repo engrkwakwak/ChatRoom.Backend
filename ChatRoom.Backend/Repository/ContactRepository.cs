@@ -70,5 +70,24 @@ namespace Repository {
             int affectedRows = await _connection.ExecuteAsync("spUpdateContactStatus", parameters, commandType: CommandType.StoredProcedure);
             return affectedRows;
         }
+
+        public async Task<IEnumerable<Contact>> InsertContactsAsync(int userId, List<int> contactIds) {
+            DynamicParameters parameters = new();
+            parameters.Add("userId", userId);
+            parameters.Add("contactIds", ToUserIdDataTable(contactIds), DbType.Object);
+
+            IEnumerable<Contact> contacts = await _connection.QueryAsync<Contact>("spInsertContacts", parameters, commandType: CommandType.StoredProcedure);
+            return contacts;
+        }
+
+        private static DataTable ToUserIdDataTable(IEnumerable<int> userIds) {
+            DataTable dt = new();
+            dt.Columns.Add("UserId", typeof(int));
+
+            foreach (int userId in userIds) {
+                dt.Rows.Add(userId);
+            }
+            return dt;
+        }
     }
 }

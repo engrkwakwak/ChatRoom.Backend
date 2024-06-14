@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Entities.Exceptions.Base;
 
 namespace Entities.Exceptions
 {
-    public class ChatNotFoundException (string message) : NotFoundException(message)
+    public class ChatNotFoundException(int chatId) : NotFoundException($"The chat with id {chatId} does not exists in the database.")
     {
     }
 }
