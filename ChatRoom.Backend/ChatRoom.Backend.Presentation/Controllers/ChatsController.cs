@@ -1,5 +1,6 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using ChatRoom.Backend.Presentation.Hubs;
+using Entities.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -21,6 +22,10 @@ namespace ChatRoom.Backend.Presentation.Controllers
         public async Task<IActionResult> GetChatById([FromRoute] int chatId)
         {
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+            if(chat.ChatTypeId == 3)
+            {
+                throw new ChatNotFoundException(chatId);
+            }
             return Ok(chat);
         }
 
@@ -65,6 +70,39 @@ namespace ChatRoom.Backend.Presentation.Controllers
             await _hubContext.Clients.Group(groupName).SendAsync("NotifyMessageSeen", updatedChatMember);
 
             return NoContent();
+        }
+
+        [HttpDelete("{chatId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId,userId);
+            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+
+            if(chat.ChatTypeId == 2 && !member.IsAdmin)
+            {
+                throw new UnauthorizedChatDeletion("Unauthorized Action detected. Access for this action is for chat admins only.");
+            }
+
+            if (!(await _service.ChatService.DeleteChatAsync(chatId)))
+            {
+                throw new ChatNotDeletedException("Something went wrong while deleting the chat. Please try again later");
+            }
+
+            string groupName = ChatRoomHub.GetGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("DeleteChat", chatId);
+            return Ok();
+        }
+
+        [HttpGet("{chatId}/can-view")]
+        [Authorize]
+        public async Task<bool> CanViewChat(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            return await _service.ChatService.CanViewAsync(chatId, userId);
         }
     }
 }

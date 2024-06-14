@@ -5,5 +5,6 @@ namespace Service.Contracts {
         Task<ChatMemberDto> UpdateLastSeenMessageAsync(int chatId, int userId, ChatMemberForUpdateDto chatMemberForUpdate);
         Task<IEnumerable<ChatMemberDto>> GetActiveChatMembersByChatIdAsync(int chatId);
 
+        Task<ChatMemberDto> GetChatMemberByChatIdUserIdAsync(int chatId, int userId);
     }
 }

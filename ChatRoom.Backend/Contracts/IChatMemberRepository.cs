@@ -6,5 +6,6 @@ namespace Contracts {
         Task<ChatMember?> GetChatMemberByChatIdAndUserIdAsync(int chatId, int userId);
         Task<IEnumerable<ChatMember>> InsertChatMembers(int chatId, IEnumerable<int> userIds);
         Task<IEnumerable<ChatMember>> GetActiveChatMembersByChatIdAsync(int chatId);
+        // Task<ChatMember?> GetChatMemberByChatIdUserIdAsync(int chatId, int userId);
     }
 }

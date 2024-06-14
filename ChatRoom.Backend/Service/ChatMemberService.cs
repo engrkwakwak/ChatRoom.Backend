@@ -28,5 +28,15 @@ namespace Service {
             IEnumerable<ChatMemberDto> chatMembersToReturn = _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
             return chatMembersToReturn;
         }
+
+        public async Task<ChatMemberDto> GetChatMemberByChatIdUserIdAsync(int chatId, int userId)
+        {
+            ChatMember? chatMember = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId);   
+            if(chatMember == null)
+            {
+                throw new ChatMemberNotFoundException(chatId, userId);
+            }
+            return _mapper.Map<ChatMemberDto>(chatMember);
+        }
     }
 }
