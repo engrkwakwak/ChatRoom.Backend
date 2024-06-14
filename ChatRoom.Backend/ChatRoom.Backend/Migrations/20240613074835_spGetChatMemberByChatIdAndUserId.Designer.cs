@@ -12,8 +12,8 @@ using Repository;
 namespace ChatRoom.Backend.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20240604031120_spAddP2PChatMembers")]
-    partial class spAddP2PChatMembers
+    [Migration("20240613074835_spGetChatMemberByChatIdAndUserId")]
+    partial class spGetChatMemberByChatIdAndUserId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -9,5 +9,6 @@ namespace Contracts {
         public Task<int> DeleteContactByUserIdContactIdAsync(int userId, int contactId);
         public Task<Contact?> GetContactByUserIdContactIdAsync(int userId, int contactId);
         public Task<int> UpdateContactStatusAsync(Contact contact);
+        Task<IEnumerable<Contact>> InsertContactsAsync(int userId, List<int> contactIds);
     }
 }

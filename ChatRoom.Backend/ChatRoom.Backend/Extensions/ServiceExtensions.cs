@@ -16,9 +16,10 @@ namespace ChatRoom.Backend.Extensions {
         public static void ConfigureCors(this IServiceCollection services) =>
             services.AddCors(options => {
                 options.AddPolicy("CorsPolicy", builder =>
-                    builder.AllowAnyOrigin() //Change to WithOrigins("https://example.com")
+                    builder.WithOrigins("http://localhost:4200")
                     .AllowAnyMethod() //Change to WithMethods("POST", "GET")
                     .AllowAnyHeader() //Change to WithHeaders("accept", "content-type")
+                    .AllowCredentials()
                     .WithExposedHeaders("X-Pagination")); 
             });
 
@@ -52,6 +53,16 @@ namespace ChatRoom.Backend.Extensions {
                         ValidIssuer = jwtSetting["validIssuer"],
                         ValidAudience = jwtSetting["validAudience"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                    };
+                    options.Events = new JwtBearerEvents {
+                        OnMessageReceived = context => {
+                            var accessToken = context.Request.Query["access_token"];
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatRoomHub")) {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
                     };
                 });
         }

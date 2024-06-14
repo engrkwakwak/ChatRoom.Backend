@@ -63,13 +63,24 @@ namespace Service {
                 _logger.LogError($"{nameof(VerifyJwtToken)}: Verification Failed. The token has expired.");
                 throw new Exception("Verification Failed. The token has expired.");
             }
-
             return securityToken.Payload;
         }
         public async Task<bool> VerifyEmail(int userId)
         {
             int affectedRows = await _repository.User.VerifyEmailAsync(userId);
             return affectedRows > 0;
+        }
+
+        public int GetUserIdFromJwtToken(string token)
+        {
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
+            if(securityToken.Subject == null)
+            {
+                throw new Exception("Invalid token");
+            }
+            return int.Parse(securityToken.Subject);
         }
 
         /*
@@ -94,12 +105,14 @@ namespace Service {
             return tokenOptions;
         }
         private List<Claim> GetClaims() {
-            return [
+            return new List<Claim> {
                 new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
                 new("display-name", User.DisplayName),
-                new("display-picture", User.DisplayPictureUrl ?? "")
-            ];
+                new("display-picture", User.DisplayPictureUrl ?? ""),
+                new(ClaimTypes.NameIdentifier, User.UserId.ToString())
+            };
         }
+
 
         private static bool IsSecurityTokenExpired(JwtSecurityToken token) {
             return (DateTime.Compare(DateTime.UtcNow, token.Payload.ValidTo.ToUniversalTime()) > 0);

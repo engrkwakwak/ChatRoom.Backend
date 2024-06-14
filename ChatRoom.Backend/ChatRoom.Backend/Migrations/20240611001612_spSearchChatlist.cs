@@ -35,6 +35,13 @@ namespace ChatRoom.Backend.Migrations
 						)  AS LastDateSent
 					FROM Chats WITH (NOLOCK)
 					WHERE 
+						(
+							SELECT COUNT(1)
+							FROM [Messages] WITH (NOLOCK)
+							WHERE [Messages].f_chat_id=Chats.f_chat_id
+								AND [Messages].f_status_id = 1
+						) > 0
+						AND 
 						Chats.f_status_id <> 3
 						AND 
 						(

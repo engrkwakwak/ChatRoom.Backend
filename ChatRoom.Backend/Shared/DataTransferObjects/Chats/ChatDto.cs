@@ -1,21 +1,13 @@
-﻿using Entities.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Shared.DataTransferObjects.Chats
+﻿namespace Shared.DataTransferObjects.Chats
 {
-    public class ChatDto
+    public record ChatDto
     {
-        public int ChatId { get; set; }
-        public int ChatTypeId { get; set; }
-        public string? ChatName { get; set; }
-        public string? DisplayPictureUrl { get; set; }
-        public DateTime? DateCreated { get; set; }
-        public int StatusId { get; set; }
+        public int ChatId { get; init; }
+        public int ChatTypeId { get; init; }
+        public string? ChatName { get; init; }
+        public DateTime? DateCreated { get; init; }
+        public int StatusId { get; init; }
+
+        public IEnumerable<ChatMemberDto>? Members { get; init; }
     }
 }

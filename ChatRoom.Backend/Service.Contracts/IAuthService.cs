@@ -9,6 +9,6 @@ namespace Service.Contracts {
         string CreateEmailVerificationToken(UserDto user);
         public JwtPayload VerifyJwtToken(string token);
         public Task<bool> VerifyEmail(int userId);
-
+        int GetUserIdFromJwtToken(string token);
     }
 }
