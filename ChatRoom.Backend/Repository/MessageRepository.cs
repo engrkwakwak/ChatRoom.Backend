@@ -42,13 +42,25 @@ namespace Repository {
 
         public async Task<Message?> InsertMessageAsync(Message message)
         {
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("ChatId", message.ChatId);
             parameters.Add("SenderId", message.SenderId);
             parameters.Add("Content", message.Content);
             parameters.Add("MessageTypeId", message.MsgTypeId);
 
-            return await _connection.QueryFirstOrDefaultAsync<Message?>("spInsertMessage", parameters, commandType:  CommandType.StoredProcedure);
+            IEnumerable<Message> createdMessage =  await _connection.QueryAsync<Message, User, MessageType, Status, Message>(
+                "spInsertMessage", 
+                (message, sender, msgType, status) => {
+                    message.User = sender;
+                    message.MessageType = msgType;
+                    message.Status = status;
+                    return message;
+                }, 
+                parameters, 
+                commandType: CommandType.StoredProcedure,
+                splitOn: "UserId, MsgTypeId, StatusId"
+            );
+            return createdMessage.FirstOrDefault();
         }
 
         public async Task<Message?> GetMessageByMessageIdAsync(int messageId)

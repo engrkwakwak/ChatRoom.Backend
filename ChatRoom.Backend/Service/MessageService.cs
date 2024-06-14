@@ -14,17 +14,8 @@ namespace Service {
 
         public async Task<MessageDto> InsertMessageAsync(MessageForCreationDto message)
         {
-            Message _message = _mapper.Map<Message>(message);
-            Message? _createdMessage = await _repository.Message.InsertMessageAsync(_message);
-            if (_createdMessage == null)
-            {
-                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
-            }
-            Message? createdMessage = await _repository.Message.GetMessageByMessageIdAsync(_createdMessage!.MessageId);
-            if (createdMessage == null)
-            {
-                throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
-            }
+            Message mappedMessage = _mapper.Map<Message>(message);
+            Message createdMessage = await _repository.Message.InsertMessageAsync(mappedMessage) ?? throw new MessageNotCreatedException("Something went wrong while sending the message. Please try again later.");
 
             return _mapper.Map<MessageDto>(createdMessage);
         }
