@@ -1,9 +1,10 @@
 ﻿using Contracts;
 using Entities.ErrorModel;
-using Entities.Exceptions;
+using Entities.Exceptions.Base;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace ChatRoom.Backend {
+namespace ChatRoom.Backend
+{
     public class GlobalExceptionHandler(ILoggerManager logger) : IExceptionHandler {
         private readonly ILoggerManager _logger = logger;
 
@@ -16,6 +17,7 @@ namespace ChatRoom.Backend {
                     NotFoundException => StatusCodes.Status404NotFound,
                     BadRequestException => StatusCodes.Status400BadRequest,
                     NoAffectedRowsException => StatusCodes.Status500InternalServerError,
+                    UnauthorizedException => StatusCodes.Status401Unauthorized,
                     _ => StatusCodes.Status500InternalServerError
                 };
 

@@ -42,13 +42,25 @@ namespace Repository {
 
         public async Task<Message?> InsertMessageAsync(Message message)
         {
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add("ChatId", message.ChatId);
             parameters.Add("SenderId", message.SenderId);
             parameters.Add("Content", message.Content);
             parameters.Add("MessageTypeId", message.MsgTypeId);
 
-            return await _connection.QueryFirstOrDefaultAsync<Message?>("spInsertMessage", parameters, commandType:  CommandType.StoredProcedure);
+            IEnumerable<Message> createdMessage =  await _connection.QueryAsync<Message, User, MessageType, Status, Message>(
+                "spInsertMessage", 
+                (message, sender, msgType, status) => {
+                    message.User = sender;
+                    message.MessageType = msgType;
+                    message.Status = status;
+                    return message;
+                }, 
+                parameters, 
+                commandType: CommandType.StoredProcedure,
+                splitOn: "UserId, MsgTypeId, StatusId"
+            );
+            return createdMessage.FirstOrDefault();
         }
 
         public async Task<Message?> GetMessageByMessageIdAsync(int messageId)
@@ -72,6 +84,24 @@ namespace Repository {
                 .ToList()
                 .FirstOrDefault();
             return message;
+        }
+
+        public async Task<int> DeleteMessageAsync(int messageId)
+        {
+            DynamicParameters parameter = new();
+            parameter.Add("MessageId", messageId);
+
+            int affected = await _connection.ExecuteAsync("spDeleteMessage", parameter, commandType: CommandType.StoredProcedure);
+            return affected;
+        }
+
+        public async Task<int> UpdateMessageAsync(Message message)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("MessageId", message.MessageId);
+            parameters.Add("Content", message.Content);
+
+            return await _connection.ExecuteAsync("spUpdateMessage", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -1,95 +1,108 @@
-﻿
-
+﻿using ChatRoom.Backend.Presentation.ActionFilters;
+using ChatRoom.Backend.Presentation.Hubs;
 using Entities.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.SignalR;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
-using Shared.DataTransferObjects.Contacts;
-using Shared.DataTransferObjects.Messages;
+using Shared.Enums;
 
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
     [ApiController]
-    public class ChatsController(IServiceManager service) : ControllerBase
+    public class ChatsController(IServiceManager service, IHubContext<ChatRoomHub> hubContext) : ControllerBase
     {
         private readonly IServiceManager _service = service;
+        private readonly IHubContext<ChatRoomHub> _hubContext = hubContext;
 
-        [HttpGet("get-p2p-chatid-by-userids")]
+        [HttpGet("{chatId}", Name = "GetChatByChatId")]
         [Authorize]
-        public async Task<IActionResult> GetP2PChatByUserIdPair(int userId1, int userId2)
-        {
-            if (userId1 < 1 || userId2 < 1)
-            {
-                throw new InvalidParameterException("Something went wrong. Invalid inputs was detected.");
-            }
-            int? chatId = await _service.ChatService.GetP2PChatIdByUserIdsAsync(userId1, userId2);
-            return Ok(chatId);
-        }
-
-        [HttpGet("{chatId}")]
-        [Authorize]
-        public async Task<IActionResult> GetById([FromRoute] int chatId)
+        public async Task<IActionResult> GetChatById([FromRoute] int chatId)
         {
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+            if(chat.ChatTypeId == 3)
+            {
+                throw new ChatNotFoundException(chatId);
+            }
             return Ok(chat);
         }
 
         [HttpGet("{chatId}/members")]
         [Authorize]
-        public async Task<IActionResult> GetMembers([FromRoute] int chatId)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetChatMembers(int chatId)
         {
-            if(chatId < 1)
-            {
-                throw new InvalidParameterException("Something went wrong with your request. Please try again later.");
-            }
-            return Ok(await _service.ChatService.GetActiveChatMembersByChatIdAsync(chatId));
+            IEnumerable<ChatMemberDto> chatMembers  = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            return Ok(chatMembers);
         }
 
-        [HttpPost("send-message-to-new-chat")]
         [Authorize]
-        public async Task<IActionResult> SendMessageToNewChat([FromBody] MessageForNewChatDto message)
+        [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateChat([FromBody] ChatForCreationDto chat) {
+            /* Checking if chat already exists for peer to peer chat */
+            if(chat.ChatTypeId == (int)ChatTypes.P2P) {
+                ChatDto? existingChat = await _service.ChatService.GetP2PChatByUserIdsAsync(chat.ChatMemberIds!.ElementAtOrDefault(0), chat.ChatMemberIds!.ElementAtOrDefault(1));
+
+                if (existingChat != null)
+                    return Ok(existingChat);
+            }
+
+            ChatDto createdChat = await _service.ChatService.CreateChatWithMembersAsync(chat);
+
+            /* After chat creation, the system will add all chat members to the signalR group. Including the current user */
+            foreach(var member in createdChat.Members!) {
+                await _hubContext.Clients.User(member.User!.UserId.ToString()).SendAsync("NewChatCreated", createdChat);
+            }
+
+            return CreatedAtRoute("GetChatByChatId", new { chatId = createdChat.ChatId }, createdChat);
+        }
+
+        [Authorize]
+        [HttpPut("{chatId:int}/members/{userId:int}/last-seen-message")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateUserLastSeenMessage(int chatId, int userId, [FromBody] ChatMemberForUpdateDto chatMember) {
+            ChatMemberDto updatedChatMember = await _service.ChatMemberService.UpdateLastSeenMessageAsync(chatId, userId, chatMember);
+
+            string groupName = ChatRoomHub.GetGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("NotifyMessageSeen", updatedChatMember);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{chatId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int chatId)
         {
-            ChatDto chatDto;
-            MessageDto createdMessage;
-            MessageForCreationDto messageForCreationDto = new MessageForCreationDto
-            {
-                MsgTypeId = 1,
-                ChatId = 0,
-                Content = message.Content!,
-                SenderId = (int)message.SenderId!
-            };
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId,userId);
+            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
 
-            int? chatId = await _service.ChatService.GetP2PChatIdByUserIdsAsync((int)message.SenderId!, (int)message.ReceiverId!);
-            if (chatId != null)
+            if(chat.ChatTypeId == 2 && !member.IsAdmin)
             {
-                chatDto = await _service.ChatService.GetChatByChatIdAsync((int)chatId);
-                messageForCreationDto.ChatId = chatDto.ChatId;
-                createdMessage = await _service.MessageService.InsertMessageAsync(messageForCreationDto);
-            }
-            else
-            {
-                chatDto = await _service.ChatService.CreateP2PChatAndAddMembersAsync((int)message.SenderId!, (int)message.ReceiverId!);
-                ContactForCreationDto contact = new ContactForCreationDto
-                {
-                    ContactId = message.ReceiverId,
-                    UserId = message.SenderId,
-                    StatusId = 2,
-                };
-                if(!await _service.ContactService.InsertOrUpdateContactAsync(contact))
-                {
-                    throw new ContactsNotCreatedException("Something went wrong while adding the user as your contacts.");
-                }
-                messageForCreationDto.ChatId = chatDto.ChatId;
-                createdMessage = await _service.MessageService.InsertMessageAsync(messageForCreationDto);
-                
+                throw new UnauthorizedChatDeletion("Unauthorized Action detected. Access for this action is for chat admins only.");
             }
 
-            // emit signalR here
+            if (!(await _service.ChatService.DeleteChatAsync(chatId)))
+            {
+                throw new ChatNotDeletedException("Something went wrong while deleting the chat. Please try again later");
+            }
 
-            return Ok(createdMessage);
+            string groupName = ChatRoomHub.GetGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("DeleteChat", chatId);
+            return Ok();
+        }
+
+        [HttpGet("{chatId}/can-view")]
+        [Authorize]
+        public async Task<bool> CanViewChat(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            return await _service.ChatService.CanViewAsync(chatId, userId);
         }
     }
 }
