@@ -122,5 +122,16 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(chats);
         }
 
+        [HttpGet("{chatId}/typing")]
+        [Authorize]
+        public async Task<IActionResult> Typing(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
+            return NoContent();
+        }
     }
 }
