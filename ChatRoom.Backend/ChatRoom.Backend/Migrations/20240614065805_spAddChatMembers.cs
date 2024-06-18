@@ -5,7 +5,7 @@
 namespace ChatRoom.Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class spAddP2PChatMembers : Migration
+    public partial class spAddChatMembers : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
