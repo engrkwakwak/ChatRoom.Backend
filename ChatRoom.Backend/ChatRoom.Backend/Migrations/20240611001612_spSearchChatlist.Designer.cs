@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,11 @@ using Repository;
 namespace ChatRoom.Backend.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20240611001612_spSearchChatlist")]
+    partial class spSearchChatlist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace ChatRoom.Backend.Migrations
                         .HasColumnName("f_date_created");
 
                     b.Property<string>("DisplayPictureUrl")
-                        .HasColumnType("VARCHAR(200)")
+                        .HasColumnType("VARCHAR(100)")
                         .HasColumnName("f_display_picture_url");
 
                     b.Property<int>("StatusId")
@@ -314,7 +317,7 @@ namespace ChatRoom.Backend.Migrations
                         .HasColumnName("f_display_name");
 
                     b.Property<string>("DisplayPictureUrl")
-                        .HasColumnType("VARCHAR(200)")
+                        .HasColumnType("VARCHAR(100)")
                         .HasColumnName("f_display_picture_url");
 
                     b.Property<string>("Email")

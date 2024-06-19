@@ -3,6 +3,7 @@ using Contracts;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
@@ -12,11 +13,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Service {
-    internal sealed class AuthService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration configuration) : IAuthService {
+    internal sealed class AuthService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration configuration, IRedisCacheManager cache) : IAuthService {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly IConfiguration _configuration = configuration;
+        private readonly IRedisCacheManager _cache = cache;
         private User? User { get; set; }
 
         public string CreateToken()
@@ -28,6 +30,7 @@ namespace Service {
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
+
         public string CreateEmailVerificationToken(UserDto user)
         {
             IConfigurationSection? jwtSetting = _configuration.GetSection("EmailJwtSettings");
@@ -117,6 +120,7 @@ namespace Service {
         private static bool IsSecurityTokenExpired(JwtSecurityToken token) {
             return (DateTime.Compare(DateTime.UtcNow, token.Payload.ValidTo.ToUniversalTime()) > 0);
         }
+
         private static bool IsEmail(string input) {
             string emailPattern = @"^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$";
             Regex regex = new(emailPattern);

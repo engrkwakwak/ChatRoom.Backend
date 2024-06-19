@@ -47,11 +47,32 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             
 
             MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
-            string groupName = ChatRoomHub.GetGroupName(createdMessage.ChatId);
+            string groupName = ChatRoomHub.GetChatGroupName(createdMessage.ChatId);
 
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", createdMessage);
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new ChatHubChatlistUpdateDto
+            {
+                LatestMessage = createdMessage,
+                Chat = currentChat,
+                ChatMembers = chatMembers
+            };
+            await _hubContext.Clients.All.SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
 
             return Ok(createdMessage);
+        }
+
+        [HttpGet("latest")]
+        [Authorize]
+        public async Task<IActionResult> GetLatestMessage(int chatId)
+        {
+            MessageParameters messageParameters = new MessageParameters
+            {
+                PageNumber = 1,
+                PageSize = 1,
+            };
+            (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
+
+            return Ok(messages.First());
         }
 
         [HttpDelete("{messageId}")]
@@ -64,7 +85,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new MessageUpdateFailedException("Something went wrong while deleting the message. Please try again later.");
             }
             MessageDto deletedMessage = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
-            string groupName = ChatRoomHub.GetGroupName(deletedMessage.ChatId);
+            string groupName = ChatRoomHub.GetChatGroupName(deletedMessage.ChatId);
             await _hubContext.Clients.Group(groupName).SendAsync("DeleteMessage", deletedMessage);
             return Ok();
         }
@@ -75,7 +96,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         {
             await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
             MessageDto updatedMessage = await _service.MessageService.UpdateMessageAsync(message);
-            string groupName = ChatRoomHub.GetGroupName(updatedMessage.ChatId);
+            string groupName = ChatRoomHub.GetChatGroupName(updatedMessage.ChatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UpdateMessage", updatedMessage);
             return Ok(updatedMessage);
         }

@@ -65,7 +65,7 @@ namespace ChatRoom.Backend.Migrations
                     f_address = table.Column<string>(type: "NVARCHAR(100)", nullable: true),
                     f_birthdate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     f_is_email_verified = table.Column<bool>(type: "bit", nullable: false),
-                    f_display_picture_url = table.Column<string>(type: "VARCHAR(100)", nullable: true),
+                    f_display_picture_url = table.Column<string>(type: "VARCHAR(200)", nullable: true),
                     f_date_created = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
@@ -81,7 +81,7 @@ namespace ChatRoom.Backend.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     f_chat_type_id = table.Column<int>(type: "int", nullable: false),
                     f_chat_name = table.Column<string>(type: "NVARCHAR(50)", nullable: true),
-                    f_display_picture_url = table.Column<string>(type: "VARCHAR(100)", nullable: true),
+                    f_display_picture_url = table.Column<string>(type: "VARCHAR(200)", nullable: true),
                     f_date_created = table.Column<DateTime>(type: "datetime2", nullable: true),
                     f_status_id = table.Column<int>(type: "int", nullable: false)
                 },

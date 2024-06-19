@@ -2,15 +2,16 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 
 namespace Service {
-    internal sealed class ChatMemberService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IChatMemberService {
+    internal sealed class ChatMemberService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatMemberService {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
-
+        private readonly IRedisCacheManager _cache = cache;
         public async Task<ChatMemberDto> UpdateLastSeenMessageAsync(int chatId, int userId, ChatMemberForUpdateDto chatMemberForUpdate) {
             ChatMember chatMemberEntity = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId) ?? throw new ChatMemberNotFoundException(chatId, userId);
             if (chatMemberForUpdate.LastSeenMessageId <= chatMemberEntity.LastSeenMessageId) {
@@ -24,18 +25,28 @@ namespace Service {
         }
 
         public async Task<IEnumerable<ChatMemberDto>> GetActiveChatMembersByChatIdAsync(int chatId) {
-            IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.GetActiveChatMembersByChatIdAsync(chatId);
-            IEnumerable<ChatMemberDto> chatMembersToReturn = _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
-            return chatMembersToReturn;
+            string chatKey = $"chat:{chatId}:activeChatMembers";
+            IEnumerable<ChatMember> chatMembers = await _cache.GetCachedDataAsync<IEnumerable<ChatMember>>(chatKey);
+            if(chatMembers != null)
+            {
+                return _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
+            }
+            chatMembers = await _repository.ChatMember.GetActiveChatMembersByChatIdAsync(chatId);
+            _cache.SetCachedData(chatKey, chatMembers, TimeSpan.FromMinutes(30));
+            return _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
         }
 
         public async Task<ChatMemberDto> GetChatMemberByChatIdUserIdAsync(int chatId, int userId)
         {
-            ChatMember? chatMember = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId);   
-            if(chatMember == null)
+            string chatMemberKey = $"chatMember:userId:{userId}:chatId:{chatId}";
+            ChatMember? chatMember = await _cache.GetCachedDataAsync<ChatMember>(chatMemberKey);
+            if(chatMember != null )
             {
-                throw new ChatMemberNotFoundException(chatId, userId);
+                _mapper.Map<ChatMemberDto>(chatMember);
             }
+
+            chatMember = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId) ?? throw new ChatMemberNotFoundException(chatId, userId); ;
+            _cache.SetCachedData(chatMemberKey, chatMember, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatMemberDto>(chatMember);
         }
     }

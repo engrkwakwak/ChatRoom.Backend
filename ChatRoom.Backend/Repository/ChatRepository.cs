@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Dapper;
 using Entities.Models;
+using Shared.RequestFeatures;
 using System.Data;
 
 namespace Repository {
@@ -10,6 +11,8 @@ namespace Repository {
         public async Task<Chat?> CreateChatAsync(Chat chatToCreate) {
             DynamicParameters parameters = new();
             parameters.Add("chatTypeId", chatToCreate.ChatTypeId);
+            parameters.Add("chatName", chatToCreate.ChatName);
+            parameters.Add("displayPictureUrl", chatToCreate.DisplayPictureUrl);
 
             Chat? createdChat = await _connection.QueryFirstOrDefaultAsync<Chat>("spCreateChat", parameters, commandType: CommandType.StoredProcedure);
             return createdChat;
@@ -46,6 +49,27 @@ namespace Repository {
             parameter.Add("ChatId", chatId);
 
             return await _connection.ExecuteAsync("spDeleteChat", parameter, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<Chat>> GetChatListByUserIdAsync(ChatParameters chatParameters)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("PageSize", chatParameters.PageSize);
+            parameters.Add("PageNumber", chatParameters.PageNumber);
+            parameters.Add("UserId", chatParameters.UserId);
+
+            return await _connection.QueryAsync<Chat>("spGetChatListByUserId", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<Chat>> SearchChatlistAsync(ChatParameters chatParameters)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserId", chatParameters?.UserId);
+            parameters.Add("Name", String.IsNullOrEmpty(chatParameters?.Name) ? "" : chatParameters?.Name);
+            parameters.Add("PageSize", chatParameters?.PageSize);
+            parameters.Add("PageNumber", chatParameters?.PageNumber);
+
+            return await _connection.QueryAsync<Chat>("spSearchChatlist", parameters, commandType : CommandType.StoredProcedure);
         }
     }
 }

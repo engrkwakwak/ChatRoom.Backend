@@ -7,6 +7,7 @@
         public string? ChatName { get; init; }
         public DateTime? DateCreated { get; init; }
         public int StatusId { get; init; }
+        public string? DisplayPictureUrl { get; init; }
 
         public IEnumerable<ChatMemberDto>? Members { get; init; }
     }

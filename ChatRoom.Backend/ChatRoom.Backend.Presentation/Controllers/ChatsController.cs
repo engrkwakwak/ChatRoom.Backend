@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.SignalR;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.Enums;
+using Shared.RequestFeatures;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 
 namespace ChatRoom.Backend.Presentation.Controllers
 {
@@ -66,7 +69,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
         public async Task<IActionResult> UpdateUserLastSeenMessage(int chatId, int userId, [FromBody] ChatMemberForUpdateDto chatMember) {
             ChatMemberDto updatedChatMember = await _service.ChatMemberService.UpdateLastSeenMessageAsync(chatId, userId, chatMember);
 
-            string groupName = ChatRoomHub.GetGroupName(chatId);
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("NotifyMessageSeen", updatedChatMember);
 
             return NoContent();
@@ -91,8 +94,14 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 throw new ChatNotDeletedException("Something went wrong while deleting the chat. Please try again later");
             }
 
-            string groupName = ChatRoomHub.GetGroupName(chatId);
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("DeleteChat", chatId);
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new ChatHubChatlistUpdateDto
+            {
+                ChatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId),
+                Chat = chat
+            };
+            await _hubContext.Clients.All.SendAsync("ChatlistDeleteChat", chatHubChatlistUpdateDto);
             return Ok();
         }
 
@@ -103,6 +112,47 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             return await _service.ChatService.CanViewAsync(chatId, userId);
+        }
+
+        [HttpGet("get-by-user-id")]
+        [Authorize]
+        public async Task<IActionResult> GetChatListByUserId([FromQuery] ChatParameters chatParameters)
+        {
+            IEnumerable<ChatDto> chats = await _service.ChatService.GetChatListByChatIdAsync(chatParameters);
+            return Ok(chats);
+        }
+
+        [HttpGet("{chatId}/typing")]
+        [Authorize]
+        public async Task<IActionResult> Typing(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
+            return NoContent();
+        }
+
+        [Authorize]
+        [HttpPost("display-picture"), DisableRequestSizeLimit]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UploadDisplayPicture() {
+            IFormCollection formCollection = await Request.ReadFormAsync();
+            IFormFile file = formCollection.Files[0];
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Invalid file type. Only image files are allowed.");
+
+            if (file.Length > 0) {
+                string filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
+                string fileUrl = await _service.FileService.UploadImageAsync(file.OpenReadStream(), filename, file.ContentType, "chat-display-pictures");
+
+                return Ok(fileUrl);
+            }
+            else {
+                return BadRequest();
+            }
         }
     }
 }

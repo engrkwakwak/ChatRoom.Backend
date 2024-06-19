@@ -28,12 +28,12 @@ namespace ChatRoom.Backend.Presentation.Hubs {
         }
 
         public async Task AddToGroup(int chatId) {
-            var groupName = GetGroupName(chatId);
+            var groupName = GetChatGroupName(chatId);
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         }
 
         public async Task RemoveFromGroupAsync(int chatId) {
-            var groupName = GetGroupName(chatId);
+            var groupName = GetChatGroupName(chatId);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
 
@@ -44,10 +44,10 @@ namespace ChatRoom.Backend.Presentation.Hubs {
                 _logger.LogError("The user id found in the jwt token is null.");
                 return 0;
             }
-
             return int.Parse(userIdClaim);
         }
 
-        public static string GetGroupName(int chatId) => $"chat-{chatId}";
+        public static string GetChatGroupName(int chatId) => $"chat-{chatId}";
+
     }
 }
