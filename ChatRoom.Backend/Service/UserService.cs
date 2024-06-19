@@ -83,5 +83,20 @@ namespace Service {
             User? user = await _repository.User.GetUserByIdAsync(userId);
             return user is null ? throw new UserIdNotFoundException(userId) : user;
         }
+
+        public async Task<bool> UpdatePasswordAsync(int userId, string password)
+        {
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(password);
+
+            int affectedRows = await _repository.User.UpdatePasswordAsync(userId, passwordHash);   
+
+            return (affectedRows > 0);
+        }
+
+        public async Task<UserDto> GetUserByEmailAsync(string email)
+        {
+            User? user = await _repository.User.GetUserByEmailAsync(email) ?? throw new UsernameNotFoundException(email);
+            return _mapper.Map<UserDto>(user);
+        }
     }
 }

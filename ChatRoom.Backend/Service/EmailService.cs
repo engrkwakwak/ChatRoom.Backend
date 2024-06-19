@@ -9,6 +9,7 @@ using MimeKit;
 using Microsoft.Extensions.Configuration;
 using Shared.DataTransferObjects.Users;
 using Razor.Templating.Core;
+using Org.BouncyCastle.Crypto;
 
 namespace Service
 {
@@ -56,6 +57,20 @@ namespace Service
                 Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/EmailVerification.cshtml", viewModel),
                 To = user.Email,
                 Subject = "Complete Your Registration with Chatroom",
+                User = user
+            };
+
+            return await SendEmail(email);
+        }
+
+        public async Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink)
+        {
+            PasswordResetEmailViewModel viewModel = new PasswordResetEmailViewModel { User = user, PasswordResetLink = passwordResetLink};
+            EmailDto email = new EmailDto
+            {
+                Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/PasswordResetEmail.cshtml", viewModel),
+                To = user.Email,
+                Subject = "Password Reset",
                 User = user
             };
 

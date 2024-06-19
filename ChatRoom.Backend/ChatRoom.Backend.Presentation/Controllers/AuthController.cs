@@ -1,5 +1,6 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +55,23 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             return Ok(createdUser);
         }
 
+        [HttpPut("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto updatePasswordDto)
+        {   
+            if(updatePasswordDto.Password != updatePasswordDto.PasswordConfirmation)
+            {
+                throw new ValidationException($"The passwords doesnt match.");
+            }
+
+            _service.AuthService.VerifyJwtToken(updatePasswordDto.Token);
+            int userId = _service.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token);
+
+            if(await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
+                throw new UserUpdateFailedException(userId);
+
+            return NoContent();
+        }
+
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string token)
         {
@@ -105,6 +123,38 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 return BadRequest("Something went wrong while sending the email.");
             };
 
+            return Ok();
+        }
+
+        [HttpPost("send-password-reset-link")]
+        public async Task<IActionResult> SendPasswordResetLink(int userId)
+        {
+            if(userId < 1)
+            {
+                throw new InvalidParameterException("Invalid Request Parameter");
+            }
+
+            UserDto user = await _service.UserService.GetUserByIdAsync(userId);
+
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={_service.AuthService.CreateEmailVerificationToken(user)}";
+            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink))
+            {
+                return BadRequest("Something went wrong while sending the email.");
+            };
+            return Ok();
+        }
+
+        [HttpPost("send-password-reset-link-via-email")]
+        public async Task<IActionResult> SendPasswordResetLink(string email)
+        {
+
+            UserDto user = await _service.UserService.GetUserByEmailAsync(email);
+
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={_service.AuthService.CreateEmailVerificationToken(user)}";
+            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink))
+            {
+                return BadRequest("Something went wrong while sending the email.");
+            };
             return Ok();
         }
 

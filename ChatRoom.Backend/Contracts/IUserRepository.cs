@@ -20,5 +20,7 @@ namespace Contracts {
         ///<param name="ids">The converted list of ids to be pass onto the stored procedure. Should be in example format "1,2,3,4,5". <para><seealso href="https://stackoverflow.com/questions/14959824/convert-a-list-into-a-comma-separated-string" /></para></param>
         Task<IEnumerable<User>> GetUsersByIdsAsync(string ids);
         Task<PagedList<User>> GetUsersAsync(UserParameters userParameters);
+
+        Task<int> UpdatePasswordAsync(int userId, string passwordHash);
     }
 }

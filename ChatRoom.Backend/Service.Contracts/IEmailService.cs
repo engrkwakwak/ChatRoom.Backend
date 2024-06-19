@@ -10,5 +10,7 @@ namespace Service.Contracts
         public Task<bool> SendEmail(EmailDto request);
 
         public Task<bool> SendVerificationEmail(UserDto user, string verificationLink);
+
+        Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink);
     }
 }

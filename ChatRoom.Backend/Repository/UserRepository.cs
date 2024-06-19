@@ -106,5 +106,14 @@ namespace Repository {
             int count = await _connection.ExecuteScalarAsync<int>("spGetUserCount", parameters, commandType: CommandType.StoredProcedure);
             return count;
         }
+
+        public async Task<int> UpdatePasswordAsync(int userId, string passwordHash)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserId", userId);
+            parameters.Add("PasswordHash", passwordHash);
+
+            return await _connection.ExecuteScalarAsync<int>("spUpdatePassword", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }
