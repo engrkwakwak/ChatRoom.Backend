@@ -9,8 +9,9 @@ TODO: 指导用户在自己的系统上设置和运行代码。在本节中，�
 	
 	```json
 	"ConnectionStrings": {
-    		"RedisConn": "YOUR_CONNECTION_STRING"
- 	}```
+    	"RedisConn": "YOUR_CONNECTION_STRING"
+ 	}
+	 ```
 2.	软件依赖项
 3.	最新发布
 4.	API 参考
