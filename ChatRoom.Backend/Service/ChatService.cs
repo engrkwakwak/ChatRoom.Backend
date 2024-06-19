@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.DataTransferObjects.Users;
@@ -11,10 +12,11 @@ using System.Data;
 using System.Threading.Tasks;
 
 namespace Service {
-    internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper) : IChatService {
+    internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatService {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
+        private readonly IRedisCacheManager _cache = cache;
 
         public async Task<ChatDto> CreateChatWithMembersAsync(ChatForCreationDto chatDto) {
             Chat chatEntity = _mapper.Map<Chat>(chatDto);
@@ -41,14 +43,6 @@ namespace Service {
             return false;
         }
 
-
-
-        public async Task<ChatDto> GetChatByChatIdAsync(int chatId)
-        {
-            Chat chat = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
-            return _mapper.Map<ChatDto>(chat);
-        }
-
         public async Task<ChatDto> GetP2PChatByUserIdsAsync(int userId1, int userId2)
         {
             Chat? existingChat = await _repository.Chat.GetP2PChatByUserIdsAsync(userId1, userId2);
@@ -56,9 +50,27 @@ namespace Service {
             return chatToReturn;
         }
 
+        public async Task<ChatDto> GetChatByChatIdAsync(int chatId)
+        {
+            string chatCacheKey = $"chat:{chatId}";
+            Chat? chat = await _cache.GetCachedDataAsync<Chat>(chatCacheKey);
+            if (chat != null)
+                return _mapper.Map<ChatDto>(chat);
+
+            chat = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
+            _cache.SetCachedData(chatCacheKey, chat, TimeSpan.FromMinutes(30));
+            return _mapper.Map<ChatDto>(chat);
+        }
+
         public async Task<bool> DeleteChatAsync(int chatId)
         {
-            return await _repository.Chat.DeleteChatAsync(chatId) > 0;
+            int affectedRows =  await _repository.Chat.DeleteChatAsync(chatId);
+            if (affectedRows < 1)
+                return false;
+
+            string chatKey = $"chat:{chatId}";
+            await _cache.RemoveDataAsync(chatKey);
+            return true;
         }
 
         
@@ -75,6 +87,5 @@ namespace Service {
 
             return userChatsToReturn;
         }
-
     }
 }

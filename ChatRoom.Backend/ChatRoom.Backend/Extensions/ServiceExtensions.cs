@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
+using RedisCacheService;
 using Repository;
 using Service;
 using Service.Contracts;
@@ -25,6 +26,9 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureLoggerService(this IServiceCollection services) =>
             services.AddSingleton<ILoggerManager, LoggerManager>();
+
+        public static void ConfigureRedisCacheService(this IServiceCollection services) =>
+            services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
 
         public static void ConfigureRepositoryManager(this IServiceCollection services) =>
             services.AddScoped<IRepositoryManager, RepositoryManager>();

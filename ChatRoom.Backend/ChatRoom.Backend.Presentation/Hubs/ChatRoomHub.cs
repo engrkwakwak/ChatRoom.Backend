@@ -44,7 +44,6 @@ namespace ChatRoom.Backend.Presentation.Hubs {
                 _logger.LogError("The user id found in the jwt token is null.");
                 return 0;
             }
-
             return int.Parse(userIdClaim);
         }
 
