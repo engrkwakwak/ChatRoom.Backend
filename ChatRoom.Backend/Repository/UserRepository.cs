@@ -3,7 +3,6 @@ using Dapper;
 using Entities.Models;
 using Shared.RequestFeatures;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace Repository {
     public class UserRepository(IDbConnection connection) : IUserRepository {
@@ -85,6 +84,15 @@ namespace Repository {
             parameters.Add("UserIds", ids);
 
             return _connection.QueryAsync<User>("spGetUsersByIds", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int> UpdatePasswordAsync(int userId, string passwordHash)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("UserId", userId);
+            parameters.Add("PasswordHash", passwordHash);
+
+            return await _connection.ExecuteScalarAsync<int>("spUpdatePassword", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

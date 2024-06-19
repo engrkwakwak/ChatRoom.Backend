@@ -14,5 +14,9 @@ namespace Service.Contracts {
         Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate);
 
         Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter);
+        
+        Task<bool> UpdatePasswordAsync(int userId, string password);
+
+        Task<UserDto> GetUserByEmailAsync(string email);
     }
 }
