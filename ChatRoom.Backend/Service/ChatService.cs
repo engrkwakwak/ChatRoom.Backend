@@ -5,11 +5,7 @@ using Entities.Models;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
-using Shared.DataTransferObjects.Users;
 using Shared.RequestFeatures;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
 
 namespace Service {
     internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatService {

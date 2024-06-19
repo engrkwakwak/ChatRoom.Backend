@@ -14,6 +14,9 @@ namespace Shared.DataTransferObjects.Chats {
         [MaxLength(50)]
         public string? ChatName { get; init; }
 
+        [MaxLength(200)]
+        public string? DisplayPictureUrl { get; init; }
+
         [Required]
         [MinimumElements(2)]
         [AllMembersGreaterThanZero]
