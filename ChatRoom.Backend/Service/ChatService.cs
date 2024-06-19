@@ -5,6 +5,10 @@ using Entities.Models;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
+using Shared.DataTransferObjects.Users;
+using Shared.RequestFeatures;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace Service {
@@ -31,7 +35,7 @@ namespace Service {
             IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.GetActiveChatMembersByChatIdAsync(chatId);
             foreach (var member in chatMembers)
             {
-                if (member.UserId == userId)
+                if(member.User?.UserId == userId)
                 {
                     return true;
                 }
@@ -67,6 +71,13 @@ namespace Service {
             string chatKey = $"chat:{chatId}";
             await _cache.RemoveDataAsync(chatKey);
             return true;
+        }
+
+        
+        public async Task<IEnumerable<ChatDto>> GetChatListByChatIdAsync(ChatParameters chatParameters)
+        {
+            IEnumerable<Chat> chats = await _repository.Chat.SearchChatlistAsync(chatParameters);
+            return _mapper.Map<IEnumerable<ChatDto>>(chats);
         }
 
         public async Task<IEnumerable<ChatDto>> GetChatsByUserIdAsync(int userId)
