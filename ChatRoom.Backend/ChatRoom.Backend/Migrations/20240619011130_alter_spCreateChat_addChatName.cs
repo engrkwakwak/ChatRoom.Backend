@@ -12,15 +12,17 @@ namespace ChatRoom.Backend.Migrations
         {
             migrationBuilder.Sql(@"
 CREATE OR ALTER PROCEDURE [dbo].[spCreateChat]
-    @ChatTypeId int,
-	@ChatName NVARCHAR(50)
+    @ChatTypeId INT,
+	@ChatName NVARCHAR(50),
+	@DisplayPictureUrl VARCHAR(200)
 AS
 BEGIN
     INSERT INTO Chats(
 	    f_chat_type_id, 
 	    f_date_created, 
 	    f_status_id,
-		f_chat_name)
+		f_chat_name,
+		f_display_picture_url)
     OUTPUT 
 	    inserted.f_chat_id as ChatId, 
 	    inserted.f_chat_type_id as ChatTypeId,
@@ -28,7 +30,7 @@ BEGIN
 	    inserted.f_display_picture_url as DisplayPictureUrl,
 	    inserted.f_date_created as DateCreated,
 	    inserted.f_status_id as StatusId
-    VALUES(@ChatTypeId, GETDATE(), 1, @ChatName);
+    VALUES(@ChatTypeId, GETDATE(), 1, @ChatName, @DisplayPictureUrl);
 END
 ");
         }

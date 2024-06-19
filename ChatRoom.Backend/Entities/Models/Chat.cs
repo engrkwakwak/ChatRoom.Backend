@@ -16,7 +16,7 @@ namespace Entities.Models {
         [Column("f_chat_name", TypeName = "NVARCHAR(50)")]
         public string? ChatName { get; set; }
 
-        [Column("f_display_picture_url", TypeName = "VARCHAR(100)")]
+        [Column("f_display_picture_url", TypeName = "VARCHAR(200)")]
         public string? DisplayPictureUrl { get; set; }
 
         [Column("f_date_created")]

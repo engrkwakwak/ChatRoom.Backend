@@ -3,7 +3,6 @@ using Dapper;
 using Entities.Models;
 using Shared.RequestFeatures;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace Repository {
     public class UserRepository(IDbConnection connection) : IUserRepository {

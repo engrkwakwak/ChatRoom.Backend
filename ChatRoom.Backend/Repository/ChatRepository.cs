@@ -1,7 +1,6 @@
 ﻿using Contracts;
 using Dapper;
 using Entities.Models;
-using Microsoft.IdentityModel.Tokens;
 using Shared.RequestFeatures;
 using System.Data;
 
@@ -13,6 +12,7 @@ namespace Repository {
             DynamicParameters parameters = new();
             parameters.Add("chatTypeId", chatToCreate.ChatTypeId);
             parameters.Add("chatName", chatToCreate.ChatName);
+            parameters.Add("displayPictureUrl", chatToCreate.DisplayPictureUrl);
 
             Chat? createdChat = await _connection.QueryFirstOrDefaultAsync<Chat>("spCreateChat", parameters, commandType: CommandType.StoredProcedure);
             return createdChat;
