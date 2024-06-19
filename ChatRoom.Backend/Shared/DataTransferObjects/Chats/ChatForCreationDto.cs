@@ -11,6 +11,9 @@ namespace Shared.DataTransferObjects.Chats {
         [MinimumValue(1)]
         public int StatusId { get; init; }
 
+        [MaxLength(50)]
+        public string? ChatName { get; init; }
+
         [Required]
         [MinimumElements(2)]
         [AllMembersGreaterThanZero]

@@ -12,6 +12,7 @@ namespace Repository {
         public async Task<Chat?> CreateChatAsync(Chat chatToCreate) {
             DynamicParameters parameters = new();
             parameters.Add("chatTypeId", chatToCreate.ChatTypeId);
+            parameters.Add("chatName", chatToCreate.ChatName);
 
             Chat? createdChat = await _connection.QueryFirstOrDefaultAsync<Chat>("spCreateChat", parameters, commandType: CommandType.StoredProcedure);
             return createdChat;
