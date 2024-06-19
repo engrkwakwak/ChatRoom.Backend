@@ -28,7 +28,6 @@ namespace Service {
             UserDto userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }
-
         public async Task<bool> HasDuplicateEmailAsync(string email) {
             return await _repository.User.HasDuplicateEmailAsync(email) > 0;
         }
@@ -66,16 +65,23 @@ namespace Service {
             await _cache.RemoveDataAsync(cacheKey);
         }
 
-        private async Task<User> GetUserAndCheckIfItExists(int userId) {
-            User? user = await _repository.User.GetUserByIdAsync(userId);
-            return user is null ? throw new UserIdNotFoundException(userId) : user;
-        }
-
         public async Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter)
         {
             IEnumerable<User> users = await _repository.User.SearchUsersByNameAsync(userParameter);
             IEnumerable<UserDto> userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
             return userDtos;
+        }
+
+        public async Task<(IEnumerable<UserDto> users, MetaData? metaData)> GetUsersAsync(UserParameters userParameters) {
+            PagedList<User> usersWithMetaData = await _repository.User.GetUsersAsync(userParameters);
+
+            IEnumerable<UserDto> usersDto = _mapper.Map<IEnumerable<UserDto>>(usersWithMetaData);
+            return (users: usersDto, metaData: usersWithMetaData.MetaData);
+        }
+
+        private async Task<User> GetUserAndCheckIfItExists(int userId) {
+            User? user = await _repository.User.GetUserByIdAsync(userId);
+            return user is null ? throw new UserIdNotFoundException(userId) : user;
         }
     }
 }

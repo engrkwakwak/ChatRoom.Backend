@@ -5,6 +5,8 @@ using Service.Contracts;
 using Shared.DataTransferObjects.Users;
 using System.Net.Http.Headers;
 using Shared.RequestFeatures;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -50,20 +52,30 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [HttpPost("{userId}/picture"), DisableRequestSizeLimit]
         [Authorize]
         public async Task<IActionResult> UploadDisplayPicture(int userId) {
-            var formCollection = await Request.ReadFormAsync();
-            var file = formCollection.Files[0];
+            IFormCollection formCollection = await Request.ReadFormAsync();
+            IFormFile file = formCollection.Files[0];
+
             if (!file.ContentType.StartsWith("image/"))
                 return BadRequest("Invalid file type. Only image files are allowed.");
 
             if (file.Length > 0) {
                 var filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
-                string fileUrl = await _service.FileService.UploadAsync(file.OpenReadStream(), filename, file.ContentType, userId);
+                string fileUrl = await _service.FileService.UploadImageAsync(file.OpenReadStream(), filename, file.ContentType, "user-display-pictures");
 
                 return Ok(fileUrl);
             }
             else {
                 return BadRequest();
             }
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters) {
+            (IEnumerable<UserDto> users, MetaData? metaData) = await _service.UserService.GetUsersAsync(userParameters);
+            Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
+
+            return Ok(users);
         }
     }
 }

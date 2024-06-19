@@ -3,7 +3,6 @@ using Dapper;
 using Entities.Models;
 using Shared.RequestFeatures;
 using System.Data;
-using System.Threading.Tasks;
 
 namespace Repository {
     public class UserRepository(IDbConnection connection) : IUserRepository {
@@ -69,22 +68,43 @@ namespace Repository {
             return await _connection.ExecuteAsync("spVerifyEmail", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public Task<IEnumerable<User>> SearchUsersByNameAsync(UserParameters userParameters)
+        public async Task<IEnumerable<User>> SearchUsersByNameAsync(UserParameters userParameters)
         {
             DynamicParameters parameters = new();
             parameters.Add("PageSize", userParameters.PageSize);
             parameters.Add("PageNumber", userParameters.PageNumber);
             parameters.Add("Name", userParameters.Name);
 
-            return _connection.QueryAsync<User>("spSearchUsersByName", parameters, commandType: CommandType.StoredProcedure);
+            return await _connection.QueryAsync<User>("spSearchUsersByName", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public Task<IEnumerable<User>> GetUsersByIdsAsync(string ids)
+        public async Task<IEnumerable<User>> GetUsersByIdsAsync(string ids)
         {
             DynamicParameters parameters = new();
             parameters.Add("UserIds", ids);
 
-            return _connection.QueryAsync<User>("spGetUsersByIds", parameters, commandType: CommandType.StoredProcedure);
+            return await _connection.QueryAsync<User>("spGetUsersByIds", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<PagedList<User>> GetUsersAsync(UserParameters userParameters) {
+            DynamicParameters parameters = new();
+            parameters.Add("pageNumber", userParameters.PageNumber);
+            parameters.Add("pageSize", userParameters.PageSize);
+            parameters.Add("name", userParameters.Name);
+
+            IEnumerable<User> users = await _connection.QueryAsync<User>("spGetUsers", parameters, commandType: CommandType.StoredProcedure);
+
+            int count = await GetUserCountAsync(userParameters);
+
+            return new PagedList<User>(users.ToList(), count, userParameters.PageNumber, userParameters.PageSize);
+        }
+
+        private async Task<int> GetUserCountAsync(UserParameters userParameters) {
+            DynamicParameters parameters = new();
+            parameters.Add("name", userParameters.Name);
+
+            int count = await _connection.ExecuteScalarAsync<int>("spGetUserCount", parameters, commandType: CommandType.StoredProcedure);
+            return count;
         }
     }
 }

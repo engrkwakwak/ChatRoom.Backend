@@ -1,5 +1,5 @@
 ﻿namespace Service.Contracts {
     public interface IFileService {
-        Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, int userId);
+        Task<string> UploadImageAsync(Stream fileStream, string fileName, string contentType, string targetContainer);
     }
 }

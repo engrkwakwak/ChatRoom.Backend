@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.SignalR;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
 using Shared.Enums;
-using Shared.DataTransferObjects.Contacts;
-using Shared.DataTransferObjects.Messages;
 using Shared.RequestFeatures;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
 
 namespace ChatRoom.Backend.Presentation.Controllers
 {
@@ -132,6 +132,27 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpPost("display-picture"), DisableRequestSizeLimit]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UploadDisplayPicture() {
+            IFormCollection formCollection = await Request.ReadFormAsync();
+            IFormFile file = formCollection.Files[0];
+
+            if (!file.ContentType.StartsWith("image/"))
+                return BadRequest("Invalid file type. Only image files are allowed.");
+
+            if (file.Length > 0) {
+                string filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
+                string fileUrl = await _service.FileService.UploadImageAsync(file.OpenReadStream(), filename, file.ContentType, "chat-display-pictures");
+
+                return Ok(fileUrl);
+            }
+            else {
+                return BadRequest();
+            }
         }
     }
 }
