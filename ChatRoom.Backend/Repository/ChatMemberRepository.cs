@@ -48,14 +48,23 @@ namespace Repository
             parameters.Add("chatId", chatId);
             parameters.Add("userId", userId);
 
-            ChatMember? chatMember = await _connection.QuerySingleOrDefaultAsync<ChatMember>("spGetChatMemberByChatIdAndUserId", parameters, commandType: CommandType.StoredProcedure);
+            ChatMember? chatMember = (await _connection.QueryAsync<ChatMember, User, ChatMember>(
+                "spGetChatMemberByChatIdAndUserId",
+                (chatMember, user) => {
+                    chatMember.User = user;
+                    return chatMember;
+                },
+                parameters,
+                commandType: CommandType.StoredProcedure,
+                splitOn: "UserId"
+            )).FirstOrDefault();
             return chatMember;
         }
 
         public async Task<ChatMember?> UpdateLastSeenMessageAsync(ChatMember chatMember) {
             DynamicParameters parameters = new();
             parameters.Add("chatId", chatMember.ChatId);
-            parameters.Add("userId", chatMember.UserId);
+            parameters.Add("userId", chatMember.User!.UserId);
             parameters.Add("lastSeenMessageId", chatMember.LastSeenMessageId);
 
             ChatMember? updatedChatMember = (await _connection.QueryAsync<ChatMember, User, ChatMember>(

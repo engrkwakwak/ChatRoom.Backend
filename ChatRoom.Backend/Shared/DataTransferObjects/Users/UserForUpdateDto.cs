@@ -20,7 +20,7 @@ namespace Shared.DataTransferObjects.Users {
 
         public DateTime? BirthDate { get; set; }
 
-        [StringLength(100, ErrorMessage = "The maximum length for 'picture path' is 100 characters.")]
+        [StringLength(200, ErrorMessage = "The maximum length for 'picture path' is 200 characters.")]
         public string? DisplayPictureUrl { get; set; }
     }
 }
