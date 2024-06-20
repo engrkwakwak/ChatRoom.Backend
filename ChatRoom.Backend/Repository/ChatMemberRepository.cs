@@ -80,5 +80,15 @@ namespace Repository
             }
             return dt;
         }
+
+        public async Task<int> SetIsAdminAsync(int chatId, int userId, bool isAdmin)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("ChatId", chatId);
+            parameters.Add("UserId", userId);
+            parameters.Add("IsAdmin", isAdmin);
+
+            return await _connection.ExecuteScalarAsync<int>("spSetAdmin", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

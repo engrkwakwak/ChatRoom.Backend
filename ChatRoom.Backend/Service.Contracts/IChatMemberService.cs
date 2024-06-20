@@ -6,5 +6,7 @@ namespace Service.Contracts {
         Task<IEnumerable<ChatMemberDto>> GetActiveChatMembersByChatIdAsync(int chatId);
 
         Task<ChatMemberDto> GetChatMemberByChatIdUserIdAsync(int chatId, int userId);
+
+        Task<bool> SetIsAdminAsync(int chatId, int userId, bool isAdmin);
     }
 }

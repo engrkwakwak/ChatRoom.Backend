@@ -49,5 +49,13 @@ namespace Service {
             _cache.SetCachedData(chatMemberKey, chatMember, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatMemberDto>(chatMember);
         }
+
+        public async Task<bool> SetIsAdminAsync(int chatId, int userId, bool isAdmin)
+        {
+            int affectedRows = await _repository.ChatMember.SetIsAdminAsync(chatId, userId, isAdmin);
+            string chatMemberKey = $"chatMember:userId:{userId}:chatId:{chatId}";
+            await _cache.RemoveDataAsync(chatMemberKey);
+            return affectedRows > 0;
+        }
     }
 }

@@ -114,7 +114,8 @@ namespace Service {
             IEnumerable<ContactDto> chatContactsToReturn = _mapper.Map<IEnumerable<ContactDto>>(chatContacts);
             
             if(chatContactsToReturn.Count() != contactIds.Count) throw new InsertedContactRowsMismatchException(chatContactsToReturn.Count(), contactIds.Count);
-
+            string userContactsCacheKey = $"user:{userId}:contacts:page:1";
+            await _cache.RemoveDataAsync(userContactsCacheKey);
             return chatContactsToReturn;
         }
     }
