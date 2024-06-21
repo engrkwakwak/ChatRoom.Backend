@@ -55,7 +55,39 @@ namespace Service {
             int affectedRows = await _repository.ChatMember.SetIsAdminAsync(chatId, userId, isAdmin);
             string chatMemberKey = $"chatMember:userId:{userId}:chatId:{chatId}";
             await _cache.RemoveDataAsync(chatMemberKey);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
             return affectedRows > 0;
+        }
+
+        public async Task<bool> SetChatMemberStatus(int chatId, int userId, int statusId)
+        {
+            int affectedRows = await _repository.ChatMember.SetChatMemberStatus(chatId, userId, statusId);
+            await _cache.RemoveDataAsync($"chatMember:userId:{userId}:chatId:{chatId}");
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            return affectedRows > 0;
+        }
+
+        public async Task<ChatMemberDto[]> InsertChatMembersAsync(int chatId, IEnumerable<int> userIds)
+        {
+            IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.InsertChatMembers(chatId, userIds);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            return _mapper.Map<ChatMemberDto[]>(chatMembers);
+        }
+
+        public async Task<ChatMemberDto> InsertChatMemberAsync(int chatId, int userId)
+        {
+            ChatMember? member = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId);
+            if(member == null)
+            {
+                IEnumerable<int> userIds = [userId];
+                await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+                IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.InsertChatMembers(chatId, userIds);
+                return _mapper.Map<ChatMemberDto>(chatMembers.First());
+            }
+            await _repository.ChatMember.SetChatMemberStatus(chatId, userId, 1);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            member.StatusId = 1;
+            return _mapper.Map<ChatMemberDto>(member);
         }
     }
 }

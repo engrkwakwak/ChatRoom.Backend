@@ -88,7 +88,16 @@ namespace Repository
             parameters.Add("UserId", userId);
             parameters.Add("IsAdmin", isAdmin);
 
-            return await _connection.ExecuteScalarAsync<int>("spSetAdmin", parameters, commandType: CommandType.StoredProcedure);
+            return await _connection.ExecuteAsync("spSetAdmin", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<int> SetChatMemberStatus(int chatId, int userId, int statusId)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("ChatId", chatId);
+            parameters.Add("UserId", userId);
+            parameters.Add("StatusId", statusId);
+            return _connection.ExecuteAsync("spSetChatMemberStatus", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }
