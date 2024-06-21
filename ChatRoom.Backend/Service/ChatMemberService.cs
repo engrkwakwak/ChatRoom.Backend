@@ -22,6 +22,9 @@ namespace Service {
 
             ChatMember updatedChatMember = await _repository.ChatMember.UpdateLastSeenMessageAsync(chatMemberEntity) ?? throw new LastSeenMessageUpdateFailedException(chatMemberEntity.ChatId, chatMemberEntity.UserId);
             ChatMemberDto chatMemberToReturn = _mapper.Map<ChatMemberDto>(updatedChatMember);
+
+            string chatKey = $"chat:{chatId}:activeChatMembers";
+            await _cache.RemoveDataAsync(chatKey);
             return chatMemberToReturn;
         }
 
