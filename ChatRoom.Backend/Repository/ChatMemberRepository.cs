@@ -97,7 +97,7 @@ namespace Repository
             parameters.Add("ChatId", chatId);
             parameters.Add("UserId", userId);
             parameters.Add("StatusId", statusId);
-            return _connection.ExecuteAsync("spSetChatMemberStatus", parameters, commandType: CommandType.StoredProcedure);
+            return _connection.ExecuteScalarAsync<int>("spSetChatMemberStatus", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -39,12 +39,11 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             //check chatId exists
             ChatDto currentChat = await _service.ChatService.GetChatByChatIdAsync(message.ChatId);
             IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(message.ChatId);
+            IEnumerable<int> memberIds = chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId);
 
             //insert to contacts automatically if p2p
             if(currentChat.ChatTypeId == (int)ChatTypes.P2P) {
-                List<int> memberIds = chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId).ToList();
-                IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, memberIds);
-                
+                IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, memberIds.ToList());
             }
             
 
@@ -58,7 +57,8 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 Chat = currentChat,
                 ChatMembers = chatMembers
             };
-            await _hubContext.Clients.All.SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+
+            await _hubContext.Clients.Users(memberIds.Select(s => s.ToString())).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
 
             return Ok(createdMessage);
         }

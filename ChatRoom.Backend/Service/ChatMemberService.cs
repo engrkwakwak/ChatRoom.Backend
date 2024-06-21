@@ -5,6 +5,7 @@ using Entities.Models;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
+using Shared.DataTransferObjects.Users;
 
 namespace Service {
     internal sealed class ChatMemberService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatMemberService {
@@ -77,7 +78,9 @@ namespace Service {
         public async Task<ChatMemberDto> InsertChatMemberAsync(int chatId, int userId)
         {
             ChatMember? member = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId);
-            if(member == null)
+            User? user = await _repository.User.GetUserByIdAsync(userId);
+
+            if (member == null || user == null)
             {
                 IEnumerable<int> userIds = [userId];
                 await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
@@ -87,7 +90,9 @@ namespace Service {
             await _repository.ChatMember.SetChatMemberStatus(chatId, userId, 1);
             await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
             member.StatusId = 1;
-            return _mapper.Map<ChatMemberDto>(member);
+            ChatMemberDto  chatMemberDto = _mapper.Map<ChatMemberDto>(member);
+            chatMemberDto.User =  _mapper.Map<UserDisplayDto>(user);
+            return chatMemberDto;
         }
     }
 }
