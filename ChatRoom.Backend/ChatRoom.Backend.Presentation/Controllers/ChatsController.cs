@@ -354,6 +354,13 @@ namespace ChatRoom.Backend.Presentation.Controllers
         public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
             await _service.ChatService.UpdateChatAsync(chatId, chat);
 
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto user = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+
+            await SendMessageNotification(chatId, $"{user.DisplayName} updated the chat name and/or picture", user.UserId, chatMembers);
+
             return NoContent();
         }
     }
