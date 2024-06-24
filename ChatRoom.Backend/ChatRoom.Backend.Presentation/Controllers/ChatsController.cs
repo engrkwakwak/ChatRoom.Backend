@@ -10,7 +10,10 @@ using Shared.Enums;
 using Shared.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
-
+using Shared.DataTransferObjects.Users;
+using Shared.DataTransferObjects.Messages;
+using Entities.Models;
+using System.Diagnostics;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
@@ -45,8 +48,12 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateChat([FromBody] ChatForCreationDto chat) {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+
             /* Checking if chat already exists for peer to peer chat */
-            if(chat.ChatTypeId == (int)ChatTypes.P2P) {
+            if (chat.ChatTypeId == (int)ChatTypes.P2P) {
                 ChatDto? existingChat = await _service.ChatService.GetP2PChatByUserIdsAsync(chat.ChatMemberIds!.ElementAtOrDefault(0), chat.ChatMemberIds!.ElementAtOrDefault(1));
 
                 if (existingChat != null)
@@ -56,9 +63,31 @@ namespace ChatRoom.Backend.Presentation.Controllers
             ChatDto createdChat = await _service.ChatService.CreateChatWithMembersAsync(chat);
 
             /* After chat creation, the system will add all chat members to the signalR group. Including the current user */
-            foreach(var member in createdChat.Members!) {
-                await _hubContext.Clients.User(member.User!.UserId.ToString()).SendAsync("NewChatCreated", createdChat);
+            IEnumerable<string> memberIds = createdChat.Members!.Select(s => s.User!.UserId.ToString());
+            await _hubContext.Clients.Users(memberIds).SendAsync("NewChatCreated", createdChat);
+
+            if (chat.ChatTypeId == (int)ChatTypes.GroupChat)
+            {
+                if (!await _service.ChatMemberService.SetIsAdminAsync(createdChat.ChatId, userId, true))
+                    throw new UserUpdateFailedException(userId);
+
+                MessageForCreationDto messageForCreationDto = new MessageForCreationDto
+                {
+                    ChatId = createdChat.ChatId,
+                    Content = $"{userDto.DisplayName} created the chat.",
+                    MsgTypeId=(int)MessageTypes.Notification,
+                    SenderId=userDto.UserId,
+                };
+                MessageDto messageDto = await _service.MessageService.InsertMessageAsync(messageForCreationDto);
+                ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new()
+                {
+                    Chat = createdChat,
+                    LatestMessage = messageDto
+                };
+                await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
             }
+
+            Debug.WriteLine($"{DateTime.Now:0:MM/dd/yy H:mm:ss zzz} New Chat Created.");
 
             return CreatedAtRoute("GetChatByChatId", new { chatId = createdChat.ChatId }, createdChat);
         }
@@ -82,6 +111,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId,userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
 
             if(chat.ChatTypeId == 2 && !member.IsAdmin)
@@ -101,7 +131,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 ChatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId),
                 Chat = chat
             };
-            await _hubContext.Clients.All.SendAsync("ChatlistDeleteChat", chatHubChatlistUpdateDto);
+            IEnumerable<string> memberIds = chatMembers.Select(c => c.User!.UserId.ToString());
+            await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistDeleteChat", chatHubChatlistUpdateDto);
             return Ok();
         }
 
@@ -129,6 +160,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
+            IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
             return NoContent();
@@ -153,6 +186,165 @@ namespace ChatRoom.Backend.Presentation.Controllers
             else {
                 return BadRequest();
             }
+        }
+
+        [Authorize]
+        [HttpPut("{chatId}/leave")]    
+        public async Task<IActionResult> Leave(int chatId) 
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            ChatMemberDto chatMember = chatMembers.First(m => m.User?.UserId == userId);
+
+            // checks if there are still admins left on the chat
+            if (chatMember.IsAdmin && chatMembers.Count(m => m.IsAdmin) <= 1) 
+            {
+                throw new InvalidParameterException("Invalid request. You cannot leave the chat because you are the only admin left. Please assgin another admin before leaving the chat.");
+            }
+
+            if (await _service.ChatMemberService.SetChatMemberStatus(chatId, userId, (int) Shared.Enums.Status.Deleted)){
+                throw new ChatMemberNotUpdatedException(chatId, userId);
+            }
+
+            await SendMessageNotification(chatId, $"{userDto.DisplayName} left the Chat.", userId, chatMembers.Where(c => c.User!.UserId != userId));
+
+            return NoContent();
+        }
+
+        [HttpPost("{chatId}/add-member/{memberUserId}")]
+        [Authorize]
+        public async Task<IActionResult> AddMember(int chatId, int memberUserId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            ChatMemberDto chatMember = chatMembers.First(m => m.User?.UserId == userId);
+
+            if (!chatMember.IsAdmin)
+            {
+                throw new UnauthorizedChatActionException("Unauthorized Action detected. Access for this action is for chat admins only.");
+            }
+
+            ChatMemberDto member = await _service.ChatMemberService.InsertChatMemberAsync(chatId, memberUserId);
+
+            
+            await SendMessageNotification(chatId, $"{userDto.DisplayName} added {member.User?.DisplayName} to the group.", userId, chatMembers.Append(member));
+
+            return Ok(member);
+        }
+
+        [HttpPost("{chatId}/set-admin/{memberUserId}")]
+        [Authorize]
+        public async Task<IActionResult> SetAdmin(int chatId, int memberUserId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            ChatMemberDto chatMember = chatMembers.First(m => m.User?.UserId == userId);
+
+            if(!chatMember.IsAdmin)
+            {
+                throw new UnauthorizedChatActionException("Unauthorized Action detected. Access for this action is for chat admins only.");
+            }
+
+            if (!await _service.ChatMemberService.SetIsAdminAsync(chatId, memberUserId, true))
+            {
+                throw new ChatMemberNotUpdatedException(chatId, memberUserId);
+            }
+
+            ChatMemberDto newAdminMember = chatMembers.First(m => m.ChatId == chatId && (m.User?.UserId == memberUserId || m.UserId == memberUserId));
+            await SendMessageNotification(chatId, $"{userDto.DisplayName} set {newAdminMember.User?.DisplayName} as Admin", userId, chatMembers);
+            return NoContent();
+        }
+
+        [HttpPost("{chatId}/remove-admin/{memberUserId}")]
+        [Authorize]
+        public async Task<IActionResult> RemoveAdmin(int chatId, int memberUserId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            ChatMemberDto chatMember = chatMembers.First(m => m.User?.UserId == userId);
+
+            if(!chatMember.IsAdmin)
+            {
+                throw new UnauthorizedChatActionException("Unauthorized Action detected. Access for this action is for chat admins only.");
+            }
+
+            if (!await _service.ChatMemberService.SetIsAdminAsync(chatId, memberUserId, false))
+            {
+                throw new ChatMemberNotUpdatedException(chatId, memberUserId);
+            }
+
+            ChatMemberDto newAdminMember = chatMembers.First(m => m.ChatId == chatId && (m.User?.UserId == memberUserId || m.UserId == memberUserId));
+            await SendMessageNotification(chatId, $"{userDto.DisplayName} removed {newAdminMember.User?.DisplayName} as Admin", userId, chatMembers);
+            return NoContent();
+        }
+
+        [HttpDelete("{chatId}/remove-member/{memberUserId}")]
+        [Authorize]
+        public async Task<IActionResult> RemoveMember(int chatId, int memberUserId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto userDto = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            ChatMemberDto chatMember = chatMembers.First(m => m.User?.UserId == userId);
+
+            if (!chatMember.IsAdmin)
+                throw new UnauthorizedChatActionException("Unauthorized Action detected. Access for this action is for chat admins only.");
+
+            if(userId == memberUserId)
+                throw new UnauthorizedChatActionException("Unauthorized Action detected. You cannot remove yourself from the chat");
+
+            if (await _service.ChatMemberService.SetChatMemberStatus(chatId, memberUserId, (int)Shared.Enums.Status.Deleted))
+            {
+                throw new ChatMemberNotUpdatedException(chatId, userId);
+            }
+
+            UserDto removedUser = await _service.UserService.GetUserByIdAsync(memberUserId);
+            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
+            await _hubContext.Clients.User(removedUser.UserId.ToString()).SendAsync("ChatlistRemovedFromChat", chat);
+            await SendMessageNotification(chatId, $"{userDto.DisplayName} removed {removedUser.DisplayName} from the group.", memberUserId, chatMembers.Where(c => c.User!.UserId != removedUser.UserId));
+            IEnumerable<string> memberIds = chatMembers.Select(c => c.User!.UserId.ToString());
+            
+            return NoContent();
+        }
+
+        [HttpGet("{chatId}/members/{memberUserId}")]
+        [Authorize]
+        public async Task<IActionResult> Member(int chatId, int memberUserId)
+        {
+            ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, memberUserId);
+            return Ok(member);
+        }
+
+        private async Task SendMessageNotification(int chatId, string content, int userId, IEnumerable<ChatMemberDto> members)
+        {
+            MessageForCreationDto messageForCreationDto = new()
+            {
+                ChatId = chatId,
+                Content = content,
+                MsgTypeId = (int)MessageTypes.Notification,
+                SenderId = userId,
+            };
+            MessageDto messageDto = await _service.MessageService.InsertMessageAsync(messageForCreationDto);
+
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new()
+            {
+                LatestMessage = messageDto,
+                Chat = await _service.ChatService.GetChatByChatIdAsync(chatId),
+                ChatMembers = members
+            };
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
+            IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
+            await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
         }
     }
 }

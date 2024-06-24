@@ -89,5 +89,24 @@ namespace Repository
             }
             return dt;
         }
+
+        public async Task<int> SetIsAdminAsync(int chatId, int userId, bool isAdmin)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("ChatId", chatId);
+            parameters.Add("UserId", userId);
+            parameters.Add("IsAdmin", isAdmin);
+
+            return await _connection.ExecuteAsync("spSetAdmin", parameters, commandType: CommandType.StoredProcedure);
+        }
+
+        public Task<int> SetChatMemberStatus(int chatId, int userId, int statusId)
+        {
+            DynamicParameters parameters = new();
+            parameters.Add("ChatId", chatId);
+            parameters.Add("UserId", userId);
+            parameters.Add("StatusId", statusId);
+            return _connection.ExecuteScalarAsync<int>("spSetChatMemberStatus", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

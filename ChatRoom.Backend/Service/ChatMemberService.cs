@@ -5,6 +5,7 @@ using Entities.Models;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
+using Shared.DataTransferObjects.Users;
 
 namespace Service {
     internal sealed class ChatMemberService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatMemberService {
@@ -51,6 +52,50 @@ namespace Service {
             chatMember = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId) ?? throw new ChatMemberNotFoundException(chatId, userId); ;
             _cache.SetCachedData(chatMemberKey, chatMember, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatMemberDto>(chatMember);
+        }
+
+        public async Task<bool> SetIsAdminAsync(int chatId, int userId, bool isAdmin)
+        {
+            int affectedRows = await _repository.ChatMember.SetIsAdminAsync(chatId, userId, isAdmin);
+            string chatMemberKey = $"chatMember:userId:{userId}:chatId:{chatId}";
+            await _cache.RemoveDataAsync(chatMemberKey);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            return affectedRows > 0;
+        }
+
+        public async Task<bool> SetChatMemberStatus(int chatId, int userId, int statusId)
+        {
+            int affectedRows = await _repository.ChatMember.SetChatMemberStatus(chatId, userId, statusId);
+            await _cache.RemoveDataAsync($"chatMember:userId:{userId}:chatId:{chatId}");
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            return affectedRows > 0;
+        }
+
+        public async Task<ChatMemberDto[]> InsertChatMembersAsync(int chatId, IEnumerable<int> userIds)
+        {
+            IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.InsertChatMembers(chatId, userIds);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            return _mapper.Map<ChatMemberDto[]>(chatMembers);
+        }
+
+        public async Task<ChatMemberDto> InsertChatMemberAsync(int chatId, int userId)
+        {
+            ChatMember? member = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId);
+            User? user = await _repository.User.GetUserByIdAsync(userId);
+
+            if (member == null || user == null)
+            {
+                IEnumerable<int> userIds = [userId];
+                await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+                IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.InsertChatMembers(chatId, userIds);
+                return _mapper.Map<ChatMemberDto>(chatMembers.First());
+            }
+            await _repository.ChatMember.SetChatMemberStatus(chatId, userId, 1);
+            await _cache.RemoveDataAsync($"chat:{chatId}:activeChatMembers");
+            member.StatusId = 1;
+            ChatMemberDto  chatMemberDto = _mapper.Map<ChatMemberDto>(member);
+            chatMemberDto.User =  _mapper.Map<UserDisplayDto>(user);
+            return chatMemberDto;
         }
     }
 }

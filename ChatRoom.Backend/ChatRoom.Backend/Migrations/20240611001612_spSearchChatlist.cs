@@ -57,6 +57,7 @@ namespace ChatRoom.Backend.Migrations
 							SELECT * FROM ChatMembers 
 							WHERE ChatMembers.f_user_id = @UserId
 							AND Chats.f_chat_id=ChatMembers.f_chat_id 
+							AND ChatMembers.f_status_id IN (1,2)
 						)
 					ORDER BY LastDateSent DESC
 					OFFSET (@PageNumber-1) * @PageSize ROWS
