@@ -1,7 +1,10 @@
 ﻿using ChatRoom.Backend.Presentation.Controllers;
+using Entities.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Org.BouncyCastle.Crypto;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
@@ -118,6 +121,8 @@ namespace ChatRoom.UnitTest.ControllerTests
         [Fact]
         public async Task SignUp_SendVerificationEmailIsFalse_ReturnsBadRequest()
         {
+            // Cannot mock HttpContext needs more research
+
             //SignUpDto user = new()
             //{
             //    Email = "test@email.com",
@@ -130,16 +135,29 @@ namespace ChatRoom.UnitTest.ControllerTests
             //{
             //    Username = user.Username,
             //    DisplayName = user.DisplayName!,
-            //    Email = user.Email
+            //    Email = user.Email,
+            //    UserId = 1
             //};
             //_serviceMock.Setup(s => s.UserService.HasDuplicateEmailAsync(user.Email!)).ReturnsAsync(false);
             //_serviceMock.Setup(s => s.UserService.HasDuplicateUsernameAsync(user.Username!)).ReturnsAsync(false);
+            //_serviceMock.Setup(s => s.UserService.InsertUserAsync(user)).ReturnsAsync(createdUser);
+            //_serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(createdUser)).Returns("test-token");
             //_serviceMock.Setup(s => s.EmailService.SendVerificationEmail(createdUser, "")).ReturnsAsync(false);
 
-            //var actual = await _controller.SignUp(user);
+            //_controller.HttpContext.Request.Host = HostString.FromUriComponent("localhost:5100");
 
+            //var actual = await Assert.ThrowsAsync<EmailNotSentException>(async () =>
+            //{
+            //    await _controller.SignUp(user);
+            //});
             //_serviceMock.VerifyAll();
-            //Assert.Equal($"Something went wrong while sending the verification email.", actual.Messa);
+            //Assert.Equal($"Something went wrong while sending the verification email.", actual.Message);
+            Assert.Fail();
+        }
+
+        [Fact]
+        public async Task UpdatePassword_PasswordsDoesntMatch_ReturnsValidationException()
+        {
             Assert.Fail();
         }
     }

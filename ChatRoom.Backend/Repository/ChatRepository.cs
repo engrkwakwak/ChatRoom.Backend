@@ -71,5 +71,13 @@ namespace Repository {
 
             return await _connection.QueryAsync<Chat>("spSearchChatlist", parameters, commandType : CommandType.StoredProcedure);
         }
+        public async Task<int> UpdateChatAsync(Chat chat) {
+            DynamicParameters parameters = new();
+            parameters.Add("ChatId", chat.ChatId);
+            parameters.Add("ChatName", chat.ChatName);
+            parameters.Add("DisplayPictureUrl", chat.DisplayPictureUrl);
+
+            return await _connection.ExecuteAsync("spUpdateChat", parameters, commandType: CommandType.StoredProcedure);
+        }
     }
 }

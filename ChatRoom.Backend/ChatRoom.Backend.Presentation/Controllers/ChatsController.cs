@@ -14,6 +14,7 @@ using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
 using Entities.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Components.Forms;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
@@ -345,6 +346,22 @@ namespace ChatRoom.Backend.Presentation.Controllers
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
             IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
             await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+        }
+
+        [Authorize]
+        [HttpPut("{chatId:int}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
+            await _service.ChatService.UpdateChatAsync(chatId, chat);
+
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto user = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+
+            await SendMessageNotification(chatId, $"{user.DisplayName} updated the chat name and/or picture", user.UserId, chatMembers);
+
+            return NoContent();
         }
     }
 }

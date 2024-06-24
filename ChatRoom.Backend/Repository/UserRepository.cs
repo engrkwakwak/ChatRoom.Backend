@@ -113,7 +113,7 @@ namespace Repository {
             parameters.Add("UserId", userId);
             parameters.Add("PasswordHash", passwordHash);
 
-            return await _connection.ExecuteScalarAsync<int>("spUpdatePassword", parameters, commandType: CommandType.StoredProcedure);
+            return await _connection.ExecuteAsync("spUpdatePassword", parameters, commandType: CommandType.StoredProcedure);
         }
     }
 }
