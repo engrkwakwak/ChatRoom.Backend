@@ -14,6 +14,7 @@ using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
 using Entities.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Components.Forms;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
@@ -345,6 +346,15 @@ namespace ChatRoom.Backend.Presentation.Controllers
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
             IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
             await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+        }
+
+        [Authorize]
+        [HttpPut("{chatId:int}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
+            await _service.ChatService.UpdateChatAsync(chatId, chat);
+
+            return NoContent();
         }
     }
 }

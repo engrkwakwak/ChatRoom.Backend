@@ -83,5 +83,21 @@ namespace Service {
 
             return userChatsToReturn;
         }
+
+        public async Task UpdateChatAsync(int chatId, ChatForUpdateDto chat) {
+            string cacheKey = $"chat:{chatId}";
+            Chat chatEntity = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
+
+            _mapper.Map(chat, chatEntity);
+
+            int rowsAffected = await _repository.Chat.UpdateChatAsync(chatEntity);
+            if (rowsAffected < 1) {
+                _logger.LogError($"Failed to update the chat with id {chatEntity.ChatId}. " +
+                    $"Total rows affected: {rowsAffected}. At {nameof(ChatService)} - {nameof(UpdateChatAsync)}.");
+                throw new ChatUpdateFailedException(chatId);
+            }
+
+            await _cache.RemoveDataAsync(cacheKey);
+        }
     }
 }

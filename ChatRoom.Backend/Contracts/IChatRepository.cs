@@ -15,5 +15,7 @@ namespace Contracts {
         Task<int> DeleteChatAsync(int chatId);
         Task<IEnumerable<Chat>> GetChatListByUserIdAsync(ChatParameters chatParameters);
         Task<IEnumerable<Chat>> SearchChatlistAsync(ChatParameters chatParameters);
+
+        Task<int> UpdateChatAsync(Chat chat);
     }
 }
