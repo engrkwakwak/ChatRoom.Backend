@@ -1,13 +1,11 @@
 ﻿using ChatRoom.Backend.Presentation.Controllers;
-using ChatRoom.Backend.Presentation.Hubs;
-using Entities.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
+using Shared.DataTransferObjects.Users;
+using System.ComponentModel.DataAnnotations;
 
 namespace ChatRoom.UnitTest.ControllerTests
 {
@@ -27,34 +25,121 @@ namespace ChatRoom.UnitTest.ControllerTests
         [Fact]
         public async Task Authenticate_InvalidInputs_ReturnsValidationError()
         {
-            SignInDto user = new()
-            {
-
-            };
-            _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(true);
-
-            IActionResult result = await _controller.Authenticate(user);
-
-            Assert.IsType<OkObjectResult>(result);
+            Assert.Fail();
         }
 
         [Fact]
         public async Task Authenticate_ValidateUserIsFalse_ReturnsUnauthorizedStatus()
         {
-            SignInDto user = new()
-            {
-
-            };
+            SignInDto user = new();
             _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(false);
 
-            var result = await _controller.Authenticate(user);
+            IActionResult actual = await _controller.Authenticate(user);
 
-            Assert.IsType<UnauthorizedResult>(result);
+            _serviceMock.Verify(m => m.AuthService.ValidateUser(user), Times.Once);
+            Assert.IsType<UnauthorizedResult>(actual);
         }
 
         [Fact]
-        public void Authenticate_ValidateUserIsTrue_ReturnsOkStatus()
+        public async Task Authenticate_ValidateUserIsTrue_ReturnsOkStatus()
         {
+            SignInDto user = new();
+            _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(true);
+
+            IActionResult actual = await _controller.Authenticate(user);
+
+            _serviceMock.Verify(m => m.AuthService.ValidateUser(user), Times.Once);
+            Assert.IsType<OkObjectResult>(actual);
+        }
+
+        [Fact]  
+        public async Task SignUp_HasDuplicateEmail_ReturnsValidationException()
+        {
+            SignUpDto user = new()
+            {
+                Email = "test@email.com",
+                Username = "TestUser",
+                Password = "password",
+                PasswordConfirmation = "password"
+            };
+            _serviceMock.Setup(s => s.UserService.HasDuplicateEmailAsync(user.Email!)).ReturnsAsync(true);
+
+            var actual = await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await _controller.SignUp(user);
+                _serviceMock.Verify(m => m.UserService.HasDuplicateEmailAsync(user.Email!), Times.Once);
+            });
+            Assert.Equal($"The email {user.Email} is already in used by another user.", actual.Message);
+        }
+
+        [Fact]  
+        public async Task SignUp_HasDuplicateUsername_ReturnsValidationException()
+        {
+            SignUpDto user = new()
+            {
+                Email = "test@email.com",
+                Username = "TestUser",
+                Password = "password",
+                PasswordConfirmation = "password"
+            };
+            _serviceMock.Setup(s => s.UserService.HasDuplicateEmailAsync(user.Email!)).ReturnsAsync(false);
+            _serviceMock.Setup(s => s.UserService.HasDuplicateUsernameAsync(user.Username!)).ReturnsAsync(true);
+
+            var actual = await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await _controller.SignUp(user);
+                _serviceMock.VerifyAll();
+            });
+            
+            Assert.Equal($"The username {user.Username} is already in used by another user.", actual.Message);
+        }
+
+        [Fact]  
+        public async Task SignUp_PasswordsDontMatch_ReturnsValidationException()
+        {
+            SignUpDto user = new()
+            {
+                Email = "test@email.com",
+                Username = "TestUser",
+                Password = "password",
+                PasswordConfirmation = "password1"
+            };
+            _serviceMock.Setup(s => s.UserService.HasDuplicateEmailAsync(user.Email!)).ReturnsAsync(false);
+            _serviceMock.Setup(s => s.UserService.HasDuplicateUsernameAsync(user.Username!)).ReturnsAsync(false);
+
+            var actual = await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await _controller.SignUp(user);
+                _serviceMock.VerifyAll();
+            });
+            Assert.Equal($"The Password and Password Confirmation didnt match.", actual.Message);
+        }
+
+        [Fact]
+        public async Task SignUp_SendVerificationEmailIsFalse_ReturnsBadRequest()
+        {
+            //SignUpDto user = new()
+            //{
+            //    Email = "test@email.com",
+            //    Username = "TestUser",
+            //    Password = "password",
+            //    PasswordConfirmation = "password",
+            //    DisplayName = "Test Name"
+            //};
+            //UserDto createdUser = new()
+            //{
+            //    Username = user.Username,
+            //    DisplayName = user.DisplayName!,
+            //    Email = user.Email
+            //};
+            //_serviceMock.Setup(s => s.UserService.HasDuplicateEmailAsync(user.Email!)).ReturnsAsync(false);
+            //_serviceMock.Setup(s => s.UserService.HasDuplicateUsernameAsync(user.Username!)).ReturnsAsync(false);
+            //_serviceMock.Setup(s => s.EmailService.SendVerificationEmail(createdUser, "")).ReturnsAsync(false);
+
+            //var actual = await _controller.SignUp(user);
+
+            //_serviceMock.VerifyAll();
+            //Assert.Equal($"Something went wrong while sending the verification email.", actual.Messa);
             Assert.Fail();
         }
     }

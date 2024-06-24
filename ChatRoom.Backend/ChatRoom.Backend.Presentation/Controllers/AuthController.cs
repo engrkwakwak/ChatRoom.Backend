@@ -49,7 +49,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={_service.AuthService.CreateEmailVerificationToken(createdUser)}";
             if (!await _service.EmailService.SendVerificationEmail(createdUser,  verificationLink)) {
-                return BadRequest("Something went wrong while sending the email.");
+                return BadRequest("Something went wrong while sending the verification email.");
             }
 
             return Ok(createdUser);
