@@ -13,6 +13,7 @@ using System.Net.Http.Headers;
 using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
 using Entities.Models;
+using System.Diagnostics;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
@@ -62,7 +63,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
             ChatDto createdChat = await _service.ChatService.CreateChatWithMembersAsync(chat);
 
             /* After chat creation, the system will add all chat members to the signalR group. Including the current user */
-            IEnumerable<string> memberIds = createdChat.Members!.Select(s => s.ToString());
+            IEnumerable<string> memberIds = createdChat.Members!.Select(s => s.User!.UserId.ToString());
             await _hubContext.Clients.Users(memberIds).SendAsync("NewChatCreated", createdChat);
 
             if (chat.ChatTypeId == (int)ChatTypes.GroupChat)
@@ -85,6 +86,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 };
                 await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
             }
+
+            Debug.WriteLine($"{DateTime.Now:0:MM/dd/yy H:mm:ss zzz} New Chat Created.");
 
             return CreatedAtRoute("GetChatByChatId", new { chatId = createdChat.ChatId }, createdChat);
         }
@@ -157,6 +160,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
+            IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
             return NoContent();
