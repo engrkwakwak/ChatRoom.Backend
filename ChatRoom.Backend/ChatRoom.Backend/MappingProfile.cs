@@ -13,6 +13,7 @@ namespace ChatRoom.Backend {
         {
             CreateMap<Chat, ChatDto>().ReverseMap();
             CreateMap<ChatForCreationDto, Chat>();
+            CreateMap<ChatForUpdateDto, Chat>();
             CreateMap<ChatMember, ChatMemberDto>().ReverseMap();
             CreateMap<ChatMember, ChatMemberForUpdateDto>().ReverseMap();
 
@@ -35,7 +36,6 @@ namespace ChatRoom.Backend {
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<UserForUpdateDto, User>();
             CreateMap<User, UserDisplayDto>().ReverseMap();
-            CreateMap<ChatMember, ChatMemberDto>().ReverseMap();
         }
     }
 }

@@ -14,6 +14,7 @@ using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
 using Entities.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Components.Forms;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
@@ -230,7 +231,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
             ChatMemberDto member = await _service.ChatMemberService.InsertChatMemberAsync(chatId, memberUserId);
 
-            
+            await _hubContext.Clients.User(memberUserId.ToString()).SendAsync("AddedToChat", chatId);
             await SendMessageNotification(chatId, $"{userDto.DisplayName} added {member.User?.DisplayName} to the group.", userId, chatMembers.Append(member));
 
             return Ok(member);
@@ -311,8 +312,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
             await _hubContext.Clients.User(removedUser.UserId.ToString()).SendAsync("ChatlistRemovedFromChat", chat);
             await SendMessageNotification(chatId, $"{userDto.DisplayName} removed {removedUser.DisplayName} from the group.", memberUserId, chatMembers.Where(c => c.User!.UserId != removedUser.UserId));
-            IEnumerable<string> memberIds = chatMembers.Select(c => c.User!.UserId.ToString());
-            
+ 
             return NoContent();
         }
 
@@ -343,8 +343,24 @@ namespace ChatRoom.Backend.Presentation.Controllers
             };
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
-            IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
-            await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+            //IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
+            await _hubContext.Clients.Group(groupName).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+        }
+
+        [Authorize]
+        [HttpPut("{chatId:int}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
+            await _service.ChatService.UpdateChatAsync(chatId, chat);
+
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            UserDto user = await _service.UserService.GetUserByIdAsync(userId);
+            IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+
+            await SendMessageNotification(chatId, $"{user.DisplayName} updated the chat name and/or picture", user.UserId, chatMembers);
+
+            return NoContent();
         }
     }
 }

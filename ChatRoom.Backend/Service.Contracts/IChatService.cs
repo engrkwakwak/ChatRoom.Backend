@@ -11,5 +11,6 @@ namespace Service.Contracts {
         Task<bool> DeleteChatAsync(int chatId);
         Task<bool> CanViewAsync(int chatId, int userId);
         Task<IEnumerable<ChatDto>> GetChatListByChatIdAsync(ChatParameters chatParameters);
+        Task UpdateChatAsync(int chatId, ChatForUpdateDto chat);
     }
 }
