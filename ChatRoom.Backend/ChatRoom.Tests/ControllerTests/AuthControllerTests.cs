@@ -1,6 +1,7 @@
 ﻿using ChatRoom.Backend.Presentation.Controllers;
 using Entities.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -9,6 +10,7 @@ using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ChatRoom.UnitTest.ControllerTests
 {
@@ -121,7 +123,9 @@ namespace ChatRoom.UnitTest.ControllerTests
         [Fact]
         public async Task SignUp_SendVerificationEmailIsFalse_ReturnsBadRequest()
         {
-            // Cannot mock HttpContext needs more research
+            /*
+            ** Cannot mock HttpContext needs more research
+            */
 
             //SignUpDto user = new()
             //{
@@ -157,6 +161,88 @@ namespace ChatRoom.UnitTest.ControllerTests
 
         [Fact]
         public async Task UpdatePassword_PasswordsDoesntMatch_ReturnsValidationException()
+        {
+            UpdatePasswordDto updatePasswordDto = new()
+            {
+                Password = "password",
+                PasswordConfirmation = "password_",
+                Token = ""
+            };
+
+            var actual = await Assert.ThrowsAsync<ValidationException>(async () =>
+            {
+                await _controller.UpdatePassword(updatePasswordDto);
+            });
+            Assert.Equal("The passwords doesnt match.", actual.Message);
+        }
+
+        [Fact]
+        public async Task UpdatePassword_UpdatePasswordFailed_ReturnsUserUpdateFailedException()
+        {
+            int userId = 1;
+            UpdatePasswordDto updatePasswordDto = new()
+            {
+                Password = "password",
+                PasswordConfirmation = "password",
+                Token = It.IsAny<string>(),
+            };
+            _serviceMock.Setup(s => s.AuthService.VerifyJwtToken(updatePasswordDto.Token)).Returns(It.IsAny<JwtPayload>());
+            _serviceMock.Setup(s => s.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token)).Returns(userId);
+            _serviceMock.Setup(s => s.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password)).ReturnsAsync(false);
+
+            var actual = await Assert.ThrowsAsync<UserUpdateFailedException>(async () =>
+            {
+                await _controller.UpdatePassword(updatePasswordDto);
+            });
+
+            _serviceMock.VerifyAll();
+            Assert.Equal($"The server failed to update the user with id: {userId}.", actual.Message);
+        }
+
+        [Fact]
+        public async Task UpdatePassword_UpdatePasswordSucceeds_ReturnsNoContent()
+        {
+            int userId = 1;
+            UpdatePasswordDto updatePasswordDto = new()
+            {
+                Password = "password",
+                PasswordConfirmation = "password",
+                Token = It.IsAny<string>(),
+            };
+            _serviceMock.Setup(s => s.AuthService.VerifyJwtToken(updatePasswordDto.Token)).Returns(It.IsAny<JwtPayload>());
+            _serviceMock.Setup(s => s.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token)).Returns(userId);
+            _serviceMock.Setup(s => s.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password)).ReturnsAsync(true);
+
+            var actual = await _controller.UpdatePassword(updatePasswordDto);
+
+            _serviceMock.VerifyAll();
+            Assert.IsAssignableFrom<NoContentResult>(actual);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task VerifyEmail_TokenIsNullOrEmpty_ReturnsInvalidParameterException(string token)
+        {
+            var actual = await Assert.ThrowsAsync<InvalidParameterException>(async() => await _controller.VerifyEmail(token));
+            Assert.Equal($"Invalid Request Parameter", actual.Message);
+        }
+
+        [Fact]
+        public async Task VerifyEmail_VerifyEmailReturnsFalse_ReturnsInvalidParameterException()
+        {
+            string token = "test-token";
+            JwtPayload payload = new();
+            payload.Add("Sub", 1);
+            _serviceMock.Setup(s => s.AuthService.VerifyJwtToken(token)).Returns(payload);
+            _serviceMock.Setup(s => s.AuthService.VerifyEmail(It.IsAny<int>())).ReturnsAsync(false);
+
+            var actual = await Assert.ThrowsAsync<EmailVerificationFailedException>(async () => await _controller.VerifyEmail(token));
+            Assert.Equal($"Something went wrong while Verifying the Email.", actual.Message);
+        }
+
+        [Fact]
+        public async Task VerifyEmail_VerifyEmailReturnsTrue_ReturnsRedirectResult()
         {
             Assert.Fail();
         }

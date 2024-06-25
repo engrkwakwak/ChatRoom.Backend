@@ -3,6 +3,7 @@ using Entities.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
@@ -65,7 +66,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             _service.AuthService.VerifyJwtToken(updatePasswordDto.Token);
             int userId = _service.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token);
 
-            if(await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
+            if(!await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
                 throw new UserUpdateFailedException(userId);
 
             return NoContent();
@@ -74,7 +75,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [HttpGet("verify-email")]
         public async Task<IActionResult> VerifyEmail(string token)
         {
-            if (String.IsNullOrEmpty(token.TrimEnd()))
+            if (token.IsNullOrEmpty())
             {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
@@ -82,7 +83,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             JwtPayload payload = _service.AuthService.VerifyJwtToken(token);
             if (!await _service.AuthService.VerifyEmail(int.Parse(payload.Sub)))
             {
-                throw new Exception("Something went wrong while Verifying the Email.");
+                throw new EmailVerificationFailedException("Something went wrong while Verifying the Email.");
             }
             
             return Redirect($"{_config.GetSection("FrontendUrl").Value}/email-verified");
