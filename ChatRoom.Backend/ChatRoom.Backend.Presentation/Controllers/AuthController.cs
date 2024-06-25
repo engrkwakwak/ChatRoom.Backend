@@ -1,6 +1,5 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using Entities.Exceptions;
-using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -49,7 +48,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={_service.AuthService.CreateEmailVerificationToken(createdUser)}";
             if (!await _service.EmailService.SendVerificationEmail(createdUser,  verificationLink)) {
-                return BadRequest("Something went wrong while sending the email.");
+                throw new EmailNotSentException("Something went wrong while sending the verification email.");
             }
 
             return Ok(createdUser);
@@ -85,6 +84,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             {
                 throw new Exception("Something went wrong while Verifying the Email.");
             }
+            
             return Redirect($"{_config.GetSection("FrontendUrl").Value}/email-verified");
         }
         

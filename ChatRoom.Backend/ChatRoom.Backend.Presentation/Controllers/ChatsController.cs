@@ -231,7 +231,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
 
             ChatMemberDto member = await _service.ChatMemberService.InsertChatMemberAsync(chatId, memberUserId);
 
-            
+            await _hubContext.Clients.User(memberUserId.ToString()).SendAsync("AddedToChat", chatId);
             await SendMessageNotification(chatId, $"{userDto.DisplayName} added {member.User?.DisplayName} to the group.", userId, chatMembers.Append(member));
 
             return Ok(member);
@@ -312,8 +312,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
             ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
             await _hubContext.Clients.User(removedUser.UserId.ToString()).SendAsync("ChatlistRemovedFromChat", chat);
             await SendMessageNotification(chatId, $"{userDto.DisplayName} removed {removedUser.DisplayName} from the group.", memberUserId, chatMembers.Where(c => c.User!.UserId != removedUser.UserId));
-            IEnumerable<string> memberIds = chatMembers.Select(c => c.User!.UserId.ToString());
-            
+ 
             return NoContent();
         }
 
@@ -344,8 +343,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             };
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", messageDto);
-            IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
-            await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+            //IEnumerable<string> memberIds = members.Select(m => m.User!.UserId.ToString());
+            await _hubContext.Clients.Group(groupName).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
         }
 
         [Authorize]

@@ -71,6 +71,7 @@ namespace Service {
         public async Task<bool> VerifyEmail(int userId)
         {
             int affectedRows = await _repository.User.VerifyEmailAsync(userId);
+            await _cache.RemoveDataAsync($"user:{userId}");
             return affectedRows > 0;
         }
 
