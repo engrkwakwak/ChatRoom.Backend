@@ -84,6 +84,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             {
                 throw new Exception("Something went wrong while Verifying the Email.");
             }
+            
             return Redirect($"{_config.GetSection("FrontendUrl").Value}/email-verified");
         }
         
