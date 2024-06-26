@@ -18,6 +18,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpGet("{userId}")]
         [Authorize]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetUserById(int userId) {
             UserDto user = await _service.UserService.GetUserByIdAsync(userId);
             return Ok(user);
