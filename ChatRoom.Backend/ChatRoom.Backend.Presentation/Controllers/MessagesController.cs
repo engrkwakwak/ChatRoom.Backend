@@ -44,6 +44,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             //insert to contacts automatically if p2p
             if (currentChat.ChatTypeId == (int)ChatTypes.P2P) {
                 IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, memberIds.ToList());
+                await _hubContext.Clients.User(message.SenderId.ToString()).SendAsync("ContactsUpdated");
             }
             
 
