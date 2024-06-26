@@ -13009,3 +13009,503 @@
 2024-06-26 14:54:50.0965 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
 2024-06-26 14:54:50.0965 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
 2024-06-26 14:54:50.0965 Info Configuration initialized.
+2024-06-26 16:30:23.9127 Debug Message Template Auto Format enabled
+2024-06-26 16:30:24.0202 Info Loading assembly name: NLog.Mongo
+2024-06-26 16:30:24.0202 Info NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null. File version: 4.7.1.0. Product version: 4.7.1+c98490b555180e32f6029c380c01c4366f4cfb06. GlobalAssemblyCache: False
+2024-06-26 16:30:24.0202 Debug ScanAssembly('NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null')
+2024-06-26 16:30:24.0372 Debug Loading assembly name: NLog.Mongo succeeded!
+2024-06-26 16:30:24.0549 Debug Object reflection needed to create instance of type: NLog.Mongo.MongoField
+2024-06-26 16:30:24.0549 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.0549 Trace Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 16:30:24.0549 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.0549 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 16:30:24.0549 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.0549 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 16:30:24.0670 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.0670 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 16:30:24.0670 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.0670 Trace Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 16:30:24.0670 Trace  Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 16:30:24.0670 Debug Adding target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 16:30:24.0670 Info Registered target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 16:30:24.0670 Trace ParseRulesElement
+2024-06-26 16:30:24.0864 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2024-06-26 16:30:24.0864 Debug Start watching file-filter 'nlog.config' in directory: C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend
+2024-06-26 16:30:24.0864 Debug --- NLog configuration dump ---
+2024-06-26 16:30:24.0864 Debug Targets:
+2024-06-26 16:30:24.0864 Debug MongoTarget(Name=mongo)
+2024-06-26 16:30:24.0864 Debug Rules:
+2024-06-26 16:30:24.0864 Debug logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]
+2024-06-26 16:30:24.0864 Debug --- End of NLog configuration dump ---
+2024-06-26 16:30:24.0980 Trace FindReachableObject<System.Object>:
+2024-06-26 16:30:24.0980 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]'
+2024-06-26 16:30:24.0980 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic.IList`1[NLog.Targets.Target]
+2024-06-26 16:30:24.0980 Trace  Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 16:30:24.0980 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.0980 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.0980 Trace    Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 16:30:24.0980 Trace    Scanning SimpleLayout '${date}'
+2024-06-26 16:30:24.0980 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.0980 Trace     Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 16:30:24.0980 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.0980 Trace    Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 16:30:24.0980 Trace    Scanning SimpleLayout '${level}'
+2024-06-26 16:30:24.0980 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.0980 Trace     Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 16:30:24.0980 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.0980 Trace    Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 16:30:24.0980 Trace    Scanning SimpleLayout '${logger}'
+2024-06-26 16:30:24.0980 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.0980 Trace     Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 16:30:24.0980 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.0980 Trace    Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 16:30:24.0980 Trace    Scanning SimpleLayout '${message}'
+2024-06-26 16:30:24.0980 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.0980 Trace     Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 16:30:24.0980 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.0980 Trace    Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 16:30:24.0980 Trace    Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 16:30:24.0980 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.0980 Trace     Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 16:30:24.0980 Trace      Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 16:30:24.0980 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.0980 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.0980 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.0980 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic.IList`1[NLog.Config.LoggingRule]
+2024-06-26 16:30:24.0980 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic.IList`1[NLog.Filters.Filter]
+2024-06-26 16:30:24.1150 Info Validating config: TargetNames=mongo, ConfigItems=17, FilePath=C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend\nlog.config
+2024-06-26 16:30:24.1150 Debug Unused target checking is started... Rule Count: 1, Target Count: 1
+2024-06-26 16:30:24.1150 Debug Unused target checking is completed. Total Rule Count: 1, Total Target Count: 1, Unused Target Count: 0
+2024-06-26 16:30:24.1150 Trace Initializing Layout Renderer: ${exception}
+2024-06-26 16:30:24.1150 Trace Initializing ${exception:format=ToString}
+2024-06-26 16:30:24.1150 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1150 Trace Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 16:30:24.1150 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1150 Trace  Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 16:30:24.1150 Trace   Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 16:30:24.1150 Trace Initializing Layout Renderer: ${message}
+2024-06-26 16:30:24.1150 Trace Initializing ${message}
+2024-06-26 16:30:24.1150 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1150 Trace Scanning SimpleLayout '${message}'
+2024-06-26 16:30:24.1150 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1150 Trace  Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 16:30:24.1150 Trace Initializing Layout Renderer: ${loggername}
+2024-06-26 16:30:24.1299 Trace Initializing ${logger}
+2024-06-26 16:30:24.1299 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1299 Trace Scanning SimpleLayout '${logger}'
+2024-06-26 16:30:24.1299 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1299 Trace  Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 16:30:24.1299 Trace Initializing Layout Renderer: ${level}
+2024-06-26 16:30:24.1299 Trace Initializing ${level}
+2024-06-26 16:30:24.1299 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1299 Trace Scanning SimpleLayout '${level}'
+2024-06-26 16:30:24.1299 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1299 Trace  Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 16:30:24.1299 Trace Initializing Layout Renderer: ${date}
+2024-06-26 16:30:24.1299 Trace Initializing ${date}
+2024-06-26 16:30:24.1299 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1299 Trace Scanning SimpleLayout '${date}'
+2024-06-26 16:30:24.1299 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1299 Trace  Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 16:30:24.1299 Trace Initializing MongoTarget(Name=mongo)
+2024-06-26 16:30:24.1299 Trace FindReachableObject<NLog.Layouts.Layout>:
+2024-06-26 16:30:24.1299 Trace Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 16:30:24.1299 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.1299 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.1299 Trace   Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 16:30:24.1299 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.1299 Trace   Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 16:30:24.1299 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.1299 Trace   Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 16:30:24.1299 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.1299 Trace   Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 16:30:24.1299 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 16:30:24.1299 Trace   Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 16:30:24.1299 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.1299 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.1299 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 16:30:24.1299 Trace MongoTarget(Name=mongo) has 5 layouts
+2024-06-26 16:30:24.1558 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 16:30:24.1558 Trace Scanning SimpleLayout 'mongodb+srv://carlmarion:1JCegm7iMSxec2Zj@cluster-gaoshou.m6ongcv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-GaoShou'
+2024-06-26 16:30:24.1558 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 16:30:24.1558 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 16:30:24.1558 Info Configuration initialized.
+2024-06-26 17:05:46.6229 Debug Message Template Auto Format enabled
+2024-06-26 17:05:46.6519 Info Loading assembly name: NLog.Mongo
+2024-06-26 17:05:46.6519 Info NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null. File version: 4.7.1.0. Product version: 4.7.1+c98490b555180e32f6029c380c01c4366f4cfb06. GlobalAssemblyCache: False
+2024-06-26 17:05:46.6519 Debug ScanAssembly('NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null')
+2024-06-26 17:05:46.6647 Debug Loading assembly name: NLog.Mongo succeeded!
+2024-06-26 17:05:46.6647 Debug Object reflection needed to create instance of type: NLog.Mongo.MongoField
+2024-06-26 17:05:46.6786 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.6786 Trace Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:05:46.6786 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.6786 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:05:46.6786 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.6786 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:05:46.6786 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.6786 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:05:46.6786 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.6786 Trace Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:05:46.6786 Trace  Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:05:46.6786 Debug Adding target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:05:46.6786 Info Registered target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:05:46.6786 Trace ParseRulesElement
+2024-06-26 17:05:46.6965 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2024-06-26 17:05:46.6965 Debug Start watching file-filter 'nlog.config' in directory: C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend
+2024-06-26 17:05:46.6965 Debug --- NLog configuration dump ---
+2024-06-26 17:05:46.6965 Debug Targets:
+2024-06-26 17:05:46.6965 Debug MongoTarget(Name=mongo)
+2024-06-26 17:05:46.6965 Debug Rules:
+2024-06-26 17:05:46.6965 Debug logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]
+2024-06-26 17:05:46.6965 Debug --- End of NLog configuration dump ---
+2024-06-26 17:05:46.6965 Trace FindReachableObject<System.Object>:
+2024-06-26 17:05:46.6965 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]'
+2024-06-26 17:05:46.6965 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic.IList`1[NLog.Targets.Target]
+2024-06-26 17:05:46.6965 Trace  Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:05:46.6965 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.6965 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.6965 Trace    Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:05:46.6965 Trace    Scanning SimpleLayout '${date}'
+2024-06-26 17:05:46.6965 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.6965 Trace     Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:05:46.6965 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.6965 Trace    Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:05:46.6965 Trace    Scanning SimpleLayout '${level}'
+2024-06-26 17:05:46.6965 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.6965 Trace     Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:05:46.6965 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.6965 Trace    Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:05:46.6965 Trace    Scanning SimpleLayout '${logger}'
+2024-06-26 17:05:46.6965 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.6965 Trace     Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:05:46.6965 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.6965 Trace    Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:05:46.6965 Trace    Scanning SimpleLayout '${message}'
+2024-06-26 17:05:46.7106 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7106 Trace     Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:05:46.7106 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7106 Trace    Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7106 Trace    Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:05:46.7106 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7106 Trace     Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:05:46.7106 Trace      Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:05:46.7106 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7106 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7106 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7106 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic.IList`1[NLog.Config.LoggingRule]
+2024-06-26 17:05:46.7106 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic.IList`1[NLog.Filters.Filter]
+2024-06-26 17:05:46.7106 Info Validating config: TargetNames=mongo, ConfigItems=17, FilePath=C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend\nlog.config
+2024-06-26 17:05:46.7106 Debug Unused target checking is started... Rule Count: 1, Target Count: 1
+2024-06-26 17:05:46.7106 Debug Unused target checking is completed. Total Rule Count: 1, Total Target Count: 1, Unused Target Count: 0
+2024-06-26 17:05:46.7106 Trace Initializing Layout Renderer: ${exception}
+2024-06-26 17:05:46.7106 Trace Initializing ${exception:format=ToString}
+2024-06-26 17:05:46.7106 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7106 Trace Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:05:46.7106 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7106 Trace  Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:05:46.7106 Trace   Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:05:46.7106 Trace Initializing Layout Renderer: ${message}
+2024-06-26 17:05:46.7106 Trace Initializing ${message}
+2024-06-26 17:05:46.7106 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7106 Trace Scanning SimpleLayout '${message}'
+2024-06-26 17:05:46.7106 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7256 Trace  Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:05:46.7256 Trace Initializing Layout Renderer: ${loggername}
+2024-06-26 17:05:46.7256 Trace Initializing ${logger}
+2024-06-26 17:05:46.7256 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7256 Trace Scanning SimpleLayout '${logger}'
+2024-06-26 17:05:46.7256 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7256 Trace  Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:05:46.7256 Trace Initializing Layout Renderer: ${level}
+2024-06-26 17:05:46.7256 Trace Initializing ${level}
+2024-06-26 17:05:46.7256 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7256 Trace Scanning SimpleLayout '${level}'
+2024-06-26 17:05:46.7256 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7256 Trace  Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:05:46.7256 Trace Initializing Layout Renderer: ${date}
+2024-06-26 17:05:46.7256 Trace Initializing ${date}
+2024-06-26 17:05:46.7256 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7256 Trace Scanning SimpleLayout '${date}'
+2024-06-26 17:05:46.7256 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7256 Trace  Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:05:46.7256 Trace Initializing MongoTarget(Name=mongo)
+2024-06-26 17:05:46.7256 Trace FindReachableObject<NLog.Layouts.Layout>:
+2024-06-26 17:05:46.7256 Trace Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:05:46.7256 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7256 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7256 Trace   Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7256 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7256 Trace   Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7256 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7256 Trace   Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7256 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7256 Trace   Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7256 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:05:46.7256 Trace   Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:05:46.7256 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7256 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7256 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:05:46.7256 Trace MongoTarget(Name=mongo) has 5 layouts
+2024-06-26 17:05:46.7478 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:05:46.7478 Trace Scanning SimpleLayout 'mongodb+srv://carlmarion:1JCegm7iMSxec2Zj@cluster-gaoshou.m6ongcv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-GaoShou'
+2024-06-26 17:05:46.7478 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:05:46.7478 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 17:05:46.7478 Info Configuration initialized.
+2024-06-26 17:14:56.0513 Debug Message Template Auto Format enabled
+2024-06-26 17:14:56.0850 Info Loading assembly name: NLog.Mongo
+2024-06-26 17:14:56.0939 Info NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null. File version: 4.7.1.0. Product version: 4.7.1+c98490b555180e32f6029c380c01c4366f4cfb06. GlobalAssemblyCache: False
+2024-06-26 17:14:56.0939 Debug ScanAssembly('NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null')
+2024-06-26 17:14:56.0939 Debug Loading assembly name: NLog.Mongo succeeded!
+2024-06-26 17:14:56.1132 Debug Object reflection needed to create instance of type: NLog.Mongo.MongoField
+2024-06-26 17:14:56.1168 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1168 Trace Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:14:56.1168 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1168 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:14:56.1168 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1168 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:14:56.1168 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1168 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:14:56.1168 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1168 Trace Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:14:56.1168 Trace  Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:14:56.1168 Debug Adding target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:14:56.1331 Info Registered target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:14:56.1331 Trace ParseRulesElement
+2024-06-26 17:14:56.1331 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2024-06-26 17:14:56.1331 Debug Start watching file-filter 'nlog.config' in directory: C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend
+2024-06-26 17:14:56.1331 Debug --- NLog configuration dump ---
+2024-06-26 17:14:56.1331 Debug Targets:
+2024-06-26 17:14:56.1331 Debug MongoTarget(Name=mongo)
+2024-06-26 17:14:56.1331 Debug Rules:
+2024-06-26 17:14:56.1331 Debug logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]
+2024-06-26 17:14:56.1331 Debug --- End of NLog configuration dump ---
+2024-06-26 17:14:56.1331 Trace FindReachableObject<System.Object>:
+2024-06-26 17:14:56.1331 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]'
+2024-06-26 17:14:56.1331 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic.IList`1[NLog.Targets.Target]
+2024-06-26 17:14:56.1331 Trace  Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:14:56.1331 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1331 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1331 Trace    Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1331 Trace    Scanning SimpleLayout '${date}'
+2024-06-26 17:14:56.1493 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1493 Trace     Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:14:56.1493 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1493 Trace    Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1493 Trace    Scanning SimpleLayout '${level}'
+2024-06-26 17:14:56.1493 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1493 Trace     Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:14:56.1493 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1493 Trace    Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1493 Trace    Scanning SimpleLayout '${logger}'
+2024-06-26 17:14:56.1493 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1493 Trace     Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:14:56.1493 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1493 Trace    Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1493 Trace    Scanning SimpleLayout '${message}'
+2024-06-26 17:14:56.1493 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1493 Trace     Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:14:56.1493 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1493 Trace    Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1493 Trace    Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:14:56.1493 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1493 Trace     Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:14:56.1493 Trace      Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:14:56.1493 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1493 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1493 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1493 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic.IList`1[NLog.Config.LoggingRule]
+2024-06-26 17:14:56.1493 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic.IList`1[NLog.Filters.Filter]
+2024-06-26 17:14:56.1493 Info Validating config: TargetNames=mongo, ConfigItems=17, FilePath=C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend\nlog.config
+2024-06-26 17:14:56.1493 Debug Unused target checking is started... Rule Count: 1, Target Count: 1
+2024-06-26 17:14:56.1493 Debug Unused target checking is completed. Total Rule Count: 1, Total Target Count: 1, Unused Target Count: 0
+2024-06-26 17:14:56.1493 Trace Initializing Layout Renderer: ${exception}
+2024-06-26 17:14:56.1493 Trace Initializing ${exception:format=ToString}
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1652 Trace Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:14:56.1652 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1652 Trace  Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:14:56.1652 Trace Initializing Layout Renderer: ${message}
+2024-06-26 17:14:56.1652 Trace Initializing ${message}
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1652 Trace Scanning SimpleLayout '${message}'
+2024-06-26 17:14:56.1652 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1652 Trace  Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:14:56.1652 Trace Initializing Layout Renderer: ${loggername}
+2024-06-26 17:14:56.1652 Trace Initializing ${logger}
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1652 Trace Scanning SimpleLayout '${logger}'
+2024-06-26 17:14:56.1652 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1652 Trace  Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:14:56.1652 Trace Initializing Layout Renderer: ${level}
+2024-06-26 17:14:56.1652 Trace Initializing ${level}
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1652 Trace Scanning SimpleLayout '${level}'
+2024-06-26 17:14:56.1652 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1652 Trace  Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:14:56.1652 Trace Initializing Layout Renderer: ${date}
+2024-06-26 17:14:56.1652 Trace Initializing ${date}
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1652 Trace Scanning SimpleLayout '${date}'
+2024-06-26 17:14:56.1652 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1652 Trace  Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:14:56.1652 Trace Initializing MongoTarget(Name=mongo)
+2024-06-26 17:14:56.1652 Trace FindReachableObject<NLog.Layouts.Layout>:
+2024-06-26 17:14:56.1652 Trace Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:14:56.1652 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1652 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1652 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1652 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1652 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1652 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:14:56.1652 Trace   Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:14:56.1652 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1652 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1652 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:14:56.1652 Trace MongoTarget(Name=mongo) has 5 layouts
+2024-06-26 17:14:56.1898 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:14:56.1898 Trace Scanning SimpleLayout 'mongodb+srv://carlmarion:1JCegm7iMSxec2Zj@cluster-gaoshou.m6ongcv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-GaoShou'
+2024-06-26 17:14:56.1898 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:14:56.1898 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 17:14:56.1898 Info Configuration initialized.
+2024-06-26 17:17:47.3404 Debug Message Template Auto Format enabled
+2024-06-26 17:17:47.3780 Info Loading assembly name: NLog.Mongo
+2024-06-26 17:17:47.3896 Info NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null. File version: 4.7.1.0. Product version: 4.7.1+c98490b555180e32f6029c380c01c4366f4cfb06. GlobalAssemblyCache: False
+2024-06-26 17:17:47.3896 Debug ScanAssembly('NLog.Mongo, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null')
+2024-06-26 17:17:47.3896 Debug Loading assembly name: NLog.Mongo succeeded!
+2024-06-26 17:17:47.4073 Debug Object reflection needed to create instance of type: NLog.Mongo.MongoField
+2024-06-26 17:17:47.4073 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4073 Trace Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:17:47.4073 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4073 Trace Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:17:47.4150 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4150 Trace Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:17:47.4150 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4150 Trace Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:17:47.4150 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4150 Trace Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:17:47.4150 Trace  Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:17:47.4150 Debug Adding target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:17:47.4150 Info Registered target NLog.Mongo.MongoTarget(Name=mongo)
+2024-06-26 17:17:47.4150 Trace ParseRulesElement
+2024-06-26 17:17:47.4333 Info NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 5.3.2.2526. Product version: 5.3.2+8d52d4f3fcdbd84beae3442e1fdc8125598ed81f. GlobalAssemblyCache: False
+2024-06-26 17:17:47.4333 Debug Start watching file-filter 'nlog.config' in directory: C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend
+2024-06-26 17:17:47.4333 Debug --- NLog configuration dump ---
+2024-06-26 17:17:47.4333 Debug Targets:
+2024-06-26 17:17:47.4333 Debug MongoTarget(Name=mongo)
+2024-06-26 17:17:47.4333 Debug Rules:
+2024-06-26 17:17:47.4333 Debug logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]
+2024-06-26 17:17:47.4333 Debug --- End of NLog configuration dump ---
+2024-06-26 17:17:47.4333 Trace FindReachableObject<System.Object>:
+2024-06-26 17:17:47.4333 Trace Scanning LoggingRule 'logNamePattern: (:All) levels: [ Debug Info Warn Error Fatal ] writeTo: [ mongo ]'
+2024-06-26 17:17:47.4333 Trace  Scanning Property Targets 'System.Collections.Generic.List`1[NLog.Targets.Target]' System.Collections.Generic.IList`1[NLog.Targets.Target]
+2024-06-26 17:17:47.4455 Trace  Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:17:47.4455 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4455 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4455 Trace    Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4455 Trace    Scanning SimpleLayout '${date}'
+2024-06-26 17:17:47.4455 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4455 Trace     Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:17:47.4455 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4455 Trace    Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4455 Trace    Scanning SimpleLayout '${level}'
+2024-06-26 17:17:47.4455 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4455 Trace     Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:17:47.4455 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4455 Trace    Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4455 Trace    Scanning SimpleLayout '${logger}'
+2024-06-26 17:17:47.4455 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4455 Trace     Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:17:47.4455 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4455 Trace    Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4455 Trace    Scanning SimpleLayout '${message}'
+2024-06-26 17:17:47.4455 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4455 Trace     Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:17:47.4455 Trace   Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4455 Trace    Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4455 Trace    Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:17:47.4455 Trace     Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4455 Trace     Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:17:47.4455 Trace      Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:17:47.4455 Trace   Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4455 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4455 Trace   Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4455 Trace  Scanning Property ChildRules 'System.Collections.Generic.List`1[NLog.Config.LoggingRule]' System.Collections.Generic.IList`1[NLog.Config.LoggingRule]
+2024-06-26 17:17:47.4455 Trace  Scanning Property Filters 'System.Collections.Generic.List`1[NLog.Filters.Filter]' System.Collections.Generic.IList`1[NLog.Filters.Filter]
+2024-06-26 17:17:47.4625 Info Validating config: TargetNames=mongo, ConfigItems=17, FilePath=C:\Users\Administrator\Desktop\Outputs\Chatroom\Source Code\Bellie_30836\Backend\ChatRoom.Backend\ChatRoom.Backend\nlog.config
+2024-06-26 17:17:47.4625 Debug Unused target checking is started... Rule Count: 1, Target Count: 1
+2024-06-26 17:17:47.4625 Debug Unused target checking is completed. Total Rule Count: 1, Total Target Count: 1, Unused Target Count: 0
+2024-06-26 17:17:47.4625 Trace Initializing Layout Renderer: ${exception}
+2024-06-26 17:17:47.4625 Trace Initializing ${exception:format=ToString}
+2024-06-26 17:17:47.4625 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4625 Trace Scanning SimpleLayout '${exception:format=ToString}'
+2024-06-26 17:17:47.4771 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4771 Trace  Scanning ExceptionLayoutRenderer 'Layout Renderer: ${exception}'
+2024-06-26 17:17:47.4771 Trace   Scanning Property Formats 'System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]' System.Collections.Generic.List`1[NLog.Config.ExceptionRenderingFormat]
+2024-06-26 17:17:47.4771 Trace Initializing Layout Renderer: ${message}
+2024-06-26 17:17:47.4771 Trace Initializing ${message}
+2024-06-26 17:17:47.4771 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4771 Trace Scanning SimpleLayout '${message}'
+2024-06-26 17:17:47.4771 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4771 Trace  Scanning MessageLayoutRenderer 'Layout Renderer: ${message}'
+2024-06-26 17:17:47.4771 Trace Initializing Layout Renderer: ${loggername}
+2024-06-26 17:17:47.4771 Trace Initializing ${logger}
+2024-06-26 17:17:47.4771 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4771 Trace Scanning SimpleLayout '${logger}'
+2024-06-26 17:17:47.4771 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4771 Trace  Scanning LoggerNameLayoutRenderer 'Layout Renderer: ${loggername}'
+2024-06-26 17:17:47.4771 Trace Initializing Layout Renderer: ${level}
+2024-06-26 17:17:47.4771 Trace Initializing ${level}
+2024-06-26 17:17:47.4771 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4771 Trace Scanning SimpleLayout '${level}'
+2024-06-26 17:17:47.4771 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4771 Trace  Scanning LevelLayoutRenderer 'Layout Renderer: ${level}'
+2024-06-26 17:17:47.4771 Trace Initializing Layout Renderer: ${date}
+2024-06-26 17:17:47.4771 Trace Initializing ${date}
+2024-06-26 17:17:47.4771 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.4771 Trace Scanning SimpleLayout '${date}'
+2024-06-26 17:17:47.4924 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.4924 Trace  Scanning DateLayoutRenderer 'Layout Renderer: ${date}'
+2024-06-26 17:17:47.4924 Trace Initializing MongoTarget(Name=mongo)
+2024-06-26 17:17:47.4924 Trace FindReachableObject<NLog.Layouts.Layout>:
+2024-06-26 17:17:47.4924 Trace Scanning MongoTarget 'MongoTarget(Name=mongo)'
+2024-06-26 17:17:47.4924 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4924 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4924 Trace   Scanning Property Layout '${date}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4924 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4924 Trace   Scanning Property Layout '${level}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4924 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4924 Trace   Scanning Property Layout '${logger}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4924 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4924 Trace   Scanning Property Layout '${message}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4924 Trace  Scanning MongoField 'NLog.Mongo.MongoField'
+2024-06-26 17:17:47.4924 Trace   Scanning Property Layout '${exception:format=ToString}' NLog.Layouts.Layout
+2024-06-26 17:17:47.4924 Trace  Scanning Property Fields 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4924 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4924 Trace  Scanning Property Properties 'System.Collections.Generic.List`1[NLog.Mongo.MongoField]' System.Collections.Generic.IList`1[NLog.Mongo.MongoField]
+2024-06-26 17:17:47.4924 Trace MongoTarget(Name=mongo) has 5 layouts
+2024-06-26 17:17:47.5186 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:17:47.5186 Trace Scanning SimpleLayout 'mongodb+srv://carlmarion:1JCegm7iMSxec2Zj@cluster-gaoshou.m6ongcv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-GaoShou'
+2024-06-26 17:17:47.5186 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:17:47.5186 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 17:17:47.5235 Info Configuration initialized.
+2024-06-26 17:20:41.9746 Debug Targets configured when LogLevel >= Debug for Logger: LoggerService.LoggerManager
+2024-06-26 17:20:41.9746 Debug Logger LoggerService.LoggerManager [Debug] => mongo
+2024-06-26 17:20:41.9746 Debug Logger LoggerService.LoggerManager [Info] => mongo
+2024-06-26 17:20:41.9746 Debug Logger LoggerService.LoggerManager [Warn] => mongo
+2024-06-26 17:20:41.9746 Debug Logger LoggerService.LoggerManager [Error] => mongo
+2024-06-26 17:20:41.9746 Debug Logger LoggerService.LoggerManager [Fatal] => mongo
+2024-06-26 17:20:41.9785 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:20:41.9785 Trace Scanning SimpleLayout 'Log'
+2024-06-26 17:20:41.9785 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:20:41.9785 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 17:20:41.9785 Trace FindReachableObject<NLog.Internal.IRenderable>:
+2024-06-26 17:20:41.9785 Trace Scanning SimpleLayout 'chatroom-logs'
+2024-06-26 17:20:41.9785 Trace  Scanning Property LayoutRenderers 'NLog.LayoutRenderers.LayoutRenderer[]' System.Collections.Generic.IEnumerable`1[NLog.LayoutRenderers.LayoutRenderer]
+2024-06-26 17:20:41.9785 Trace  Scanning LiteralLayoutRenderer 'Layout Renderer: ${literal}'
+2024-06-26 17:20:42.0167 Info Connecting to MongoDB collection Log in database chatroom-logs
+2024-06-26 17:20:42.1926 Debug Retrieved MongoDB collection Log from database chatroom-logs

@@ -154,17 +154,31 @@ namespace ChatRoom.Backend.Presentation.Controllers
             return Ok(chats);
         }
 
-        [HttpGet("{chatId}/typing")]
+        [HttpGet("{chatId}/typing-start")]
         [Authorize]
-        public async Task<IActionResult> Typing(int chatId)
+        public async Task<IActionResult> TypingStart(int chatId)
         {
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
-            IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
-            IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
+            //IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            //IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
-            await _hubContext.Clients.Group(groupName).SendAsync("UserTyping", chatMemberDto);
+            await _hubContext.Clients.Group(groupName).SendAsync("UserStartsTyping", chatMemberDto);
+            return NoContent();
+        }
+
+        [HttpGet("{chatId}/typing-end")]
+        [Authorize]
+        public async Task<IActionResult> TypingEnd(int chatId)
+        {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            int userId = _service.AuthService.GetUserIdFromJwtToken(token);
+            ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
+            //IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
+            //IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
+            string groupName = ChatRoomHub.GetChatGroupName(chatId);
+            await _hubContext.Clients.Group(groupName).SendAsync("UserTypingEnd", chatMemberDto);
             return NoContent();
         }
 
