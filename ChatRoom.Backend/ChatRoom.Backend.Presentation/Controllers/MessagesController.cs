@@ -52,8 +52,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             string groupName = ChatRoomHub.GetChatGroupName(createdMessage.ChatId);
 
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", createdMessage);
-            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new ChatHubChatlistUpdateDto
-            {
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new() {
                 LatestMessage = createdMessage,
                 Chat = currentChat,
                 ChatMembers = chatMembers
@@ -67,8 +66,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         public async Task<IActionResult> GetLatestMessage(int chatId)
         {
-            MessageParameters messageParameters = new MessageParameters
-            {
+            MessageParameters messageParameters = new() {
                 PageNumber = 1,
                 PageSize = 1,
             };

@@ -29,12 +29,12 @@ namespace ChatRoom.Backend.Migrations
 						mt.f_msg_type_name AS MsgTypeName,
 						m.f_status_id AS StatusId,
 						s.f_status_name AS StatusName
-					FROM [Messages] m
-					INNER JOIN Users u
+					FROM [Messages] m WITH(NOLOCK)
+					INNER JOIN Users u WITH(NOLOCK)
 						ON m.f_sender_id = u.f_user_id
-					INNER JOIN MessageTypes mt
+					INNER JOIN MessageTypes mt WITH(NOLOCK)
 						ON m.f_msg_type_id = mt.f_msg_type_id
-					INNER JOIN [Status] s
+					INNER JOIN [Status] s WITH(NOLOCK)
 						ON m.f_status_id = s.f_status_id
 					WHERE m.f_chat_id = @chatId
 						AND m.f_status_id <> 3 

@@ -1,31 +1,49 @@
-﻿using Azure;
+﻿using Microsoft.Extensions.Configuration;
+using Entities.Exceptions;
+using Contracts;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Entities.Exceptions;
-using Microsoft.Extensions.Configuration;
-using Service.Contracts;
+using Azure;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
+using Shared.DataTransferObjects.File;
 
-namespace Service {
-    internal sealed class FileService(IConfiguration configuration) : IFileService {
+namespace FileService {
+    public class FileManager(IConfiguration configuration, ILoggerManager logger) : IFileManager {
         private readonly string _azureStorageConnectionString = configuration.GetConnectionString("AzuriteStorageConnection") ?? throw new ConnectionStringNotFoundException("AzuriteStorageConnection");
+        private readonly ILoggerManager _logger = logger;
 
-        public async Task<string> UploadImageAsync(Stream fileStream, string fileName, string contentType, string targetContainer) {
-            var container = new BlobContainerClient(_azureStorageConnectionString, targetContainer);
+        public async Task<string> UploadImageAsync(Stream fileStream, PictureForUploadDto picture) {
+            var container = new BlobContainerClient(_azureStorageConnectionString, picture.ContainerName!);
             Response<BlobContainerInfo> createResponse = await container.CreateIfNotExistsAsync();
 
             if (createResponse != null && createResponse.GetRawResponse().Status == 201)
                 await container.SetAccessPolicyAsync(PublicAccessType.Blob);
 
-            BlobClient blob = container.GetBlobClient(GenerateUniqueFileName(fileName));
+            BlobClient blob = container.GetBlobClient(GenerateUniqueFileName(picture.FileName!));
             await blob.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
 
             using var resizedStream = await ResizeImageAsync(fileStream);
-            await blob.UploadAsync(resizedStream, new BlobHttpHeaders { ContentType = contentType });
-
+            await blob.UploadAsync(resizedStream, new BlobHttpHeaders { ContentType = picture.ContentType });
+            
             return blob.Uri.ToString();
+        }
+
+        public async Task DeleteImageAsync(string blobUri) {
+            // Parse the blobUri to get the container name and blob name
+            var blobUriBuilder = new BlobUriBuilder(new Uri(blobUri));
+            var containerName = blobUriBuilder.BlobContainerName;
+            var blobName = blobUriBuilder.BlobName;
+
+            // Create a BlobContainerClient and BlobClient
+            var container = new BlobContainerClient(_azureStorageConnectionString, containerName);
+            var blobClient = container.GetBlobClient(blobName);
+
+            // Delete the blob
+            var response = await blobClient.DeleteIfExistsAsync(DeleteSnapshotsOption.IncludeSnapshots);
+            if (!response)
+                _logger.LogError($"Blob {blobUri} does not exist or could not be deleted.");
         }
 
         private static string GenerateUniqueFileName(string originalFileName) {
@@ -35,7 +53,7 @@ namespace Service {
 
         private static Task<Stream> ResizeImageAsync(Stream fileStream) {
             if (fileStream.Length <= 1 * 1024 * 1024) {
-                return Task.FromResult<Stream>(fileStream);
+                return Task.FromResult(fileStream);
             }
 
             using var image = Image.Load(fileStream);

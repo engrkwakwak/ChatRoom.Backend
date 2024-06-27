@@ -16,7 +16,7 @@ namespace ChatRoom.Backend.Migrations
 				AS
 				BEGIN
 					SELECT COUNT(1)
-					FROM [Messages]
+					FROM [Messages] WITH(NOLOCK)
 					WHERE f_chat_id = @chatId
                         AND f_status_id <> 3;
 				END

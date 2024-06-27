@@ -8,7 +8,6 @@ namespace Service.Contracts {
         IUserService UserService { get; }
         IEmailService EmailService { get; }
         IAuthService AuthService { get; }
-        IFileService FileService { get; }
         IStatusService StatusService { get; }
         ISignalRService SignalRService {  get; }
     }
