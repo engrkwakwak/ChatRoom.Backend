@@ -9,20 +9,19 @@ using Shared.DataTransferObjects.Chats;
 using Shared.Enums;
 using Shared.RequestFeatures;
 using Microsoft.AspNetCore.Http;
-using System.Net.Http.Headers;
 using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
-using Entities.Models;
 using System.Diagnostics;
-using Microsoft.AspNetCore.Components.Forms;
+using Contracts;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
     [Route("api/chats")]
     [ApiController]
-    public class ChatsController(IServiceManager service, IHubContext<ChatRoomHub> hubContext) : ControllerBase
+    public class ChatsController(IServiceManager service, IHubContext<ChatRoomHub> hubContext, IFileManager fileManager) : ControllerBase
     {
         private readonly IServiceManager _service = service;
         private readonly IHubContext<ChatRoomHub> _hubContext = hubContext;
+        private readonly IFileManager _fileManager = fileManager;
 
         [HttpGet("{chatId}", Name = "GetChatByChatId")]
         [Authorize]
@@ -72,8 +71,7 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 if (!await _service.ChatMemberService.SetIsAdminAsync(createdChat.ChatId, userId, true))
                     throw new UserUpdateFailedException(userId);
 
-                MessageForCreationDto messageForCreationDto = new MessageForCreationDto
-                {
+                MessageForCreationDto messageForCreationDto = new() {
                     ChatId = createdChat.ChatId,
                     Content = $"{userDto.DisplayName} created the chat.",
                     MsgTypeId=(int)MessageTypes.Notification,
@@ -125,10 +123,13 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 throw new ChatNotDeletedException("Something went wrong while deleting the chat. Please try again later");
             }
 
+            if (!string.IsNullOrEmpty(chat.DisplayPictureUrl)) {
+                await _fileManager.DeleteImageAsync(chat.DisplayPictureUrl);
+            }
+
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("DeleteChat", chatId);
-            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new ChatHubChatlistUpdateDto
-            {
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new() {
                 ChatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId),
                 Chat = chat
             };
@@ -180,27 +181,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserTypingEnd", chatMemberDto);
             return NoContent();
-        }
-
-        [Authorize]
-        [HttpPost("display-picture"), DisableRequestSizeLimit]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UploadDisplayPicture() {
-            IFormCollection formCollection = await Request.ReadFormAsync();
-            IFormFile file = formCollection.Files[0];
-
-            if (!file.ContentType.StartsWith("image/"))
-                return BadRequest("Invalid file type. Only image files are allowed.");
-
-            if (file.Length > 0) {
-                string filename = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName!.Trim('"');
-                string fileUrl = await _service.FileService.UploadImageAsync(file.OpenReadStream(), filename, file.ContentType, "chat-display-pictures");
-
-                return Ok(fileUrl);
-            }
-            else {
-                return BadRequest();
-            }
         }
 
         [Authorize]

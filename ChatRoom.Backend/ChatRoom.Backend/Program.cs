@@ -20,6 +20,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureRedisCacheService();
+builder.Services.ConfigureFileService();
 builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureSmtpCredentials(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));

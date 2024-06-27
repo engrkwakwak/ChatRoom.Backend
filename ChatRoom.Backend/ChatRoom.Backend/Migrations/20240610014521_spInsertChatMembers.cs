@@ -49,7 +49,7 @@ namespace ChatRoom.Backend.Migrations
 						u.f_display_name AS DisplayName,
 						u.f_display_picture_url AS DisplayPictureUrl
 					FROM @InsertedRows ir
-					INNER JOIN Users u
+					INNER JOIN Users u WITH(NOLOCK)
 						ON u.f_user_id = ir.UserId;
 				END
             ");

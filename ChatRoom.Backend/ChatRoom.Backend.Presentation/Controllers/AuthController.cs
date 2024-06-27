@@ -14,7 +14,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
     [ApiController]
     public class AuthController(IServiceManager service, IConfiguration config) : ControllerBase {
         private readonly IServiceManager _service = service;
-        private IConfiguration _config = config;
+        private readonly IConfiguration _config = config;
 
         [HttpPost("signin")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
