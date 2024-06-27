@@ -38,7 +38,7 @@ namespace Service {
             contact = await _repository.Contact.GetContactByUserIdContactIdAsync(userId, contactId);
             if(contact == null)
                 return null;
-            _cache.SetCachedData(contactCacheKey, contact, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync(contactCacheKey, contact, TimeSpan.FromMinutes(30));
             return _mapper.Map<ContactDto>(contact);
         }
 
@@ -51,7 +51,7 @@ namespace Service {
 
             contacts = await _repository.Contact.GetContactsByUserIdAsync(contactParameters);
             if(contactParameters.PageNumber == 1)
-                _cache.SetCachedData(userContactsCacheKey, contacts, TimeSpan.FromMinutes(30));
+                await _cache.SetCachedDataAsync(userContactsCacheKey, contacts, TimeSpan.FromMinutes(30));
             return _mapper.Map<IEnumerable<ContactDto>>(contacts);
         }
 
@@ -104,7 +104,7 @@ namespace Service {
             users = await _repository.User.GetUsersByIdsAsync(_userIds);
             if (contactParameters.PageNumber == 1)
             {
-                _cache.SetCachedData(userContactsCacheKey, users, TimeSpan.FromMinutes(30));
+                await _cache.SetCachedDataAsync(userContactsCacheKey, users, TimeSpan.FromMinutes(30));
             }
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }

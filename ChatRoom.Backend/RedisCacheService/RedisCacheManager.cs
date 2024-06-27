@@ -14,7 +14,7 @@ namespace RedisCacheService
             return JsonSerializer.Deserialize<T>(jsonData!)!;
         }
 
-        public void SetCachedData<T>(string key, T data, TimeSpan cacheDuration)
+        public async Task SetCachedDataAsync<T>(string key, T data, TimeSpan cacheDuration)
         {
             var options = new DistributedCacheEntryOptions
             {
@@ -22,7 +22,17 @@ namespace RedisCacheService
             };
 
             var jsonData = JsonSerializer.Serialize(data);
-            _cache.SetString(key, jsonData, options);
+            await _cache.SetStringAsync(key, jsonData, options);
+        }
+        public async Task SetCachedDataWithAbsoluteExpAsync<T>(string key, T data, TimeSpan cacheDuration)
+        {
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.ToOffset(cacheDuration)
+            };
+
+            var jsonData = JsonSerializer.Serialize(data);
+            await _cache.SetStringAsync(key, jsonData, options);
         }
 
         public async Task RemoveDataAsync(string key)
