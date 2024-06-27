@@ -24,6 +24,16 @@ namespace RedisCacheService
             var jsonData = JsonSerializer.Serialize(data);
             _cache.SetString(key, jsonData, options);
         }
+        public void SetCachedDataWithAbsoluteExp<T>(string key, T data, TimeSpan cacheDuration)
+        {
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.Now.ToOffset(cacheDuration)
+            };
+
+            var jsonData = JsonSerializer.Serialize(data);
+            _cache.SetString(key, jsonData, options);
+        }
 
         public async Task RemoveDataAsync(string key)
         {

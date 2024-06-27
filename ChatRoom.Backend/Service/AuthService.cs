@@ -55,6 +55,7 @@ namespace Service {
 
             return (result);
         }
+
         public JwtPayload VerifyJwtToken(string token)
         {
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();

@@ -10,16 +10,19 @@ using Microsoft.Extensions.Configuration;
 using Shared.DataTransferObjects.Users;
 using Razor.Templating.Core;
 using Org.BouncyCastle.Crypto;
+using RedisCacheService;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Service
 {
-    internal sealed class EmailService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration config) : IEmailService
+    internal sealed class EmailService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration config, IRedisCacheManager cache) : IEmailService
     {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
+        private readonly IRedisCacheManager _cache;
         private readonly IConfiguration _config = config;
-        private readonly SmtpClient smtp = new SmtpClient();
+        private readonly SmtpClient smtp = new();
 
         public async Task<bool> SendEmail(EmailDto request)
         {
@@ -49,10 +52,10 @@ namespace Service
             }
         }
 
-        public async Task<bool> SendVerificationEmail(UserDto user, string verificationLink)
+        public async Task<bool> SendVerificationEmail(UserDto user, string verificationLink, string token)
         {
-            EmailVerificationViewModel viewModel = new EmailVerificationViewModel { User = user, VerificationLink=verificationLink};
-            EmailDto email = new EmailDto
+            EmailVerificationViewModel viewModel = new() { User = user, VerificationLink=verificationLink};
+            EmailDto email = new()
             {
                 Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/EmailVerification.cshtml", viewModel),
                 To = user.Email,
@@ -60,13 +63,16 @@ namespace Service
                 User = user
             };
 
+            JwtPayload payload = GetTokenPayload(token);
+            _cache.SetCachedDataWithAbsoluteExp($"email-{token}", token, TimeSpan.FromSeconds(payload.Expiration!.Value - payload.IssuedAt.Ticks));
+
             return await SendEmail(email);
         }
 
-        public async Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink)
+        public async Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink, string token)
         {
             PasswordResetEmailViewModel viewModel = new PasswordResetEmailViewModel { User = user, PasswordResetLink = passwordResetLink};
-            EmailDto email = new EmailDto
+            EmailDto email = new()
             {
                 Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/PasswordResetEmail.cshtml", viewModel),
                 To = user.Email,
@@ -75,6 +81,15 @@ namespace Service
             };
 
             return await SendEmail(email);
+        }
+
+        private static JwtPayload GetTokenPayload(string token)
+        {
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
+
+            return securityToken.Payload;
         }
 
     }
