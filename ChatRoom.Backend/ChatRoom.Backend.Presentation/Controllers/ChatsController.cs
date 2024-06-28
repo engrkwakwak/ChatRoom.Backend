@@ -353,6 +353,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
             IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
 
             await SendMessageNotification(chatId, $"{user.DisplayName} updated the chat name and/or picture", user.UserId, chatMembers);
+            
+            await _hubContext.Clients.Group(ChatRoomHub.GetChatGroupName(chatId)).SendAsync("UpdateChatNameAndPicture", new { chatId, chat.ChatName, chat.DisplayPictureUrl } );
 
             return NoContent();
         }
