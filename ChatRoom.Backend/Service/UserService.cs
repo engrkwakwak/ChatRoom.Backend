@@ -25,7 +25,7 @@ namespace Service {
             }
 
             user = await GetUserAndCheckIfItExists(userId);
-            _cache.SetCachedData<User>(cacheKey, user, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync<User>(cacheKey, user, TimeSpan.FromMinutes(30));
             UserDto userDto = _mapper.Map<UserDto>(user);
             return userDto;
         }

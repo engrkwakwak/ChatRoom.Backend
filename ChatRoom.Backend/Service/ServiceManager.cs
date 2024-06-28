@@ -12,7 +12,7 @@ namespace Service {
         private readonly Lazy<IMessageService> _messageService = new(() => new MessageService(repository, logger, mapper, cache));
         private readonly Lazy<IUserService> _userService = new(() => new UserService(repository, logger, mapper, cache, fileManager));
         private readonly Lazy<IAuthService> _authService = new(() => new AuthService(repository, logger, mapper, configuration, cache));
-        private readonly Lazy<IEmailService> _emailService = new(() => new EmailService(repository, logger, mapper, configuration));
+        private readonly Lazy<IEmailService> _emailService = new(() => new EmailService(repository, logger, mapper, configuration, cache));
         private readonly Lazy<IStatusService> _statusService = new(() => new StatusService(repository, logger, mapper, cache));
         private readonly Lazy<ISignalRService> _signalRService = new(() => new SignalRService(logger));
 

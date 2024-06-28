@@ -55,7 +55,7 @@ namespace Service {
                 return _mapper.Map<ChatDto>(chat);
 
             chat = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
-            _cache.SetCachedData(chatCacheKey, chat, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync(chatCacheKey, chat, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatDto>(chat);
         }
 

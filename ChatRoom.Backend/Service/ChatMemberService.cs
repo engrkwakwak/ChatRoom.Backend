@@ -36,7 +36,7 @@ namespace Service {
                 return _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
             }
             chatMembers = await _repository.ChatMember.GetActiveChatMembersByChatIdAsync(chatId);
-            _cache.SetCachedData(chatKey, chatMembers, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync(chatKey, chatMembers, TimeSpan.FromMinutes(30));
             return _mapper.Map<IEnumerable<ChatMemberDto>>(chatMembers);
         }
 
@@ -50,7 +50,7 @@ namespace Service {
             }
 
             chatMember = await _repository.ChatMember.GetChatMemberByChatIdAndUserIdAsync(chatId, userId) ?? throw new ChatMemberNotFoundException(chatId, userId); ;
-            _cache.SetCachedData(chatMemberKey, chatMember, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync(chatMemberKey, chatMember, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatMemberDto>(chatMember);
         }
 
