@@ -63,6 +63,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             {
                 throw new ValidationException($"The passwords doesnt match.");
             }
+
             if (await _service.EmailService.IsEmailTokenUsed(updatePasswordDto.Token))
             {
                 throw new InvalidParameterException("Invalid Link. This link has expired or already been used.");
@@ -71,7 +72,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             _service.AuthService.VerifyJwtToken(updatePasswordDto.Token);
             int userId = _service.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token);
 
-            if(await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
+            if(!await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
                 throw new UserUpdateFailedException(userId);
 
             await _service.EmailService.RemoveTokenFromCache(updatePasswordDto.Token);

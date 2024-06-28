@@ -28,7 +28,7 @@ namespace RedisCacheService
         {
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpiration = DateTimeOffset.Now.ToOffset(cacheDuration)
+                AbsoluteExpiration = DateTimeOffset.Now.Add(cacheDuration)
             };
 
             var jsonData = JsonSerializer.Serialize(data);

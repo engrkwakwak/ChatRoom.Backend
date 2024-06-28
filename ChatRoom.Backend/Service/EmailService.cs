@@ -64,8 +64,7 @@ namespace Service
                 User = user
             };
 
-            JwtPayload payload = GetTokenPayload(token);
-            await _cache.SetCachedDataWithAbsoluteExpAsync($"email-{token}", token, TimeSpan.FromSeconds(payload.Expiration!.Value - payload.IssuedAt.Ticks));
+            await CacheToken(token);
 
             return await SendEmail(email);
         }
@@ -81,8 +80,7 @@ namespace Service
                 User = user
             };
 
-            JwtPayload payload = GetTokenPayload(token);
-            await _cache.SetCachedDataWithAbsoluteExpAsync($"email-{token}", token, TimeSpan.FromSeconds(payload.Expiration!.Value - payload.IssuedAt.Ticks));
+            await CacheToken(token);
 
             return await SendEmail(email);
         }
@@ -106,6 +104,14 @@ namespace Service
         {
             string? _token = await _cache.GetCachedDataAsync<string>($"email-{token}");
             return _token.IsNullOrEmpty();
+        }
+
+        private async Task CacheToken(string token)
+        {
+            JwtPayload payload = GetTokenPayload(token);
+            DateTimeOffset exp = DateTimeOffset.FromUnixTimeSeconds(payload.Expiration!.Value);
+            TimeSpan span = TimeSpan.FromSeconds(exp.Subtract(DateTimeOffset.UtcNow).TotalSeconds);
+            await _cache.SetCachedDataWithAbsoluteExpAsync($"email-{token}", token, span);
         }
     }
 }
