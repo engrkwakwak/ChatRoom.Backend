@@ -9,11 +9,12 @@ using Shared.DataTransferObjects.Users;
 using Shared.RequestFeatures;
 
 namespace Service {
-    internal sealed class UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IUserService {
+    internal sealed class UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache, IFileManager fileManager) : IUserService {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCacheManager _cache = cache;
+        private readonly IFileManager _fileManager = fileManager;
 
         public async Task<UserDto> GetUserByIdAsync(int userId) {
             string cacheKey = $"user:{userId}";
@@ -48,11 +49,15 @@ namespace Service {
         }
 
         public async Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate) {
-            string cacheKey = $"user:{userId}";
             User user = await GetUserAndCheckIfItExists(userId);
 
             if (user.Email != userForUpdate.Email)
                 user.IsEmailVerified = false;
+
+            if (!string.IsNullOrEmpty(user.DisplayPictureUrl) && !string.IsNullOrEmpty(userForUpdate.DisplayPictureUrl)) {
+                await _fileManager.DeleteImageAsync(user.DisplayPictureUrl);
+            }
+
             _mapper.Map(userForUpdate, user);         
         
             int rowsAffected = await _repository.User.UpdateUserAsync(user);
@@ -61,8 +66,8 @@ namespace Service {
                 _logger.LogWarn($"Failed to update the user with id {user.UserId}. Total rows affected: {rowsAffected}. At {nameof(UserService)} - {nameof(UpdateUserAsync)}.");
                 throw new UserUpdateFailedException(user.UserId);
             }
-            
-            await _cache.RemoveDataAsync(cacheKey);
+
+            await _cache.RemoveDataAsync(key: $"user:{userId}");
         }
 
         public async Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter)

@@ -21,7 +21,7 @@ namespace ChatRoom.Backend.Migrations
 					@isEmailVerified BIT
 				AS
 				BEGIN
-					UPDATE Users
+					UPDATE Users WITH(ROWLOCK)
 					SET
 						f_username = @userName,
 						f_display_name = @displayName,

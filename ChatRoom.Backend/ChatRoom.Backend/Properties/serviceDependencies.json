@@ -5,7 +5,8 @@
     },
     "storage1": {
       "type": "storage",
-      "connectionId": "ChatroomLocalStorage"
+      "connectionId": "ConnectionStrings:AzuriteStorageConnection",
+      "dynamicId": null
     }
   }
 }
