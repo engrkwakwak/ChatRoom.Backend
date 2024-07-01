@@ -8,7 +8,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  azureSubscription: 'O Best'
+  azureSubscription: '33c4b946-fba5-40ba-8442-2c369ace378b'
   resourceGroup: 'AprilChatroom'
   webAppName: 'april-chatroom-backend'
   solution: '**/ChatRoom.Backend.sln'
