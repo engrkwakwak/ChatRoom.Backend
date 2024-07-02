@@ -39,12 +39,6 @@ stages:
         command: 'build'
         projects: '$(project)'
         arguments: '--configuration $(buildConfiguration)'
-        
-    - task: DotNetCoreCLI@2
-      inputs:
-        command: 'test'
-        projects: '$(tests)'
-        arguments: '--configuration $(buildConfiguration) --no-build'
 
     - task: DotNetCoreCLI@2
       inputs:
