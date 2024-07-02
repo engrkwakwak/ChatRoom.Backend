@@ -57,21 +57,3 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
 
-- stage: Deploy
-  dependsOn: Build
-  jobs:
-  - deployment: DeployWebApp
-    environment: 'production'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - download: current
-            artifact: drop
-
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              appType: 'webApp'
-              appName: '$(webAppName)'
-              package: '$(Pipeline.Workspace)/drop/**/*.zip'
