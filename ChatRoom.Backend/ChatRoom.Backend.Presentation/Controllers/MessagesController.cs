@@ -42,8 +42,9 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             IEnumerable<int> memberIds = chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId);
 
             //insert to contacts automatically if p2p
-            if(currentChat.ChatTypeId == (int)ChatTypes.P2P) {
+            if (currentChat.ChatTypeId == (int)ChatTypes.P2P) {
                 IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, memberIds.ToList());
+                await _hubContext.Clients.User(message.SenderId.ToString()).SendAsync("ContactsUpdated");
             }
             
 
@@ -51,14 +52,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             string groupName = ChatRoomHub.GetChatGroupName(createdMessage.ChatId);
 
             await _hubContext.Clients.Group(groupName).SendAsync("ReceiveMessage", createdMessage);
-            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new ChatHubChatlistUpdateDto
-            {
+            ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new() {
                 LatestMessage = createdMessage,
                 Chat = currentChat,
                 ChatMembers = chatMembers
             };
-
-            await _hubContext.Clients.Users(memberIds.Select(s => s.ToString())).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
+            await _hubContext.Clients.Group(groupName).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
 
             return Ok(createdMessage);
         }
@@ -67,8 +66,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         public async Task<IActionResult> GetLatestMessage(int chatId)
         {
-            MessageParameters messageParameters = new MessageParameters
-            {
+            MessageParameters messageParameters = new() {
                 PageNumber = 1,
                 PageSize = 1,
             };

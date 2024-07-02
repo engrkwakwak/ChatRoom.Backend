@@ -9,8 +9,12 @@ namespace Service.Contracts
     {
         public Task<bool> SendEmail(EmailDto request);
 
-        public Task<bool> SendVerificationEmail(UserDto user, string verificationLink);
+        public Task<bool> SendVerificationEmail(UserDto user, string verificationLink, string token);
 
-        Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink);
+        Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink, string token);
+
+        Task RemoveTokenFromCache(string token);
+
+        Task<bool> IsEmailTokenUsed(string token);
     }
 }

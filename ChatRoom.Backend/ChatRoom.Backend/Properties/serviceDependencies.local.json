@@ -4,10 +4,10 @@
       "type": "secrets.user"
     },
     "storage1": {
-      "secretStore": "LocalSecretsFile",
-      "resourceId": null,
+      "secretStore": null,
       "type": "storage.emulator",
-      "connectionId": "ChatroomLocalStorage"
+      "connectionId": "ConnectionStrings:AzuriteStorageConnection",
+      "dynamicId": null
     }
   }
 }

@@ -22,7 +22,7 @@ namespace ChatRoom.Backend.Migrations
 					@displayPictureUrl VARCHAR(100)
 				AS
 				BEGIN
-					UPDATE Users
+					UPDATE Users WITH(ROWLOCK)
 					SET
 						f_username = @userName,
 						f_display_name = @displayName,

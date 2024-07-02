@@ -1,6 +1,5 @@
 ﻿using Contracts;
 using Entities.ConfigurationModels;
-using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Data.SqlClient;
@@ -11,6 +10,8 @@ using Service;
 using Service.Contracts;
 using System.Data;
 using System.Text;
+using FileService;
+using LoggerService;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
@@ -35,6 +36,9 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureServiceManager(this IServiceCollection services) =>
             services.AddScoped<IServiceManager, ServiceManager>();
+
+        public static void ConfigureFileService(this IServiceCollection services) =>
+            services.AddSingleton<IFileManager, FileManager>();
 
         public static void ConfigureDapperConnection(this IServiceCollection services, IConfiguration configuration) =>
             services.AddScoped<IDbConnection>(sp => new SqlConnection(configuration.GetConnectionString("SqlConnection")));

@@ -28,7 +28,7 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task Authenticate_InvalidInputs_ReturnsValidationError()
+        public void Authenticate_InvalidInputs_ReturnsValidationError()
         {
             Assert.Fail();
         }
@@ -121,7 +121,7 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task SignUp_SendVerificationEmailIsFalse_ReturnsBadRequest()
+        public void SignUp_SendVerificationEmailIsFalse_ReturnsBadRequest()
         {
             /*
             ** Cannot mock HttpContext needs more research
@@ -160,7 +160,7 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task UpdatePassword_PasswordsDoesntMatch_ReturnsValidationException()
+        public void UpdatePassword_PasswordsDoesntMatch_ReturnsValidationException()
         {
             UpdatePasswordDto updatePasswordDto = new()
             {

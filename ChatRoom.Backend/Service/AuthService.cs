@@ -55,9 +55,10 @@ namespace Service {
 
             return (result);
         }
+
         public JwtPayload VerifyJwtToken(string token)
         {
-            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 
             JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
             
@@ -77,7 +78,7 @@ namespace Service {
 
         public int GetUserIdFromJwtToken(string token)
         {
-            JwtSecurityTokenHandler jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 
             JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
             if(securityToken.Subject == null)
@@ -108,14 +109,12 @@ namespace Service {
 
             return tokenOptions;
         }
-        private List<Claim> GetClaims() {
-            return new List<Claim> {
+        private List<Claim> GetClaims() => [
                 new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
                 new("display-name", User.DisplayName),
                 new("display-picture", User.DisplayPictureUrl ?? ""),
                 new(ClaimTypes.NameIdentifier, User.UserId.ToString())
-            };
-        }
+            ];
 
 
         private static bool IsSecurityTokenExpired(JwtSecurityToken token) {

@@ -8,11 +8,12 @@ using Shared.DataTransferObjects.Chats;
 using Shared.RequestFeatures;
 
 namespace Service {
-    internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache) : IChatService {
+    internal sealed class ChatService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache, IFileManager fileManager) : IChatService {
         private readonly IRepositoryManager _repository = repository;
         private readonly ILoggerManager _logger = logger;
         private readonly IMapper _mapper = mapper;
         private readonly IRedisCacheManager _cache = cache;
+        private readonly IFileManager _fileManager = fileManager;
 
         public async Task<ChatDto> CreateChatWithMembersAsync(ChatForCreationDto chatDto) {
             Chat chatEntity = _mapper.Map<Chat>(chatDto);
@@ -54,7 +55,7 @@ namespace Service {
                 return _mapper.Map<ChatDto>(chat);
 
             chat = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
-            _cache.SetCachedData(chatCacheKey, chat, TimeSpan.FromMinutes(30));
+            await _cache.SetCachedDataAsync(chatCacheKey, chat, TimeSpan.FromMinutes(30));
             return _mapper.Map<ChatDto>(chat);
         }
 
@@ -87,6 +88,10 @@ namespace Service {
         public async Task UpdateChatAsync(int chatId, ChatForUpdateDto chat) {
             string cacheKey = $"chat:{chatId}";
             Chat chatEntity = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
+
+            if (!string.IsNullOrEmpty(chatEntity.DisplayPictureUrl) && !string.IsNullOrEmpty(chat.DisplayPictureUrl)) {
+                await _fileManager.DeleteImageAsync(chatEntity.DisplayPictureUrl);
+            }
 
             _mapper.Map(chat, chatEntity);
 

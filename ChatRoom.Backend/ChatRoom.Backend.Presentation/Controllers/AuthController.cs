@@ -15,7 +15,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
     [ApiController]
     public class AuthController(IServiceManager service, IConfiguration config) : ControllerBase {
         private readonly IServiceManager _service = service;
-        private IConfiguration _config = config;
+        private readonly IConfiguration _config = config;
 
         [HttpPost("signin")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
@@ -47,8 +47,9 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             UserDto createdUser = await _service.UserService.InsertUserAsync(signUpData);
 
-            string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={_service.AuthService.CreateEmailVerificationToken(createdUser)}";
-            if (!await _service.EmailService.SendVerificationEmail(createdUser,  verificationLink)) {
+            string token = _service.AuthService.CreateEmailVerificationToken(createdUser);
+            string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={token}";
+            if (!await _service.EmailService.SendVerificationEmail(createdUser,  verificationLink, token)) {
                 throw new EmailNotSentException("Something went wrong while sending the verification email.");
             }
 
@@ -63,11 +64,18 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new ValidationException($"The passwords doesnt match.");
             }
 
+            if (await _service.EmailService.IsEmailTokenUsed(updatePasswordDto.Token))
+            {
+                throw new InvalidParameterException("Invalid Link. This link has expired or already been used.");
+            }
+
             _service.AuthService.VerifyJwtToken(updatePasswordDto.Token);
             int userId = _service.AuthService.GetUserIdFromJwtToken(updatePasswordDto.Token);
 
             if(!await _service.UserService.UpdatePasswordAsync(userId, updatePasswordDto.Password))
                 throw new UserUpdateFailedException(userId);
+
+            await _service.EmailService.RemoveTokenFromCache(updatePasswordDto.Token);
 
             return NoContent();
         }
@@ -80,12 +88,19 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
 
+            if (await _service.EmailService.IsEmailTokenUsed(token))
+            {
+                throw new InvalidParameterException("Invalid Link. This link has expired or already been used.");
+            }
+
             JwtPayload payload = _service.AuthService.VerifyJwtToken(token);
             if (!await _service.AuthService.VerifyEmail(int.Parse(payload.Sub)))
             {
                 throw new EmailVerificationFailedException("Something went wrong while Verifying the Email.");
             }
-            
+
+            await _service.EmailService.RemoveTokenFromCache(token);
+
             return Redirect($"{_config.GetSection("FrontendUrl").Value}/email-verified");
         }
         
@@ -118,8 +133,9 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 return BadRequest("This Email is already verified");
             }
 
-            string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={_service.AuthService.CreateEmailVerificationToken(user)}";
-            if (!await _service.EmailService.SendVerificationEmail(user, verificationLink))
+            string token = _service.AuthService.CreateEmailVerificationToken(user);
+            string verificationLink = $"{Request.Scheme}://{Request.Host}/api/auth/verify-email?token={token}";
+            if (!await _service.EmailService.SendVerificationEmail(user, verificationLink, token))
             {
                 return BadRequest("Something went wrong while sending the email.");
             };
@@ -137,8 +153,9 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             UserDto user = await _service.UserService.GetUserByIdAsync(userId);
 
-            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={_service.AuthService.CreateEmailVerificationToken(user)}";
-            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink))
+            string token = _service.AuthService.CreateEmailVerificationToken(user);
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={token}";
+            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink, token))
             {
                 return BadRequest("Something went wrong while sending the email.");
             };
@@ -151,8 +168,9 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             UserDto user = await _service.UserService.GetUserByEmailAsync(email);
 
-            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={_service.AuthService.CreateEmailVerificationToken(user)}";
-            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink))
+            string token = _service.AuthService.CreateEmailVerificationToken(user);
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={token}";
+            if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink, token))
             {
                 return BadRequest("Something went wrong while sending the email.");
             };

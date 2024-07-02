@@ -40,7 +40,7 @@ CREATE OR ALTER   PROCEDURE [dbo].[spUpdateUser]
 	@displayPictureUrl VARCHAR(200)
 AS
 BEGIN
-	UPDATE Users
+	UPDATE Users WITH(ROWLOCK)
 	SET
 		f_username = @userName,
 		f_display_name = @displayName,
