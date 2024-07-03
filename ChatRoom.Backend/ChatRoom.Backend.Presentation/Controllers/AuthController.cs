@@ -108,7 +108,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         public async Task<IActionResult> IsEmailVerified(int id)
         {
-            if (String.IsNullOrEmpty(id.ToString()) || id < 1)
+            if (id < 1)
             {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
