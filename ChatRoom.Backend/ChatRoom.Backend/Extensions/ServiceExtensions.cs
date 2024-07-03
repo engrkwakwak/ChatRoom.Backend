@@ -20,7 +20,7 @@ namespace ChatRoom.Backend.Extensions {
         public static void ConfigureCors(this IServiceCollection services) =>
             services.AddCors(options => {
                 options.AddPolicy("CorsPolicy", builder =>
-                    builder.WithOrigins("http://localhost:4200")
+                    builder.WithOrigins("http://localhost:4200", "https://april-chatroom-frontend.azurewebsites.net/")
                     .AllowAnyMethod() //Change to WithMethods("POST", "GET")
                     .AllowAnyHeader() //Change to WithHeaders("accept", "content-type")
                     .AllowCredentials()
