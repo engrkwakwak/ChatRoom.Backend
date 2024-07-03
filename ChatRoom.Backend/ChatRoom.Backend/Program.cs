@@ -4,7 +4,6 @@ using ChatRoom.Backend.Presentation.ActionFilters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
-using Microsoft.Extensions.Azure;
 using ChatRoom.Backend.Presentation.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,12 +13,8 @@ LogManager.Setup().LoadConfigurationFromFile(string.Concat(Directory.GetCurrentD
 builder.Services.ConfigureCors();
 builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConn");
-});
+builder.Services.ConfigureRedisCache(builder.Configuration);
 builder.Services.ConfigureServiceManager();
-builder.Services.ConfigureRedisCacheService();
 builder.Services.ConfigureFileService();
 builder.Services.ConfigureDapperConnection(builder.Configuration);
 builder.Services.ConfigureSmtpCredentials(builder.Configuration);
@@ -31,17 +26,13 @@ builder.Services.Configure<ApiBehaviorOptions>(options => {
 builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.ConfigureFileUploads();
-builder.Services.AddSignalR();
-
+builder.Services.ConfigureSignalR(builder.Configuration);
 builder.Services.AddControllers(config => {
     config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true;
 })
 .AddApplicationPart(typeof(ChatRoom.Backend.Presentation.AssemblyReference).Assembly);
-builder.Services.AddAzureClients(clientBuilder => {
-    clientBuilder.AddBlobServiceClient(builder.Configuration["ChatroomLocalStorage:blob"]!, preferMsi: true);
-    clientBuilder.AddQueueServiceClient(builder.Configuration["ChatroomLocalStorage:queue"]!, preferMsi: true);
-});
+builder.Services.ConfigureAzureBlobStorage(builder.Configuration);
 
 var app = builder.Build();
 
