@@ -101,7 +101,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             await _service.EmailService.RemoveTokenFromCache(token);
 
-            return Redirect($"{_config.GetSection("FrontendUrl").Value}/email-verified");
+            return Redirect($"{_config.GetSection("FrontendUrl").Value}/#/email-verified");
         }
         
         [HttpGet("is-email-verified")]
