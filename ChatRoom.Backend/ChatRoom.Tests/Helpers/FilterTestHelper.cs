@@ -6,16 +6,32 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 
 namespace ChatRoom.UnitTest.Helpers {
     public static class FilterTestHelper {
-        public static ActionExecutingContext CreateActionExecutingContext(ControllerBase controller, IDictionary<string, object> actionArguments, IFilterMetadata? filter = null) {
-
+        public static ActionExecutingContext CreateActionExecutingContext(
+            ControllerBase controller,
+            string actionName,
+            string controllerName,
+            IDictionary<string, object> actionArguments,
+            IFilterMetadata? filter = null
+        ) {
             var httpContext = new DefaultHttpContext();
             var routeData = new RouteData();
-            var actionDescriptor = new ActionDescriptor();
+            routeData.Values["action"] = actionName;
+            routeData.Values["controller"] = controllerName;
+
+            var actionDescriptor = new ActionDescriptor {
+                RouteValues = {
+                    ["action"] = actionName,
+                    ["controller"] = controllerName
+                }
+            };
+
             var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
+
+            var filters = filter == null ? [] : new List<IFilterMetadata> { filter };
 
             return new ActionExecutingContext(
                 actionContext,
-                filter == null ? new List<IFilterMetadata>() : [filter],
+                filters,
                 actionArguments!,
                 controller
             );

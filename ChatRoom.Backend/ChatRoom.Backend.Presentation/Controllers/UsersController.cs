@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
-using System.Net.Http.Headers;
 using Shared.RequestFeatures;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using Shared.DataTransferObjects.File;
-using Contracts;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
