@@ -11,7 +11,7 @@ using Shared.DataTransferObjects.File;
 
 namespace FileService {
     public class FileManager(IConfiguration configuration, ILoggerManager logger) : IFileManager {
-        private readonly string _azureStorageConnectionString = configuration.GetConnectionString("AzuriteStorageConnection") ?? throw new ConnectionStringNotFoundException("AzuriteStorageConnection");
+        private readonly string _azureStorageConnectionString = configuration.GetConnectionString("BlobStorageConnection") ?? throw new ConnectionStringNotFoundException("BlobStorageConnection");
         private readonly ILoggerManager _logger = logger;
 
         public async Task<string> UploadImageAsync(Stream fileStream, PictureForUploadDto picture) {

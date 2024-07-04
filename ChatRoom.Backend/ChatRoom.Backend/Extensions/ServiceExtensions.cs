@@ -12,13 +12,15 @@ using System.Data;
 using System.Text;
 using FileService;
 using LoggerService;
+using Entities.Exceptions;
+using Microsoft.Extensions.Azure;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
         public static void ConfigureCors(this IServiceCollection services) =>
             services.AddCors(options => {
                 options.AddPolicy("CorsPolicy", builder =>
-                    builder.WithOrigins("http://localhost:4200")
+                    builder.WithOrigins("http://localhost:4200", "https://april-chatroom-frontend.azurewebsites.net")
                     .AllowAnyMethod() //Change to WithMethods("POST", "GET")
                     .AllowAnyHeader() //Change to WithHeaders("accept", "content-type")
                     .AllowCredentials()
@@ -28,8 +30,13 @@ namespace ChatRoom.Backend.Extensions {
         public static void ConfigureLoggerService(this IServiceCollection services) =>
             services.AddSingleton<ILoggerManager, LoggerManager>();
 
-        public static void ConfigureRedisCacheService(this IServiceCollection services) =>
+        public static void ConfigureRedisCache(this IServiceCollection services, IConfiguration configuration) {
+            services.AddStackExchangeRedisCache(options => {
+                options.Configuration = configuration.GetConnectionString("RedisConnection");
+            });
+
             services.AddSingleton<IRedisCacheManager, RedisCacheManager>();
+        }
 
         public static void ConfigureRepositoryManager(this IServiceCollection services) =>
             services.AddScoped<IRepositoryManager, RepositoryManager>();
@@ -45,7 +52,7 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration) {
             var jwtSetting = configuration.GetSection("JwtSettings");
-            string secretKey = jwtSetting["secretKey"] ?? string.Empty;
+            string secretKey = configuration["TOKEN_SECRET_KEY"] ?? throw new JwtSecretKeyNotFoundException();
 
             services.AddAuthentication(opt => {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -88,6 +95,25 @@ namespace ChatRoom.Backend.Extensions {
                 o.ValueLengthLimit = int.MaxValue;
                 o.MultipartBodyLengthLimit = int.MaxValue;
                 o.MemoryBufferThreshold = int.MaxValue;
+            });
+        }
+
+        public static void ConfigureSignalR(this IServiceCollection services, IConfiguration configuration) {
+            var signalRConnection = configuration.GetConnectionString("SignalRConnection");
+            if (!string.IsNullOrEmpty(signalRConnection)) {
+                services.AddSignalR().AddAzureSignalR(config => {
+                    config.ConnectionString = signalRConnection;
+                });
+            }
+            else {
+                services.AddSignalR();
+            }
+        }
+
+        public static void ConfigureAzureBlobStorage(this IServiceCollection services, IConfiguration configuration) {
+            services.AddAzureClients(clientBuilder => {
+                clientBuilder.AddBlobServiceClient(configuration.GetConnectionString("BlobStorageConnection") ??
+                    throw new ConnectionStringNotFoundException("BlobStorageConnection"), preferMsi: true);
             });
         }
     }

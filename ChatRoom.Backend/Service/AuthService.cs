@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +25,7 @@ namespace Service {
         public string CreateToken()
         {
             IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
-            SigningCredentials signingCredentials = GetSigningCredentials(jwtSetting);
+            SigningCredentials signingCredentials = GetSigningCredentials();
             var claims = GetClaims();
             JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
 
@@ -33,8 +34,8 @@ namespace Service {
 
         public string CreateEmailVerificationToken(UserDto user)
         {
-            IConfigurationSection? jwtSetting = _configuration.GetSection("EmailJwtSettings");
-            SigningCredentials signingCredentials = GetSigningCredentials(jwtSetting);
+            IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
+            SigningCredentials signingCredentials = GetSigningCredentials();
             User = _mapper.Map<User>(user);
             var claims = GetClaims();
             JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
@@ -93,8 +94,8 @@ namespace Service {
         */
         private static bool CheckPassword(string inputtedPassword, string hashedPassword) => BCrypt.Net.BCrypt.Verify(inputtedPassword, hashedPassword);
 
-        private static SigningCredentials GetSigningCredentials(IConfigurationSection jwtSetting) {
-            byte[] key = Encoding.UTF8.GetBytes(jwtSetting["secretKey"] ?? "");
+        private SigningCredentials GetSigningCredentials() {
+            byte[] key = Encoding.UTF8.GetBytes(_configuration["TOKEN_SECRET_KEY"] ?? throw new JwtSecretKeyNotFoundException());
             var secret = new SymmetricSecurityKey(key);
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
