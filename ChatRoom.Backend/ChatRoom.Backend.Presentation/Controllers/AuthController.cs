@@ -121,7 +121,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         public async Task<IActionResult> SendEmailVerification(int id)
         {
-            if(String.IsNullOrEmpty(id.ToString()) || id < 1)
+            if(id < 1)
             {
                 throw new InvalidParameterException("Invalid Request Parameter");
             }
@@ -140,7 +140,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
                 return BadRequest("Something went wrong while sending the email.");
             };
 
-            return Ok();
+            return NoContent();
         }
 
         [HttpPost("send-password-reset-link")]
@@ -159,12 +159,16 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             {
                 return BadRequest("Something went wrong while sending the email.");
             };
-            return Ok();
+            return NoContent();
         }
 
         [HttpPost("send-password-reset-link-via-email")]
-        public async Task<IActionResult> SendPasswordResetLink(string email)
+        public async Task<IActionResult> SendPasswordResetLinkByEmail(string email)
         {
+            if (email.IsNullOrEmpty())
+            {
+                throw new InvalidParameterException("Invalid Request Parameter");
+            }
 
             UserDto user = await _service.UserService.GetUserByEmailAsync(email);
 
@@ -174,7 +178,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             {
                 return BadRequest("Something went wrong while sending the email.");
             };
-            return Ok();
+            return NoContent();
         }
 
     }

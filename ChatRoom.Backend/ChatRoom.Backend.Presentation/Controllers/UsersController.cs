@@ -3,12 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
-using System.Net.Http.Headers;
 using Shared.RequestFeatures;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
-using Shared.DataTransferObjects.File;
-using Contracts;
 
 namespace ChatRoom.Backend.Presentation.Controllers {
     [Route("api/users")]
@@ -18,6 +15,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpGet("{userId}")]
         [Authorize]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetUserById(int userId) {
             UserDto user = await _service.UserService.GetUserByIdAsync(userId);
             return Ok(user);

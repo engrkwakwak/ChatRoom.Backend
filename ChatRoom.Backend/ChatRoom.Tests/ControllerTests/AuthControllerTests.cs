@@ -1,5 +1,7 @@
 ﻿using ChatRoom.Backend.Presentation.Controllers;
 using Entities.Exceptions;
+using Entities.Models;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -307,7 +309,7 @@ namespace ChatRoom.UnitTest.ControllerTests
 
             _serviceMock.VerifyAll();
             Assert.IsType<RedirectResult>(actual);
-            Assert.Equal(((RedirectResult)actual).Url, $"{config.GetSection("FrontendUrl").Value}/email-verified");
+            Assert.Equal(((RedirectResult)actual).Url, $"{config.GetSection("FrontendUrl").Value}/#/email-verified");
         }
 
         [Fact]
@@ -320,10 +322,227 @@ namespace ChatRoom.UnitTest.ControllerTests
             Assert.Equal("Invalid Request Parameter", ((InvalidParameterException)actual).Message);
         }
 
-        public async Task IsEmailVerified_EmailIsVerified_ReturnsOkObjectResult()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task IsEmailVerified_EmailIsVerifiedSucceed_ReturnsOkObjectResult(bool isEmailVerified)
         {
-            //int id = 1;
-            //_serviceMock.Setup(s => );
+            int id = 1;
+            UserDto userDto = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser",
+                IsEmailVerified = isEmailVerified
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByIdAsync(id)).ReturnsAsync(userDto);
+
+            var actual = await _controller.IsEmailVerified(id);
+
+            _serviceMock.VerifyAll();
+            Assert.IsType<OkObjectResult>(actual);
+            Assert.IsType<bool>(((OkObjectResult)actual).Value);
+            bool _actualObject = (bool)((OkObjectResult)actual).Value!;
+            Assert.Equal(isEmailVerified, _actualObject);
         }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task SendEmailVerification_IdLessThanOne_ReturnsInvalidParameterException(int id)
+        {
+            var actual = await Assert.ThrowsAnyAsync<InvalidParameterException>(async () => await _controller.SendEmailVerification(id));
+
+            Assert.Equal("Invalid Request Parameter", actual.Message);
+        }
+
+        [Fact]
+        public async Task SendEmailVerification_EmailAlreadyVerified_ReturnsBadRequest()
+        {
+            int id = 1;
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser",
+                IsEmailVerified = true
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByIdAsync(id)).ReturnsAsync(user);
+
+            var actual = await _controller.SendEmailVerification(id);
+
+            _serviceMock.VerifyAll();
+            Assert.IsType<BadRequestObjectResult>(actual);
+            BadRequestObjectResult _actualObject = (BadRequestObjectResult)actual;
+            Assert.IsType<string>(_actualObject.Value);
+            Assert.Equal($"This Email is already verified", _actualObject.Value);
+        }
+
+        [Fact]
+        public async Task SendEmailVerification_SendingVerificationEmailFails_ReturnsBadRequest()
+        {
+
+            /**
+             * cant set the HttpContext.Request property
+             */
+            int id = 1;
+            string token = "test-token";
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser",
+                IsEmailVerified = false
+            };
+
+            _serviceMock.Setup(s => s.UserService.GetUserByIdAsync(id)).ReturnsAsync(user);
+            _serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(user)).Returns(token);
+
+            Assert.Fail();
+
+        }
+
+        [Fact]
+        public async Task SendEmailVerification_SendingVerificationEmailSucceeds_NoContent()
+        {
+            /**
+             * cant set the HttpContext.Request property
+             */
+            int id = 0;
+            Assert.Fail();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public async Task SendPasswordResetLink_UserIdLessThanOne_ThrowsInvalidParameterException(int userId)
+        {
+            var actual = await Assert.ThrowsAsync<InvalidParameterException>(async () => await _controller.SendPasswordResetLink(userId));
+            Assert.Equal("Invalid Request Parameter", actual.Message);
+        }
+
+        [Fact]
+        public async Task SendPasswordResetLink_SendPasswordResetLinkFails_ReturnsBadRequest()
+        {
+            int userId = 1;
+            string token = "test-token";
+            var inMemorySettings = new Dictionary<string, string?> {
+                {"FrontendUrl", "frontend-url"},
+            };
+            IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser"
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(user)).Returns(token);
+            _configurationMock.Setup(c => c.GetSection("FrontendUrl")).Returns(config.GetSection("FrontendUrl"));
+            _serviceMock.Setup(s => s.EmailService.SendPasswordResetLink(user, It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+
+            var actual = await _controller.SendPasswordResetLink(userId);
+
+            _serviceMock.VerifyAll();
+            _configurationMock.VerifyAll();
+            Assert.IsType<BadRequestObjectResult>(actual);
+            BadRequestObjectResult _actualObject = (BadRequestObjectResult)actual;
+            Assert.IsType<string>(_actualObject.Value);
+            Assert.Equal("Something went wrong while sending the email.", _actualObject.Value);
+        }
+
+        [Fact]
+        public async Task SendPasswordResetLink_SendPasswordResetLinkSucceeds_ReturnsNoContent()
+        {
+            int userId = 1;
+            string token = "test-token";
+            var inMemorySettings = new Dictionary<string, string?> {
+                {"FrontendUrl", "frontend-url"},
+            };
+            IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser"
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByIdAsync(userId)).ReturnsAsync(user);
+            _serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(user)).Returns(token);
+            _configurationMock.Setup(c => c.GetSection("FrontendUrl")).Returns(config.GetSection("FrontendUrl"));
+            _serviceMock.Setup(s => s.EmailService.SendPasswordResetLink(user, It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+
+            var actual = await _controller.SendPasswordResetLink(userId);
+
+            _serviceMock.VerifyAll();
+            _configurationMock.VerifyAll();
+            Assert.IsType<NoContentResult>(actual);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task SendPasswordResetLinkByEmail_EmailIsNullOrEmpty_ThrowsInvalidParameterException(string? email)
+        {
+            var actual = await Assert.ThrowsAsync<InvalidParameterException>(async () => await _controller.SendPasswordResetLinkByEmail(email!));
+            Assert.Equal("Invalid Request Parameter", actual.Message);
+        }
+
+        [Fact]
+        public async Task SendPasswordResetLinkByEmail_SendPasswordResetLinkFails_ThrowsInvalidParameterException()
+        {
+            string email = "test@email.com";
+            string token = "test-token";
+            var inMemorySettings = new Dictionary<string, string?> {
+                {"FrontendUrl", "frontend-url"},
+            };
+            IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser"
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(user)).Returns(token);
+            _configurationMock.Setup(c => c.GetSection("FrontendUrl")).Returns(config.GetSection("FrontendUrl"));
+            _serviceMock.Setup(s => s.EmailService.SendPasswordResetLink(user, It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+
+            var actual = await _controller.SendPasswordResetLinkByEmail(email);
+
+            _serviceMock.VerifyAll();
+            _configurationMock.VerifyAll();
+            Assert.IsType<BadRequestObjectResult>(actual);
+            BadRequestObjectResult _actualObject = (BadRequestObjectResult)actual;
+            Assert.IsType<string>(_actualObject.Value);
+            Assert.Equal("Something went wrong while sending the email.", _actualObject.Value);
+        }
+
+        [Fact]
+        public async Task SendPasswordResetLinkByEmail_SendPasswordResetLinkSucceeds_ThrowsInvalidParameterException()
+        {
+            string email = "test@email.com";
+            string token = "test-token";
+            var inMemorySettings = new Dictionary<string, string?> {
+                {"FrontendUrl", "frontend-url"},
+            };
+            IConfiguration config = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
+            UserDto user = new()
+            {
+                DisplayName = "Test Name",
+                Email = "test@email.com",
+                Username = "testuser"
+            };
+            _serviceMock.Setup(s => s.UserService.GetUserByEmailAsync(It.IsAny<string>())).ReturnsAsync(user);
+            _serviceMock.Setup(s => s.AuthService.CreateEmailVerificationToken(user)).Returns(token);
+            _configurationMock.Setup(c => c.GetSection("FrontendUrl")).Returns(config.GetSection("FrontendUrl"));
+            _serviceMock.Setup(s => s.EmailService.SendPasswordResetLink(user, It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+
+            var actual = await _controller.SendPasswordResetLinkByEmail(email);
+
+            _serviceMock.VerifyAll();
+            _configurationMock.VerifyAll();
+            Assert.IsType<NoContentResult>(actual);
+        }
+
     }
 }
