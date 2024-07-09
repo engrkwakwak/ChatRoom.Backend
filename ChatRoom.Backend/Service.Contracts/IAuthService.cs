@@ -4,8 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Service.Contracts {
     public interface IAuthService {
-        Task<bool> ValidateUser(SignInDto userForAuth);
-        string CreateToken();
+        Task<string?> ValidateUser(SignInDto userForAuth);
         string CreateEmailVerificationToken(UserDto user);
         public JwtPayload VerifyJwtToken(string token);
         public Task<bool> VerifyEmail(int userId);

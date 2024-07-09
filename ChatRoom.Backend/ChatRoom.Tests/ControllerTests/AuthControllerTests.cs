@@ -32,10 +32,10 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task Authenticate_ValidateUserIsFalse_ReturnsUnauthorizedStatus()
+        public async Task Authenticate_ValidateUserIsNull_ReturnsUnauthorizedStatus()
         {
             SignInDto user = new();
-            _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(false);
+            _serviceMock.Setup(s => s.AuthService.ValidateUser(user));
 
             IActionResult actual = await _controller.Authenticate(user);
 
@@ -47,12 +47,15 @@ namespace ChatRoom.UnitTest.ControllerTests
         public async Task Authenticate_ValidateUserIsTrue_ReturnsOkStatus()
         {
             SignInDto user = new();
-            _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(true);
+            string token = "token";
+            _serviceMock.Setup(s => s.AuthService.ValidateUser(user)).ReturnsAsync(token);
 
             IActionResult actual = await _controller.Authenticate(user);
 
             _serviceMock.Verify(m => m.AuthService.ValidateUser(user), Times.Once);
             Assert.IsType<OkObjectResult>(actual);
+            Assert.IsType<string>(((OkObjectResult)actual).Value);
+            Assert.Equal(token, ((OkObjectResult)actual).Value);
         }
 
         [Fact]  

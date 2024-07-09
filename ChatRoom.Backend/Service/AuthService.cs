@@ -9,6 +9,7 @@ using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,45 +21,37 @@ namespace Service {
         private readonly IMapper _mapper = mapper;
         private readonly IConfiguration _configuration = configuration;
         private readonly IRedisCacheManager _cache = cache;
-        private User? User { get; set; }
 
-        public string CreateToken()
+        public string CreateEmailVerificationToken(UserDto userDto)
         {
-            IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
-            SigningCredentials signingCredentials = GetSigningCredentials();
-            var claims = GetClaims();
-            JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+            User? _user = _mapper.Map<User>(userDto);
+            string token = CreateToken(_user);
+            return token;
         }
 
-        public string CreateEmailVerificationToken(UserDto user)
-        {
-            IConfigurationSection? jwtSetting = _configuration.GetSection("JwtSettings");
-            SigningCredentials signingCredentials = GetSigningCredentials();
-            User = _mapper.Map<User>(user);
-            var claims = GetClaims();
-            JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
-
-            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-        }
-
-        public async Task<bool> ValidateUser(SignInDto userForAuth) {
+        public async Task<string?> ValidateUser(SignInDto userForAuth) {
+            User? user;
             if (IsEmail(userForAuth.Username!))
-                User = await _repository.User.GetUserByEmailAsync(userForAuth.Username!);
+                user = await _repository.User.GetUserByEmailAsync(userForAuth.Username!);
             else
-                User = await _repository.User.GetUserByUsernameAsync(userForAuth.Username!);
+                user = await _repository.User.GetUserByUsernameAsync(userForAuth.Username!);
 
-            bool result = User != null && CheckPassword(userForAuth.Password!, User.PasswordHash);
-            if (!result) {
+            if (user == null || !CheckPassword(userForAuth.Password!, user.PasswordHash))
+            {
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong username or password.");
+                return null;
             }
-
-            return (result);
+            string token = CreateToken(user!);
+            return token;
         }
 
         public JwtPayload VerifyJwtToken(string token)
         {
+            if (token.IsNullOrEmpty())
+            {
+                throw new InvalidParameterException("Invalid Token,the token cannot be empty.");
+            }
+
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 
             JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
@@ -70,6 +63,7 @@ namespace Service {
             }
             return securityToken.Payload;
         }
+
         public async Task<bool> VerifyEmail(int userId)
         {
             int affectedRows = await _repository.User.VerifyEmailAsync(userId);
@@ -92,6 +86,24 @@ namespace Service {
         /*
             Private Methods 
         */
+        private IConfigurationSection GetJwtSettingFromConfiguration()
+        {
+            IConfigurationSection jwtSetting = _configuration.GetSection("JwtSettings");
+            if (!jwtSetting.Exists())
+                throw new Exception("Something went wrong while processing the request. Unable generate authentication token.");
+            return jwtSetting;
+        }
+
+        private string CreateToken(User user)
+        {
+            IConfigurationSection? jwtSetting = GetJwtSettingFromConfiguration();
+            SigningCredentials signingCredentials = GetSigningCredentials();
+            List<Claim> claims = GetClaims(user);
+            JwtSecurityToken tokenOptions = GenerateTokenOptions(signingCredentials, claims, jwtSetting);
+
+            return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
+
         private static bool CheckPassword(string inputtedPassword, string hashedPassword) => BCrypt.Net.BCrypt.Verify(inputtedPassword, hashedPassword);
 
         private SigningCredentials GetSigningCredentials() {
@@ -100,6 +112,7 @@ namespace Service {
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
+
         private static JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims, IConfigurationSection jwtSetting) {
             var tokenOptions = new JwtSecurityToken(
                 issuer: jwtSetting["validIssuer"],
@@ -110,11 +123,11 @@ namespace Service {
 
             return tokenOptions;
         }
-        private List<Claim> GetClaims() => [
-                new(JwtRegisteredClaimNames.Sub, User!.UserId.ToString()),
-                new("display-name", User.DisplayName),
-                new("display-picture", User.DisplayPictureUrl ?? ""),
-                new(ClaimTypes.NameIdentifier, User.UserId.ToString())
+        private List<Claim> GetClaims(User user) => [
+                new(JwtRegisteredClaimNames.Sub, user!.UserId.ToString()),
+                new("display-name", user.DisplayName),
+                new("display-picture", user.DisplayPictureUrl ?? ""),
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString())
             ];
 
 
