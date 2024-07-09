@@ -52,7 +52,7 @@ namespace ChatRoom.UnitTest.ControllerTests {
             var validationFilter = new ValidationFilterAttribute();
             var actionExecutingContext = FilterTestHelper.CreateActionExecutingContext(_controller, nameof(UsersController.GetUserById), nameof(UsersController), actionArguments, validationFilter);
 
-            UserDto user = DtoFactory.CreateUserDto();
+            UserDto user = UserDtoFactory.CreateUserDto();
 
             _serviceMock.Setup(x => x.UserService.GetUserByIdAsync(userId)).ReturnsAsync(user);
 
@@ -137,7 +137,7 @@ namespace ChatRoom.UnitTest.ControllerTests {
         [InlineData(-1)]
         public void UpdateUser_InvalidUserId_ReturnsBadRequest(int userId) {
             // Arrange
-            UserForUpdateDto user = DtoFactory.CreateUserForUpdateDto();
+            UserForUpdateDto user = UserDtoFactory.CreateUserForUpdateDto();
             var actionArguments = new Dictionary<string, object> { { "userId", userId }, { "userForUpdate", user } };
             var validationFilter = new ValidationFilterAttribute();
             var actionExecutingContext = FilterTestHelper.CreateActionExecutingContext(_controller, nameof(UsersController.UpdateUser), nameof(UsersController), actionArguments, validationFilter);
@@ -157,7 +157,7 @@ namespace ChatRoom.UnitTest.ControllerTests {
         [Fact]
         public void UpdateUser_InvalidModelState_ReturnsUnprocessableEntity() {
             // Arrange
-            UserForUpdateDto user = DtoFactory.CreateInvalidUserForUpdateDto();
+            UserForUpdateDto user = UserDtoFactory.CreateInvalidUserForUpdateDto();
             int userId = 1;
             var actionArguments = new Dictionary<string, object> { { "userId", userId }, { "userForUpdate", user } };
             var validationFilter = new ValidationFilterAttribute();           

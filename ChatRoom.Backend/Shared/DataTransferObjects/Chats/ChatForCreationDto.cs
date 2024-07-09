@@ -4,11 +4,13 @@ using Shared.CustomValidations;
 namespace Shared.DataTransferObjects.Chats {
     public record ChatForCreationDto {
         [Required]
-        [MinimumValue(1)]
+        //[MinimumValue(1)]
+        [Range(1, int.MaxValue, ErrorMessage = "SenderId must be a positive integer greater than zero.")]
         public int ChatTypeId { get; init; }
 
         [Required]
-        [MinimumValue(1)]
+        //[MinimumValue(1)]
+        [Range(1, int.MaxValue, ErrorMessage = "SenderId must be a positive integer greater than zero.")]
         public int StatusId { get; init; }
 
         [MaxLength(50)]

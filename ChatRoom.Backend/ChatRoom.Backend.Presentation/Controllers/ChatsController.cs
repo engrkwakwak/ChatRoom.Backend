@@ -11,7 +11,6 @@ using Shared.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using Shared.DataTransferObjects.Users;
 using Shared.DataTransferObjects.Messages;
-using System.Diagnostics;
 using Contracts;
 namespace ChatRoom.Backend.Presentation.Controllers
 {
@@ -27,11 +26,11 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> GetChatById([FromRoute] int chatId)
         {
-            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
-            if(chat.ChatTypeId == 3)
+            if (chatId < 1)
             {
-                throw new ChatNotFoundException(chatId);
+                throw new InvalidParameterException("Something went wrong while processing the request. It looks like the chat is invalid.");
             }
+            ChatDto chat = await _service.ChatService.GetChatByChatIdAsync(chatId);
             return Ok(chat);
         }
 
@@ -40,6 +39,10 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetChatMembers(int chatId)
         {
+            if (chatId < 1)
+            {
+                throw new InvalidParameterException("Something went wrong while processing the request. It looks like the chat is invalid.");
+            }
             IEnumerable<ChatMemberDto> chatMembers  = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
             return Ok(chatMembers);
         }
@@ -60,11 +63,16 @@ namespace ChatRoom.Backend.Presentation.Controllers
                     return Ok(existingChat);
             }
 
+
+
             ChatDto createdChat = await _service.ChatService.CreateChatWithMembersAsync(chat);
 
             /* After chat creation, the system will add all chat members to the signalR group. Including the current user */
             IEnumerable<string> memberIds = createdChat.Members!.Select(s => s.User!.UserId.ToString());
-            await _hubContext.Clients.Users(memberIds).SendAsync("NewChatCreated", createdChat);
+            await _hubContext
+                .Clients
+                .Users(memberIds)
+                .SendAsync("NewChatCreated", createdChat);
 
             if (chat.ChatTypeId == (int)ChatTypes.GroupChat)
             {
@@ -85,9 +93,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 };
                 await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistNewMessage", chatHubChatlistUpdateDto);
             }
-
-            Debug.WriteLine($"{DateTime.Now:0:MM/dd/yy H:mm:ss zzz} New Chat Created.");
-
             return CreatedAtRoute("GetChatByChatId", new { chatId = createdChat.ChatId }, createdChat);
         }
 
@@ -130,12 +135,12 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("DeleteChat", chatId);
             ChatHubChatlistUpdateDto chatHubChatlistUpdateDto = new() {
-                ChatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId),
+                ChatMembers = chatMembers,
                 Chat = chat
             };
             IEnumerable<string> memberIds = chatMembers.Select(c => c.User!.UserId.ToString());
             await _hubContext.Clients.Users(memberIds).SendAsync("ChatlistDeleteChat", chatHubChatlistUpdateDto);
-            return Ok();
+            return NoContent();
         }
 
         [HttpGet("{chatId}/can-view")]
@@ -162,8 +167,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
-            //IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
-            //IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserStartsTyping", chatMemberDto);
             return NoContent();
@@ -176,8 +179,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             ChatMemberDto chatMemberDto = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, userId);
-            //IEnumerable<ChatMemberDto> members = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(chatId);
-            //IEnumerable<string> memberIds = members.Select(x => x.ChatId.ToString());
             string groupName = ChatRoomHub.GetChatGroupName(chatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UserTypingEnd", chatMemberDto);
             return NoContent();
@@ -199,7 +200,8 @@ namespace ChatRoom.Backend.Presentation.Controllers
                 throw new InvalidParameterException("Invalid request. You cannot leave the chat because you are the only admin left. Please assgin another admin before leaving the chat.");
             }
 
-            if (await _service.ChatMemberService.SetChatMemberStatus(chatId, userId, (int) Shared.Enums.Status.Deleted)){
+            if (!await _service.ChatMemberService.SetChatMemberStatus(chatId, userId, (int)Status.Deleted))
+            {
                 throw new ChatMemberNotUpdatedException(chatId, userId);
             }
 
@@ -297,9 +299,9 @@ namespace ChatRoom.Backend.Presentation.Controllers
             if(userId == memberUserId)
                 throw new UnauthorizedChatActionException("Unauthorized Action detected. You cannot remove yourself from the chat");
 
-            if (await _service.ChatMemberService.SetChatMemberStatus(chatId, memberUserId, (int)Shared.Enums.Status.Deleted))
+            if (!await _service.ChatMemberService.SetChatMemberStatus(chatId, memberUserId, (int)Status.Deleted))
             {
-                throw new ChatMemberNotUpdatedException(chatId, userId);
+                throw new ChatMemberNotUpdatedException(chatId, memberUserId);
             }
 
             UserDto removedUser = await _service.UserService.GetUserByIdAsync(memberUserId);
@@ -314,6 +316,10 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> Member(int chatId, int memberUserId)
         {
+            if (chatId < 1 || memberUserId < 1)
+            {
+                throw new InvalidParameterException("Something went wrong while fetching the member. The chat id or member id is invalid.");
+            }
             ChatMemberDto member = await _service.ChatMemberService.GetChatMemberByChatIdUserIdAsync(chatId, memberUserId);
             return Ok(member);
         }
@@ -345,6 +351,11 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [HttpPut("{chatId:int}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
+            if(chatId < 1)
+            {
+                throw new InvalidParameterException("Something went wrong while fetching the member. The chat id or member id is invalid.");
+            }
+
             await _service.ChatService.UpdateChatAsync(chatId, chat);
 
             string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
