@@ -9,7 +9,6 @@ using MimeKit;
 using Microsoft.Extensions.Configuration;
 using Shared.DataTransferObjects.Users;
 using Razor.Templating.Core;
-using Org.BouncyCastle.Crypto;
 using RedisCacheService;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;

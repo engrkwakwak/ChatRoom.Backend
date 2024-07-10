@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using MongoDB.Driver;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Chats;
@@ -29,6 +30,10 @@ namespace Service {
 
         public async Task<bool> CanViewAsync(int chatId, int userId)
         {
+            if (chatId < 1 || userId < 1)
+            {
+                throw new InvalidParameterException($"Invalid chatId : {chatId} and userId : {userId}");
+            }
             IEnumerable<ChatMember> chatMembers = await _repository.ChatMember.GetActiveChatMembersByChatIdAsync(chatId);
             foreach (var member in chatMembers)
             {
@@ -40,15 +45,25 @@ namespace Service {
             return false;
         }
 
-        public async Task<ChatDto> GetP2PChatByUserIdsAsync(int userId1, int userId2)
+        public async Task<ChatDto?> GetP2PChatByUserIdsAsync(int userId1, int userId2)
         {
+            if(userId1 == userId2 || userId1 < 1 || userId2 < 1)
+            {
+                throw new InvalidParameterException($"The user ids {userId1} and {userId2} is invalid.");
+            }
             Chat? existingChat = await _repository.Chat.GetP2PChatByUserIdsAsync(userId1, userId2);
+            if(existingChat == null)
+                return null;
             ChatDto chatToReturn = _mapper.Map<ChatDto>(existingChat);
             return chatToReturn;
         }
 
         public async Task<ChatDto> GetChatByChatIdAsync(int chatId)
         {
+            if (chatId < 1)
+            {
+                throw new InvalidParameterException($"The chat id {chatId} is invalid.");
+            }
             string chatCacheKey = $"chat:{chatId}";
             Chat? chat = await _cache.GetCachedDataAsync<Chat>(chatCacheKey);
             if (chat != null)
@@ -61,13 +76,18 @@ namespace Service {
 
         public async Task<bool> DeleteChatAsync(int chatId)
         {
+            if (chatId < 1)
+            {
+                throw new InvalidParameterException($"The chat id {chatId} is invalid.");
+            }
             int affectedRows =  await _repository.Chat.DeleteChatAsync(chatId);
-            if (affectedRows < 1)
-                return false;
-
-            string chatKey = $"chat:{chatId}";
-            await _cache.RemoveDataAsync(chatKey);
-            return true;
+            if (affectedRows > 0)
+            {
+                string chatKey = $"chat:{chatId}";
+                await _cache.RemoveDataAsync(chatKey);
+                return true;
+            }
+            return false;
         }
 
         
@@ -86,11 +106,16 @@ namespace Service {
         }
 
         public async Task UpdateChatAsync(int chatId, ChatForUpdateDto chat) {
+            if (chatId < 1)
+            {
+                throw new InvalidParameterException($"The chat id {chatId} is invalid.");
+            }
             string cacheKey = $"chat:{chatId}";
             Chat chatEntity = await _repository.Chat.GetChatByChatIdAsync(chatId) ?? throw new ChatNotFoundException(chatId);
 
-            if (!string.IsNullOrEmpty(chatEntity.DisplayPictureUrl) && !string.IsNullOrEmpty(chat.DisplayPictureUrl)) {
-                await _fileManager.DeleteImageAsync(chatEntity.DisplayPictureUrl);
+            if(ShouldDeleteDisplayPicture(chatEntity.DisplayPictureUrl, chat.DisplayPictureUrl))
+            {
+                await _fileManager.DeleteImageAsync(chatEntity.DisplayPictureUrl!);
             }
 
             _mapper.Map(chat, chatEntity);
@@ -103,6 +128,14 @@ namespace Service {
             }
 
             await _cache.RemoveDataAsync(cacheKey);
+        }
+
+        private static bool ShouldDeleteDisplayPicture(string? currentPictureUrl, string? newPictureUrl)
+        {
+            bool hasCurrentPicture = !string.IsNullOrEmpty(currentPictureUrl);
+            bool isPictureChanged = !string.Equals(currentPictureUrl, newPictureUrl, StringComparison.OrdinalIgnoreCase);
+
+            return isPictureChanged && hasCurrentPicture;
         }
     }
 }

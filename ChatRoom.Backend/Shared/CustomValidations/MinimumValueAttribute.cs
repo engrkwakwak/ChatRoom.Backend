@@ -6,7 +6,8 @@ namespace Shared.CustomValidations {
 
         protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
             if (value is int intValue && intValue < _minValue) {
-                return new ValidationResult($"The value of {validationContext.DisplayName} must be at least {_minValue}.");
+                var memberName = validationContext.MemberName ?? string.Empty;
+                return new ValidationResult($"The value of {validationContext.DisplayName} must be at least {_minValue}.", [memberName]);
             }
 
             return ValidationResult.Success;

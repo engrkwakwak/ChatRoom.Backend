@@ -73,6 +73,11 @@ namespace Service {
 
         public int GetUserIdFromJwtToken(string token)
         {
+            if (token.IsNullOrEmpty())
+            {
+                throw new InvalidParameterException("Invalid Token,the token cannot be empty.");
+            }
+
             JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 
             JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);

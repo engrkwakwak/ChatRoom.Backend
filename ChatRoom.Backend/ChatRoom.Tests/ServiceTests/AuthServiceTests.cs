@@ -295,7 +295,80 @@ namespace ChatRoom.UnitTest.ServiceTests
             Assert.IsType<JwtPayload>(result);
         }
 
-        
+        [Fact]
+        public async Task VerifyEmail_VerifyEmailReturnsZero_ReturnsFalse()
+        {
+            // arrange 
+            int userId = 1;
+            _repositoryMock.Setup(r => r.User.VerifyEmailAsync(userId)).ReturnsAsync(0).Verifiable();
+
+            // act
+            var result = await _serviceManager.AuthService.VerifyEmail(userId);
+
+            // assert
+            _repositoryMock.Verify();
+            _cacheMock.Verify(cm => cm.RemoveDataAsync($"user:{userId}"));
+            Assert.False(result);
+        }
+
+        [Fact]
+        public async Task VerifyEmail_VerifyEmailReturnsOne_ReturnsFalse()
+        {
+            // arrange 
+            int userId = 1;
+            _repositoryMock.Setup(r => r.User.VerifyEmailAsync(userId)).ReturnsAsync(1).Verifiable();
+
+            // act
+            var result = await _serviceManager.AuthService.VerifyEmail(userId);
+
+            // assert
+            _repositoryMock.Verify();
+            _cacheMock.Verify(cm => cm.RemoveDataAsync($"user:{userId}"));
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void GetUserIdFromJwtToken_TokenIsEmpty_ThrowsException()
+        {
+            // arrange
+            string token = "";
+
+            // act 
+            var result = Assert.Throws<InvalidParameterException>(() => _serviceManager.AuthService.GetUserIdFromJwtToken(token));
+
+            // assert
+            Assert.Equal("Invalid Token,the token cannot be empty.", result.Message);
+        }
+
+        [Fact]
+        public void GetUserIdFromJwtToken_NoSubClaim_ThrowsException()
+        {
+            // arrange
+            string token = UserDtoFactory.GenerateJwtTokenWithoutSubClaim();
+
+            // act 
+            var result = Assert.Throws<Exception>(() => _serviceManager.AuthService.GetUserIdFromJwtToken(token));
+
+            // assert
+            Assert.Equal("Invalid token", result.Message);
+        }
+
+        [Fact]
+        public void GetUserIdFromJwtToken_Default_ReturnsInt()
+        {
+            int userId = 600;
+            User user = UserDtoFactory.CreateUser(userId: userId);
+            // arrange
+            string token = UserDtoFactory.GenerateJwtToken(user: user);
+
+            // act 
+            var result = _serviceManager.AuthService.GetUserIdFromJwtToken(token);
+
+            // assert
+            Assert.IsType<int>(result);
+            Assert.Equal(userId, result);
+        }
+
 
     }
 }
