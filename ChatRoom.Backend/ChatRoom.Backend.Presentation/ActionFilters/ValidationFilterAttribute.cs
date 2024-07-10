@@ -26,7 +26,7 @@ namespace ChatRoom.Backend.Presentation.ActionFilters {
                 context.Result = new BadRequestObjectResult($"Object is null. Controller: {controller}, action: {action}");
                 return;
             }
-
+             
             if (!context.ModelState.IsValid) {
                 context.Result = new UnprocessableEntityObjectResult(context.ModelState);
             }

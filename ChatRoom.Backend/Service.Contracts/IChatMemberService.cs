@@ -14,5 +14,6 @@ namespace Service.Contracts {
         Task<ChatMemberDto[]> InsertChatMembersAsync(int chatId, IEnumerable<int> memberUserId);
 
         Task<ChatMemberDto> InsertChatMemberAsync(int chatId, int userId);
+
     }
 }
