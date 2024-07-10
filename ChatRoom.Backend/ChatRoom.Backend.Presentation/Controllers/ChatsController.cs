@@ -351,10 +351,6 @@ namespace ChatRoom.Backend.Presentation.Controllers
         [HttpPut("{chatId:int}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateChat(int chatId, [FromBody] ChatForUpdateDto chat) {
-            if(chatId < 1)
-            {
-                throw new InvalidParameterException("Something went wrong while fetching the member. The chat id or member id is invalid.");
-            }
 
             await _service.ChatService.UpdateChatAsync(chatId, chat);
 

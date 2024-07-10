@@ -873,21 +873,6 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task UpdateChat_ChatIdIsLessThanOne_ThrowsInvalidParameterException()
-        {
-            // arrange
-            int chatId = 0;
-            ChatForUpdateDto chatForUpdateDto = ChatDtoFactory.CreateChatForUpdateDto();
-
-            // act
-            var result = await Assert.ThrowsAsync<InvalidParameterException>(async () => await _controller.UpdateChat(chatId, chatForUpdateDto));
-
-            // assert
-            Assert.NotNull(result);
-            Assert.Equal("Something went wrong while fetching the member. The chat id or member id is invalid.", result.Message);
-        }
-
-        [Fact]
         public async Task UpdateChat_Succeeds_ReturnsNoContentResult()
         {
             // arrange
