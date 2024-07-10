@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using Microsoft.AspNetCore.Components.Web;
 using RedisCacheService;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
@@ -9,12 +10,26 @@ using Shared.DataTransferObjects.Users;
 using Shared.RequestFeatures;
 
 namespace Service {
-    internal sealed class UserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IRedisCacheManager cache, IFileManager fileManager) : IUserService {
-        private readonly IRepositoryManager _repository = repository;
-        private readonly ILoggerManager _logger = logger;
-        private readonly IMapper _mapper = mapper;
-        private readonly IRedisCacheManager _cache = cache;
-        private readonly IFileManager _fileManager = fileManager;
+    public sealed class UserService : IUserService {
+        private readonly IRepositoryManager _repository;
+        private readonly ILoggerManager _logger;
+        private readonly IMapper _mapper;
+        private readonly IRedisCacheManager _cache;
+        private readonly IFileManager _fileManager;
+
+        public UserService(
+            IRepositoryManager repository, 
+            ILoggerManager logger, 
+            IMapper mapper, 
+            IRedisCacheManager cache, 
+            IFileManager fileManager
+        ) {
+            _repository = repository;
+            _logger = logger;
+            _mapper = mapper;
+            _cache = cache;
+            _fileManager = fileManager;
+        }
 
         public async Task<UserDto> GetUserByIdAsync(int userId) {
             string cacheKey = $"user:{userId}";
@@ -51,11 +66,11 @@ namespace Service {
         public async Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate) {
             User user = await GetUserAndCheckIfItExists(userId);
 
-            if (user.Email != userForUpdate.Email)
+            if (ShouldInvalidateEmail(user.Email, userForUpdate.Email!))
                 user.IsEmailVerified = false;
 
-            if (!string.IsNullOrEmpty(user.DisplayPictureUrl) && !string.IsNullOrEmpty(userForUpdate.DisplayPictureUrl)) {
-                await _fileManager.DeleteImageAsync(user.DisplayPictureUrl);
+            if (ShouldDeleteDisplayPicture(user.DisplayPictureUrl, userForUpdate.DisplayPictureUrl)) {
+                await _fileManager.DeleteImageAsync(user.DisplayPictureUrl!);
             }
 
             _mapper.Map(userForUpdate, user);         
@@ -63,18 +78,12 @@ namespace Service {
             int rowsAffected = await _repository.User.UpdateUserAsync(user);
 
             if (rowsAffected <= 0) {
-                _logger.LogWarn($"Failed to update the user with id {user.UserId}. Total rows affected: {rowsAffected}. At {nameof(UserService)} - {nameof(UpdateUserAsync)}.");
+                _logger.LogWarn($"Failed to update the user with id {user.UserId}. " +
+                    $"Total rows affected: {rowsAffected}. At {nameof(UserService)} - {nameof(UpdateUserAsync)}.");
                 throw new UserUpdateFailedException(user.UserId);
             }
 
             await _cache.RemoveDataAsync(key: $"user:{userId}");
-        }
-
-        public async Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter)
-        {
-            IEnumerable<User> users = await _repository.User.SearchUsersByNameAsync(userParameter);
-            IEnumerable<UserDto> userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
-            return userDtos;
         }
 
         public async Task<(IEnumerable<UserDto> users, MetaData? metaData)> GetUsersAsync(UserParameters userParameters) {
@@ -82,11 +91,6 @@ namespace Service {
 
             IEnumerable<UserDto> usersDto = _mapper.Map<IEnumerable<UserDto>>(usersWithMetaData);
             return (users: usersDto, metaData: usersWithMetaData.MetaData);
-        }
-
-        private async Task<User> GetUserAndCheckIfItExists(int userId) {
-            User? user = await _repository.User.GetUserByIdAsync(userId);
-            return user is null ? throw new UserIdNotFoundException(userId) : user;
         }
 
         public async Task<bool> UpdatePasswordAsync(int userId, string password)
@@ -100,8 +104,26 @@ namespace Service {
 
         public async Task<UserDto> GetUserByEmailAsync(string email)
         {
-            User? user = await _repository.User.GetUserByEmailAsync(email) ?? throw new UsernameNotFoundException(email);
+            User user = await _repository.User.GetUserByEmailAsync(email) 
+                ?? throw new EmailNotFoundException(email);
             return _mapper.Map<UserDto>(user);
+        }
+
+        private async Task<User> GetUserAndCheckIfItExists(int userId) {
+            User user = await _repository.User.GetUserByIdAsync(userId)
+                ?? throw new UserIdNotFoundException(userId);
+            return user;
+        }
+
+        private static bool ShouldInvalidateEmail(string currentEmail, string newEmail) {
+            return !string.Equals(currentEmail, newEmail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ShouldDeleteDisplayPicture(string? currentPictureUrl, string? newPictureUrl) {
+            bool hasCurrentPicture = !string.IsNullOrEmpty(currentPictureUrl);
+            bool isPictureChanged = !string.Equals(currentPictureUrl, newPictureUrl, StringComparison.OrdinalIgnoreCase);
+
+            return isPictureChanged && hasCurrentPicture;
         }
     }
 }
