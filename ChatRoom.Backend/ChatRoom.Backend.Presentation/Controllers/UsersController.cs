@@ -40,15 +40,6 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             return NoContent();
         }
 
-        [HttpGet("search/{Name}")]
-        [Authorize]
-        public async Task<IActionResult> SearchUserByName([FromQuery] UserParameters userParameter, string Name)
-        {
-            userParameter.Name = Name;
-            IEnumerable<UserDto> userDtos = await _service.UserService.SearchUsersByNameAsync(userParameter);
-            return Ok(userDtos);
-        }
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAllUsers([FromQuery] UserParameters userParameters) {

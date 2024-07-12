@@ -12,7 +12,6 @@ namespace Service.Contracts {
 
         Task UpdateUserAsync(int userId, UserForUpdateDto userForUpdate);
 
-        Task<IEnumerable<UserDto>> SearchUsersByNameAsync(UserParameters userParameter);
         Task<(IEnumerable<UserDto> users, MetaData? metaData)> GetUsersAsync(UserParameters userParameters);
         
         Task<bool> UpdatePasswordAsync(int userId, string password);
