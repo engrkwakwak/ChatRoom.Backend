@@ -1,4 +1,5 @@
-﻿using Shared.DataTransferObjects.Chats;
+﻿using Entities.Models;
+using Shared.DataTransferObjects.Chats;
 using Shared.Enums;
 using StackExchange.Redis;
 
@@ -6,16 +7,16 @@ namespace ChatRoom.UnitTest.Helpers
 {
     public class ChatDtoFactory
     {
-        public static ChatDto CreateP2PChatDto()
+        public static ChatDto CreateP2PChatDto(int chatId=1)
         {
             return new ChatDto()
             {
-                ChatId = 1,
+                ChatId = chatId,
                 ChatTypeId = (int)ChatTypes.P2P,
                 StatusId = 1,
                 Members = [
                     new ChatMemberDto{
-                        ChatId = 1,
+                        ChatId = chatId,
                         IsAdmin = false,
                         StatusId=1,
                         UserId = 1,
@@ -25,7 +26,7 @@ namespace ChatRoom.UnitTest.Helpers
                         },
                     },
                     new ChatMemberDto{
-                        ChatId = 1,
+                        ChatId = chatId,
                         IsAdmin = false,
                         StatusId=1,
                         UserId = 2,
@@ -37,7 +38,7 @@ namespace ChatRoom.UnitTest.Helpers
                 ]
             };
         }
-        public static ChatDto CreateGroupChatDto(int chatId = 1)
+        public static ChatDto CreateGroupChatDto(int chatId = 1, IEnumerable<ChatMemberDto>? members = null)
         {
             return new ChatDto()
             {
@@ -46,7 +47,7 @@ namespace ChatRoom.UnitTest.Helpers
                 StatusId = 1,
                 ChatName = "Test Group Chat",
                 DisplayPictureUrl = null,
-                Members = [
+                Members = members ?? [
                     new ChatMemberDto{
                         ChatId = chatId,
                         IsAdmin = true,
@@ -142,16 +143,16 @@ namespace ChatRoom.UnitTest.Helpers
                 ChatMemberIds = [0,0],
                 ChatName = "Sed ut perspiciatis unde omnis iste natus error sit"
             };
-        }        
-        
-        public static ChatForCreationDto CreateValidGroupChatForCreationDto()
+        }
+
+        public static ChatForCreationDto CreateValidGroupChatForCreationDto(int chatTypeId = 2, int statusId = 2, string chatName= "Sed ut perspiciatis unde omnis iste natus error sit.", IEnumerable<int>? chatMemberIds=null)
         {
             return new ChatForCreationDto
             {
-                ChatTypeId = 2,
-                StatusId = 2,
-                ChatMemberIds = [1,2],
-                ChatName = "Sed ut perspiciatis unde omnis iste natus error sit"
+                ChatTypeId = chatTypeId,
+                StatusId = statusId,
+                ChatMemberIds = chatMemberIds ?? [1,2],
+                ChatName = chatName
             };
         }
 
@@ -172,5 +173,18 @@ namespace ChatRoom.UnitTest.Helpers
                 DisplayPictureUrl = "test-display-url"
             };
         }
+
+        public static Chat CreateChat(int chatId=1, int chatTypeId=(int)ChatTypes.GroupChat, string? displayPictureUrl=null)
+        {
+            return new()
+            {
+                ChatId = chatId,
+                ChatName = "Test Name",
+                ChatTypeId = chatTypeId,
+                StatusId=1,
+                DisplayPictureUrl=displayPictureUrl
+            };
+        }
+
     }
 }

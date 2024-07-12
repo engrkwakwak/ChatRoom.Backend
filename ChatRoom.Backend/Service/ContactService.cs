@@ -18,6 +18,8 @@ namespace Service {
 
         public async Task<bool> DeleteContactByUserIdContactIdAsync(int userId, int contactId)
         {
+            if (userId < 1 || contactId < 1 || userId == contactId)
+                throw new InvalidParameterException($"Invalid parameter user id {userId} and contact id {contactId}.");
             int affectedRows = await _repository.Contact.DeleteContactByUserIdContactIdAsync(userId, contactId);
             if(affectedRows < 1)
                 return false;
@@ -30,23 +32,23 @@ namespace Service {
 
         public async Task<ContactDto?> GetContactByUserIdContactIdAsync(int userId, int contactId)
         {
+            if (userId < 1 || contactId < 1)
+                throw new InvalidParameterException($"Invalid parameter user id {userId} and contact id {contactId}.");
             string contactCacheKey = $"contact:{contactId}:user:{userId}";
             Contact? contact = await _cache.GetCachedDataAsync<Contact>(contactCacheKey);
             if(contact != null) 
                 return _mapper.Map<ContactDto>(contact);
 
             contact = await _repository.Contact.GetContactByUserIdContactIdAsync(userId, contactId);
-            if(contact == null)
-                return null;
             await _cache.SetCachedDataAsync(contactCacheKey, contact, TimeSpan.FromMinutes(30));
-            return _mapper.Map<ContactDto>(contact);
+            return contact == null ? null : _mapper.Map<ContactDto>(contact);
         }
 
         public async Task<IEnumerable<ContactDto>> GetContactsByUserIdAsync(ContactParameters contactParameters)
         {
             string userContactsCacheKey = $"user:{contactParameters.UserId}:contacts:page:1";
             IEnumerable<Contact> contacts = await _cache.GetCachedDataAsync<IEnumerable<Contact>>(userContactsCacheKey);
-            if (contacts != null && contactParameters.PageNumber == 1)
+            if (!contacts.IsNullOrEmpty() && contactParameters.PageNumber == 1)
                 return _mapper.Map<IEnumerable<ContactDto>>(contacts);
 
             contacts = await _repository.Contact.GetContactsByUserIdAsync(contactParameters);
@@ -88,20 +90,13 @@ namespace Service {
                 userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
                 return userDtos;
             }
-
             users = await _cache.GetCachedDataAsync<IEnumerable<User>>(userContactsCacheKey);
-            if(users != null && contactParameters.PageNumber == 1)
+            if(!users.IsNullOrEmpty() && contactParameters.PageNumber == 1)
             {
                 return _mapper.Map<IEnumerable<UserDto>>(users);
             }
             IEnumerable<Contact> contacts = await _repository.Contact.GetContactsByUserIdAsync(contactParameters);
-            List<int> userIds = [];
-            foreach (var contact in contacts)
-            {
-                userIds.Add(contact.ContactId);
-            }
-            string _userIds = string.Join(",", userIds);
-            users = await _repository.User.GetUsersByIdsAsync(_userIds);
+            users = await _repository.User.GetUsersByIdsAsync(string.Join(",", contacts.Select(s => s.ContactId)));
             if (contactParameters.PageNumber == 1)
             {
                 await _cache.SetCachedDataAsync(userContactsCacheKey, users, TimeSpan.FromMinutes(30));
@@ -110,6 +105,10 @@ namespace Service {
         }
 
         public async Task<IEnumerable<ContactDto>> InsertContactsAsync(int userId, List<int> contactIds) {
+            if (userId < 1 || contactIds.IsNullOrEmpty() || contactIds.Count(c => c < 1) > 0)
+            {
+                throw new InvalidParameterException("The contact id's and user id provided is invalid.");
+            }
             IEnumerable<Contact> chatContacts = await _repository.Contact.InsertContactsAsync(userId, contactIds);
             IEnumerable<ContactDto> chatContactsToReturn = _mapper.Map<IEnumerable<ContactDto>>(chatContacts);
             

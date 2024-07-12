@@ -62,11 +62,11 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task Authenticate_ValidateUserIsFalse_ReturnsUnauthorizedStatus()
+        public async Task Authenticate_ValidateUserIsNull_ReturnsUnauthorizedStatus()
         {
             // Arrange
             SignInDto userSignInDto = AuthDtoFactory.CreateValidSignInDto();
-            _serviceMock.Setup(s => s.AuthService.ValidateUser(userSignInDto)).ReturnsAsync(false);
+            _serviceMock.Setup(s => s.AuthService.ValidateUser(userSignInDto));
 
             // Act
             var actual = await _controller.Authenticate(userSignInDto);
@@ -77,11 +77,12 @@ namespace ChatRoom.UnitTest.ControllerTests
         }
 
         [Fact]
-        public async Task Authenticate_ValidateUserIsTrue_ReturnsOkStatus()
+        public async Task Authenticate_ValidateUserIsSucceeds_ReturnsOkStatus()
         {
             // Arrange
             SignInDto signInDto = AuthDtoFactory.CreateValidSignInDto();
-            _serviceMock.Setup(s => s.AuthService.ValidateUser(signInDto)).ReturnsAsync(true);
+            string token = "token";
+            _serviceMock.Setup(s => s.AuthService.ValidateUser(signInDto)).ReturnsAsync(token);
 
             // Act
             var actual = await _controller.Authenticate(signInDto) as ObjectResult;
@@ -89,7 +90,8 @@ namespace ChatRoom.UnitTest.ControllerTests
             // Assert
             _serviceMock.Verify(m => m.AuthService.ValidateUser(signInDto), Times.Once);
             Assert.IsType<OkObjectResult>(actual);
-            Assert.Equal(200, actual.StatusCode);
+            OkObjectResult resulObject = (OkObjectResult)actual;
+            Assert.IsAssignableFrom<TokenDto>(resulObject.Value);
         }
 
         [Fact]  

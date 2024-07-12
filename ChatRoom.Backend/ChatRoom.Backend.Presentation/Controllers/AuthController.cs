@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Service.Contracts;
 using Shared.DataTransferObjects.Auth;
 using Shared.DataTransferObjects.Users;
@@ -21,12 +22,13 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Authenticate([FromBody] SignInDto user)
         {
-            if (!await _service.AuthService.ValidateUser(user))
+            string? token = await _service.AuthService.ValidateUser(user);
+            if (token.IsNullOrEmpty())
                 return Unauthorized();
 
-            return Ok(new
+            return Ok(new TokenDto
             {
-                Token = _service.AuthService.CreateToken()
+                Token = token
             });
         }
 
@@ -154,7 +156,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             UserDto user = await _service.UserService.GetUserByIdAsync(userId);
 
             string token = _service.AuthService.CreateEmailVerificationToken(user);
-            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={token}";
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/#/auth/reset-password?token={token}";
             if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink, token))
             {
                 return BadRequest("Something went wrong while sending the email.");
@@ -173,7 +175,7 @@ namespace ChatRoom.Backend.Presentation.Controllers {
             UserDto user = await _service.UserService.GetUserByEmailAsync(email);
 
             string token = _service.AuthService.CreateEmailVerificationToken(user);
-            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/auth/reset-password?token={token}";
+            string passwordResetLink = $"{_config.GetSection("FrontendUrl").Get<string>()}/#/auth/reset-password?token={token}";
             if (!await _service.EmailService.SendPasswordResetLink(user, passwordResetLink, token))
             {
                 return BadRequest("Something went wrong while sending the email.");
