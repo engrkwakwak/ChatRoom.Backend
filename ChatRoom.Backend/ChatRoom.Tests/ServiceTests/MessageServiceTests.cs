@@ -14,24 +14,17 @@ using Shared.RequestFeatures;
 namespace ChatRoom.UnitTest.ServiceTests;
 public class MessageServiceTests {
     private readonly Mock<IRepositoryManager> _mockRepo;
-    private readonly Mock<ILoggerManager> _mockLogger;
-    private readonly Mock<IRedisCacheManager> _mockCache;
     private readonly MessageService _service;
 
     public MessageServiceTests() {
         _mockRepo = new Mock<IRepositoryManager>();
-        _mockLogger = new Mock<ILoggerManager>();
-        _mockCache = new Mock<IRedisCacheManager>();
 
         var mappingConfig = new MapperConfiguration(mc => {
             mc.AddProfile(new MappingProfile());
         });
         var mapper = mappingConfig.CreateMapper();
 
-        _service = new MessageService(
-            _mockRepo.Object, _mockLogger.Object,
-            mapper, _mockCache.Object
-        );
+        _service = new MessageService(_mockRepo.Object, mapper);
     }
 
     [Fact]
