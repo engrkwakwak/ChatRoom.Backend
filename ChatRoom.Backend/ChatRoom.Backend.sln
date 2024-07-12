@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisCacheService", "RedisC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatRoom.UnitTest", "ChatRoom.Tests\ChatRoom.UnitTest.csproj", "{2FD8FF0D-DB97-4FF8-9210-00F3776D6F32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileService", "FileService\FileService.csproj", "{489ACCAA-A7DA-4E88-AA0F-B4CB6D89AFC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileService", "FileService\FileService.csproj", "{489ACCAA-A7DA-4E88-AA0F-B4CB6D89AFC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmtpClientService", "SmtpClientService\SmtpClientService.csproj", "{4A08CA3A-AC3B-488E-B423-8C843C8E73CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{489ACCAA-A7DA-4E88-AA0F-B4CB6D89AFC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{489ACCAA-A7DA-4E88-AA0F-B4CB6D89AFC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{489ACCAA-A7DA-4E88-AA0F-B4CB6D89AFC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A08CA3A-AC3B-488E-B423-8C843C8E73CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A08CA3A-AC3B-488E-B423-8C843C8E73CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A08CA3A-AC3B-488E-B423-8C843C8E73CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A08CA3A-AC3B-488E-B423-8C843C8E73CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

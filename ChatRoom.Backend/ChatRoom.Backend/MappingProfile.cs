@@ -29,6 +29,7 @@ namespace ChatRoom.Backend {
                     opt => opt.MapFrom(src => src.Status));
             CreateMap<MessageType, MessageTypeDto>();
             CreateMap<MessageForCreationDto, Message>();
+            CreateMap<MessageForUpdateDto, Message>();
 
             CreateMap<Status, StatusDto>();
 

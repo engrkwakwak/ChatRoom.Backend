@@ -8,6 +8,8 @@ using ChatRoom.Backend;
 using Shared.DataTransferObjects.Users;
 using Entities.Exceptions;
 using Shared.DataTransferObjects.Auth;
+using Shared.RequestFeatures;
+using FluentAssertions;
 
 namespace ChatRoom.UnitTest.ServiceTests; 
 public class UserServiceTests {
@@ -412,7 +414,6 @@ public class UserServiceTests {
     [Fact]
     public async Task UpdateUserAsync_CurrentlyHasNoPictureAndNoNewPicture_ShouldNotDeleteOldPicture() {
         // Arrange
-        int userId = 1;
         User user = CreateUser();
         UserForUpdateDto userForUpdate = CreateUserForUpdateDto();
         user.DisplayPictureUrl = null;
@@ -424,7 +425,7 @@ public class UserServiceTests {
             .ReturnsAsync(1);
 
         // Act
-        await _service.UpdateUserAsync(userId, userForUpdate);
+        await _service.UpdateUserAsync(user.UserId, userForUpdate);
 
         // Verify
         _mockFileManager.Verify(x => x.DeleteImageAsync(It.IsAny<string>()), Times.Never);
@@ -432,73 +433,251 @@ public class UserServiceTests {
 
     [Fact]
     public async Task UpdateUserAsync_RepositoryUpdateFails_ShouldThrowUserUpdateFailedException() {
+        // Arrange
+        User user = CreateUser();
+        UserForUpdateDto userForUpdate = CreateUserForUpdateDto();
+        string expectedErrMsg = $"The server failed to update the user with id: {user.UserId}.";
 
+        _mockRepo.Setup(x => x.User.GetUserByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(user);
+        _mockRepo.Setup(x => x.User.UpdateUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(0);
+
+        // Act & Assert
+        var err = await Assert.ThrowsAsync<UserUpdateFailedException>(() => _service.UpdateUserAsync(user.UserId, userForUpdate));
+
+        Assert.Equal(expectedErrMsg, err.Message);
     }
 
     [Fact]
     public async Task UpdateUserAsync_RepositoryUpdateFails_ShouldLogWarning() {
+        // Arrange
+        User user = CreateUser();
+        UserForUpdateDto userForUpdate = CreateUserForUpdateDto();
+        string expectedErrMsg = $"The server failed to update the user with id: {user.UserId}.";
 
+        _mockRepo.Setup(x => x.User.GetUserByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(user);
+        _mockRepo.Setup(x => x.User.UpdateUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(0);
+
+        // Act & Assert
+        var err = await Assert.ThrowsAsync<UserUpdateFailedException>(() => _service.UpdateUserAsync(user.UserId, userForUpdate));
+
+        // Verify
+        _mockLogger.Verify(x => x.LogWarn(It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdateUserAsync_ValidUserAndUpdateData_ShouldUpdateUserSuccessfully() {
+        // Arrange
+        User user = CreateUser();
+        UserForUpdateDto userForUpdate = CreateUserForUpdateDto();
+        string expectedErrMsg = $"The server failed to update the user with id: {user.UserId}.";
 
+        _mockRepo.Setup(x => x.User.GetUserByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(user);
+        _mockRepo.Setup(x => x.User.UpdateUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(1);
+
+        // Act
+        await _service.UpdateUserAsync(user.UserId, userForUpdate);
+
+        // Assert & Verify
+        _mockRepo.Verify(x => x.User.UpdateUserAsync(It.IsAny<User>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdateUserAsync_ValidUserAndUpdateData_ShouldRemoveUserFromCache() {
+        // Arrange
+        User user = CreateUser();
+        UserForUpdateDto userForUpdate = CreateUserForUpdateDto();
+        string expectedErrMsg = $"The server failed to update the user with id: {user.UserId}.";
 
+        _mockRepo.Setup(x => x.User.GetUserByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(user);
+        _mockRepo.Setup(x => x.User.UpdateUserAsync(It.IsAny<User>()))
+            .ReturnsAsync(1);
+
+        // Act
+        await _service.UpdateUserAsync(user.UserId, userForUpdate);
+
+        // Assert & Verify
+        _mockCache.Verify(x => x.RemoveDataAsync(It.IsAny<string>()), Times.Once);
     }
 
     [Fact]
     public async Task GetUsersAsync_RepositoryReturnsEmptyList_ShouldReturnEmptyUsersAndMetadata() {
+        // Arrange
+        PagedList<User> usersWithMetaData = new([], 0, 1, 10);
+        UserParameters userParameters = new();
 
+        _mockRepo.Setup(x => x.User.GetUsersAsync(It.IsAny<UserParameters>()))
+            .ReturnsAsync(usersWithMetaData);
+
+        // Act
+        var (users, metaData) = await _service.GetUsersAsync(userParameters);
+
+        // Assert
+        Assert.NotNull(users);
+        Assert.Empty(users);
+        Assert.NotNull(metaData);
     }
 
     [Fact]
     public async Task GetUsersAsync_ValidUserParameters_ShouldReturnUsersAndMetaData() {
-        // should call repo once
-        // map properly
+        // Arrange
+        PagedList<User> usersWithMetaData = new(CreateUsers(), 0, 1, 10);
+        UserParameters userParameters = new();
+
+        _mockRepo.Setup(x => x.User.GetUsersAsync(It.IsAny<UserParameters>()))
+            .ReturnsAsync(usersWithMetaData);
+
+        // Act
+        var (users, metaData) = await _service.GetUsersAsync(userParameters);
+
+        // Assert
+        Assert.NotNull(users);
+        Assert.Equal(usersWithMetaData.Count, users.Count());
+        Assert.NotNull(metaData);
     }
 
     [Fact]
     public async Task GetUsersAsync_ValidUserParameters_ShouldMapUsersToUserDtosCorrectly() {
+        // Arrange
+        PagedList<User> usersWithMetaData = new(CreateUsers(), 0, 1, 10);
+        UserParameters userParameters = new();
 
+        _mockRepo.Setup(x => x.User.GetUsersAsync(It.IsAny<UserParameters>()))
+            .ReturnsAsync(usersWithMetaData);
+
+        // Act
+        (IEnumerable<UserDto> users, MetaData? metaData) = await _service.GetUsersAsync(userParameters);
+
+        // Assert
+        users.Should().BeEquivalentTo(usersWithMetaData, options => options
+            .Excluding(m => m.PasswordHash)
+            .Excluding(m => m.Contacts)
+            .Excluding(m => m.ParticipatedChats)
+            .Excluding(m => m.Messages)
+        );
     }
 
     [Fact]
     public async Task UpdatePasswordAsync_RepositoryUpdateFails_ShouldReturnFalse() {
+        // Arrange
+        int userId = 1;
+        string password = "password";
 
+        _mockRepo.Setup(x => x.User.UpdatePasswordAsync(It.IsAny<int>(), It.IsAny<string>()))
+            .ReturnsAsync(-1);
+
+        // Act
+        var result = await _service.UpdatePasswordAsync(userId, password);
+
+        // Assert
+        Assert.False(result);
     }
 
     [Fact]
     public async Task UpdatePasswordAsync_ValidUserIdAndPassword_ShouldReturnTrue() {
+        // Arrange
+        int userId = 1;
+        string password = "password";
 
+        _mockRepo.Setup(x => x.User.UpdatePasswordAsync(It.IsAny<int>(), It.IsAny<string>()))
+            .ReturnsAsync(1);
+
+        // Act
+        var result = await _service.UpdatePasswordAsync(userId, password);
+
+        // Assert
+        Assert.True(result);
     }
 
     [Fact]
     public async Task UpdatePasswordAsync_ValidUserIdAndPassword_ShouldHashPasswordCorrectly() {
+        // Arrange
+        int userId = 1;
+        string password = "password";
+        string? hashedPassword = null;
 
+        _mockRepo.Setup(x => x.User.UpdatePasswordAsync(It.IsAny<int>(), It.IsAny<string>()))
+            .Callback<int, string>((id, hash) => hashedPassword = hash)
+            .ReturnsAsync(1);
+
+        // Act
+        var result = await _service.UpdatePasswordAsync(userId, password);
+
+        // Assert
+        result.Should().BeTrue();
+        hashedPassword.Should().NotBeNullOrWhiteSpace();
+        BCrypt.Net.BCrypt.Verify(password, hashedPassword).Should().BeTrue();
     }
 
     [Fact]
     public async Task GetUserByEmailAsync_EmailDoesNotExistInTheDatabase_ShouldThrowNotFoundException() {
+        // Arrange
+        string email = "sam@ple.com";
 
+        _mockRepo.Setup(x => x.User.GetUserByEmailAsync(It.IsAny<string>()))
+            .ThrowsAsync(new EmailNotFoundException(email));
+
+        // Act
+        Func<Task> act = async() => await _service.GetUserByEmailAsync(email);
+
+        // Assert
+        await act.Should().ThrowAsync<EmailNotFoundException>()
+            .WithMessage($"The user with email: {email} doesn't exists in the database.");
     }
 
     [Fact]
     public async Task GetUserByEmailAsync_EmailExistsInTheDatabase_ShouldReturnUserDto() {
+        // Arrange
+        User user = CreateUser();
 
+        _mockRepo.Setup(x => x.User.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _service.GetUserByEmailAsync(user.Email);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeAssignableTo<UserDto>();
     }
 
     [Fact]
     public async Task GetUserByEmailAsync_ValidEmail_ShouldExecuteRepositoryOnce() {
+        // Arrange
+        User user = CreateUser();
 
+        _mockRepo.Setup(x => x.User.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _service.GetUserByEmailAsync(user.Email);
+
+        // Assert
+        _mockRepo.Verify(x => x.User.GetUserByEmailAsync(user.Email), Times.Once);
     }
 
     [Fact]
-    public async Task GetUserByEmailAsync_ValidEmail_ShouldMapUserToUserDtoCorrectly() {
+    public async Task GetUserByEmailAsync_EmailExistsInTheDatabase_ShouldMapUserToUserDtoCorrectly() {
+        // Arrange
+        User user = CreateUser();
 
+        _mockRepo.Setup(x => x.User.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _service.GetUserByEmailAsync(user.Email);
+
+        // Assert
+        result.Email.Should().Be(user.Email);
+        result.Username.Should().Be(user.Username);
+        result.DisplayName.Should().Be(user.DisplayName);
+        result.UserId.Should().Be(user.UserId);
     }
 
     private static User CreateUser() {
@@ -531,5 +710,28 @@ public class UserServiceTests {
             Email = "new@email.com",
             DisplayPictureUrl = "new picture"
         };
+    }
+
+    private static List<User> CreateUsers() {
+        return [
+            new User() {
+                DisplayName = "Test",
+                Email = "test@test.com",
+                PasswordHash = "$2a$11$wz1mmSBhCfO.AJI4Ll8qZ.KQvqob3mQhN28F7SqB46XLdizFmYYX6",
+                Username = "test",
+                UserId = 1,
+                IsEmailVerified = true,
+                DisplayPictureUrl = "currentPictureUrl"
+            },
+            new User() {
+                DisplayName = "Test2",
+                Email = "test2@test.com",
+                PasswordHash = "$2a$11$wz1mmSBhCfO.AJI4Ll8qZ.KQvqob3mQhN28F7SqB46XLdizFmYYX6",
+                Username = "test2",
+                UserId = 2,
+                IsEmailVerified = true,
+                DisplayPictureUrl = "currentPictureUrl"
+            }
+        ];
     }
 }

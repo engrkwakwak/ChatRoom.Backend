@@ -14,6 +14,7 @@ using FileService;
 using LoggerService;
 using Entities.Exceptions;
 using Microsoft.Extensions.Azure;
+using SmtpClientService;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
@@ -29,6 +30,9 @@ namespace ChatRoom.Backend.Extensions {
 
         public static void ConfigureLoggerService(this IServiceCollection services) =>
             services.AddSingleton<ILoggerManager, LoggerManager>();
+
+        public static void ConfigureSmtpClientService(this IServiceCollection services) =>
+            services.AddSingleton<ISmtpClientManager, SmtpClientManager>();
 
         public static void ConfigureRedisCache(this IServiceCollection services, IConfiguration configuration) {
             services.AddStackExchangeRedisCache(options => {
@@ -80,14 +84,6 @@ namespace ChatRoom.Backend.Extensions {
                         }
                     };
                 });
-        }
-        
-        public static void ConfigureSmtpCredentials(this IServiceCollection services, IConfiguration configuration)
-        {
-            var config = configuration
-            .GetSection("SMTPConfiguration")
-            .Get<EmailConfiguration>();
-            services.AddSingleton(config!);
         }
 
         public static void ConfigureFileUploads(this IServiceCollection services) {

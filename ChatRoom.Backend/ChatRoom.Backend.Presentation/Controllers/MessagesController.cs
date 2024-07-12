@@ -80,14 +80,13 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         public async Task<IActionResult> Delete(int messageId)
         {
             await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
-            if (!await _service.MessageService.DeleteMessageAsync(messageId))
-            {
-                throw new MessageUpdateFailedException("Something went wrong while deleting the message. Please try again later.");
-            }
-            MessageDto deletedMessage = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
+
+            MessageDto deletedMessage = await _service.MessageService.DeleteMessageAsync(messageId);
+
             string groupName = ChatRoomHub.GetChatGroupName(deletedMessage.ChatId);
             await _hubContext.Clients.Group(groupName).SendAsync("DeleteMessage", deletedMessage);
-            return Ok();
+
+            return NoContent();
         }
 
         [HttpPut("{messageId}")]
@@ -95,9 +94,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         public async Task<IActionResult> Update(int messageId, MessageForUpdateDto message)
         {
             await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
+
             MessageDto updatedMessage = await _service.MessageService.UpdateMessageAsync(message);
+
             string groupName = ChatRoomHub.GetChatGroupName(updatedMessage.ChatId);
             await _hubContext.Clients.Group(groupName).SendAsync("UpdateMessage", updatedMessage);
+
             return Ok(updatedMessage);
         }
         

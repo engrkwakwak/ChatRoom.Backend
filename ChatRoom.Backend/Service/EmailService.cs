@@ -1,117 +1,77 @@
-﻿using AutoMapper;
-using Contracts;
-using Entities.ConfigurationModels;
-using Service.Contracts;
-using MailKit.Net.Smtp;
+﻿using Service.Contracts;
 using Shared.DataTransferObjects.Email;
-using MimeKit.Text;
-using MimeKit;
-using Microsoft.Extensions.Configuration;
 using Shared.DataTransferObjects.Users;
 using Razor.Templating.Core;
-using Org.BouncyCastle.Crypto;
 using RedisCacheService;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using Contracts;
 
-namespace Service
-{
-    internal sealed class EmailService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IConfiguration config, IRedisCacheManager cache) : IEmailService
+namespace Service;
+
+public sealed class EmailService(IRedisCacheManager cache, ISmtpClientManager smtp) : IEmailService {
+    private readonly IRedisCacheManager _cache = cache;
+    private readonly ISmtpClientManager _smtpClient = smtp;
+
+    public async Task<bool> SendVerificationEmail(UserDto user, string verificationLink, string token)
     {
-        private readonly IRepositoryManager _repository = repository;
-        private readonly ILoggerManager _logger = logger;
-        private readonly IMapper _mapper = mapper;
-        private readonly IRedisCacheManager _cache = cache;
-        private readonly IConfiguration _config = config;
-        private readonly SmtpClient smtp = new();
-
-        public async Task<bool> SendEmail(EmailDto request)
+        EmailVerificationViewModel viewModel = new() { User = user, VerificationLink=verificationLink};
+        EmailDto email = new()
         {
-            try
-            {
-                var _emailConfig = _config.GetSection("SMTPConfiguration").Get<EmailConfiguration>();
-                var email = new MimeMessage();
-                email.From.Add(MailboxAddress.Parse(_emailConfig!.From));
-                email.To.Add(MailboxAddress.Parse(request.To));
-                email.Subject = request.Subject;
-                email.Body = new TextPart(TextFormat.Html) { Text = request.Body };
+            Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/EmailVerification.cshtml", viewModel),
+            To = user.Email,
+            Subject = "Complete Your Registration with Chatroom",
+            User = user
+        };
 
+        await CacheToken(token);
 
-                using var smtp = new SmtpClient();
-                await smtp.ConnectAsync(_emailConfig.Server, _emailConfig.Port, true);
-                await smtp.AuthenticateAsync(_emailConfig.Username, _emailConfig.Password);
-                await smtp.SendAsync(email);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-            finally
-            {
-                smtp.Disconnect(true);
-            }
-        }
+        bool isMessageSent = await _smtpClient.SendEmailAsync(email);
+        return isMessageSent;
+    }
 
-        public async Task<bool> SendVerificationEmail(UserDto user, string verificationLink, string token)
+    public async Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink, string token)
+    {
+        PasswordResetEmailViewModel viewModel = new() { User = user, PasswordResetLink = passwordResetLink};
+        EmailDto email = new()
         {
-            EmailVerificationViewModel viewModel = new() { User = user, VerificationLink=verificationLink};
-            EmailDto email = new()
-            {
-                Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/EmailVerification.cshtml", viewModel),
-                To = user.Email,
-                Subject = "Complete Your Registration with Chatroom",
-                User = user
-            };
+            Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/PasswordResetEmail.cshtml", viewModel),
+            To = user.Email,
+            Subject = "Password Reset",
+            User = user
+        };
 
-            await CacheToken(token);
+        await CacheToken(token);
 
-            return await SendEmail(email);
-        }
+        bool isMessageSent = await _smtpClient.SendEmailAsync(email);
+        return isMessageSent;
+    }
 
-        public async Task<bool> SendPasswordResetLink(UserDto user, string passwordResetLink, string token)
-        {
-            PasswordResetEmailViewModel viewModel = new() { User = user, PasswordResetLink = passwordResetLink};
-            EmailDto email = new()
-            {
-                Body = await RazorTemplateEngine.RenderAsync("/Views/EmailTemplates/PasswordResetEmail.cshtml", viewModel),
-                To = user.Email,
-                Subject = "Password Reset",
-                User = user
-            };
+    public async Task RemoveTokenFromCache(string token)
+    {
+        string cacheToken = $"email-{token}";
+        await _cache.RemoveDataAsync(cacheToken);
+    }
 
-            await CacheToken(token);
+    public async Task<bool> IsEmailTokenUsed(string token)
+    {
+        string? _token = await _cache.GetCachedDataAsync<string>($"email-{token}");
+        return _token.IsNullOrEmpty();
+    }
 
-            return await SendEmail(email);
-        }
+    private async Task CacheToken(string token)
+    {
+        JwtPayload payload = GetTokenPayload(token);
+        DateTimeOffset exp = DateTimeOffset.FromUnixTimeSeconds(payload.Expiration!.Value);
+        TimeSpan span = TimeSpan.FromSeconds(exp.Subtract(DateTimeOffset.UtcNow).TotalSeconds);
+        await _cache.SetCachedDataWithAbsoluteExpAsync($"email-{token}", token, span);
+    }
 
-        private static JwtPayload GetTokenPayload(string token)
-        {
-            JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
+    private static JwtPayload GetTokenPayload(string token) {
+        JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
 
-            JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
+        JwtSecurityToken securityToken = jwtSecurityTokenHandler.ReadJwtToken(token);
 
-            return securityToken.Payload;
-        }
-
-        public async Task RemoveTokenFromCache(string token)
-        {
-            string cacheToken = $"email-{token}";
-            await _cache.RemoveDataAsync(cacheToken);
-        }
-
-        public async Task<bool> IsEmailTokenUsed(string token)
-        {
-            string? _token = await _cache.GetCachedDataAsync<string>($"email-{token}");
-            return _token.IsNullOrEmpty();
-        }
-
-        private async Task CacheToken(string token)
-        {
-            JwtPayload payload = GetTokenPayload(token);
-            DateTimeOffset exp = DateTimeOffset.FromUnixTimeSeconds(payload.Expiration!.Value);
-            TimeSpan span = TimeSpan.FromSeconds(exp.Subtract(DateTimeOffset.UtcNow).TotalSeconds);
-            await _cache.SetCachedDataWithAbsoluteExpAsync($"email-{token}", token, span);
-        }
+        return securityToken.Payload;
     }
 }
