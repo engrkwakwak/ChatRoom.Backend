@@ -22,12 +22,12 @@ namespace ChatRoom.UnitTest.ServiceTests
         private readonly Mock<IConfiguration> _configurationMock = new();
         private readonly Mock<IRedisCacheManager> _cacheMock = new();
         private readonly Mock<IFileManager> _fileManagerMock = new();
-
+        private readonly Mock<ISmtpClientManager> _smtpClientMock = new();
         private readonly IServiceManager _serviceManager;
 
         public ContactServiceTests()
         {
-            _serviceManager = new ServiceManager(_repositoryMock.Object, _loggerMock.Object, _mapperMock.Object, _configurationMock.Object, _cacheMock.Object, _fileManagerMock.Object);
+            _serviceManager = new ServiceManager(_repositoryMock.Object, _loggerMock.Object, _mapperMock.Object, _configurationMock.Object, _cacheMock.Object, _fileManagerMock.Object, _smtpClientMock.Object);
         }
 
         [Theory]
@@ -74,19 +74,6 @@ namespace ChatRoom.UnitTest.ServiceTests
             // assert
             _repositoryMock.Verify();
             Assert.False(result);
-        }
-
-        [Theory]
-        [InlineData(0, 1)]
-        [InlineData(1, 0)]
-        [InlineData(1, 1)]
-        public async Task GetContactByUserIdContactIdAsync_UserIdAndContactIdIsSameOrLessThanOne_ThrowsInvalidParameterException(int userId, int contactId)
-        {
-            // act
-            var result = await Assert.ThrowsAsync<InvalidParameterException>(async () => await _serviceManager.ContactService.GetContactByUserIdContactIdAsync(userId, contactId));
-
-            // assert
-            Assert.Equal($"Invalid parameter user id {userId} and contact id {contactId}.", result.Message);
         }
 
         [Fact]

@@ -32,7 +32,7 @@ namespace Service {
 
         public async Task<ContactDto?> GetContactByUserIdContactIdAsync(int userId, int contactId)
         {
-            if (userId < 1 || contactId < 1 || userId == contactId)
+            if (userId < 1 || contactId < 1)
                 throw new InvalidParameterException($"Invalid parameter user id {userId} and contact id {contactId}.");
             string contactCacheKey = $"contact:{contactId}:user:{userId}";
             Contact? contact = await _cache.GetCachedDataAsync<Contact>(contactCacheKey);
