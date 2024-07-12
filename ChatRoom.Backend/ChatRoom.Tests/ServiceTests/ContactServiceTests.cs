@@ -22,12 +22,12 @@ namespace ChatRoom.UnitTest.ServiceTests
         private readonly Mock<IConfiguration> _configurationMock = new();
         private readonly Mock<IRedisCacheManager> _cacheMock = new();
         private readonly Mock<IFileManager> _fileManagerMock = new();
-
+        private readonly Mock<ISmtpClientManager> _smtpClientMock = new();
         private readonly IServiceManager _serviceManager;
 
         public ContactServiceTests()
         {
-            _serviceManager = new ServiceManager(_repositoryMock.Object, _loggerMock.Object, _mapperMock.Object, _configurationMock.Object, _cacheMock.Object, _fileManagerMock.Object);
+            _serviceManager = new ServiceManager(_repositoryMock.Object, _loggerMock.Object, _mapperMock.Object, _configurationMock.Object, _cacheMock.Object, _fileManagerMock.Object, _smtpClientMock.Object);
         }
 
         [Theory]

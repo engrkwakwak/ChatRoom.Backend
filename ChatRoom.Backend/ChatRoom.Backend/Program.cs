@@ -14,10 +14,10 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureLoggerService();
 builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureRedisCache(builder.Configuration);
+builder.Services.ConfigureSmtpClientService();
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureFileService();
 builder.Services.ConfigureDapperConnection(builder.Configuration);
-builder.Services.ConfigureSmtpCredentials(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.Configure<ApiBehaviorOptions>(options => {
