@@ -24,7 +24,6 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [Authorize]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> GetMessagesForChat(int chatId, [FromQuery] MessageParameters messageParameters) {
-            await CheckChatExistance(chatId);
             (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(metaData));
 
@@ -34,19 +33,20 @@ namespace ChatRoom.Backend.Presentation.Controllers {
         [HttpPost]
         [Authorize]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message)
-        {
+        public async Task<IActionResult> SendMessage([FromBody] MessageForCreationDto message) {
             //check chatId exists
             ChatDto currentChat = await _service.ChatService.GetChatByChatIdAsync(message.ChatId);
             IEnumerable<ChatMemberDto> chatMembers = await _service.ChatMemberService.GetActiveChatMembersByChatIdAsync(message.ChatId);
-            IEnumerable<int> memberIds = chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId);
+            if (!chatMembers.Any()) {
+                throw new NoChatMembersFoundException(currentChat.ChatId);
+            }
 
             //insert to contacts automatically if p2p
             if (currentChat.ChatTypeId == (int)ChatTypes.P2P) {
+                IEnumerable<int> memberIds = chatMembers.Where(u => u.User!.UserId != message.SenderId).Select(u => u.User!.UserId);
                 IEnumerable<ContactDto> chatContacts = await _service.ContactService.InsertContactsAsync(message.SenderId, memberIds.ToList());
                 await _hubContext.Clients.User(message.SenderId.ToString()).SendAsync("ContactsUpdated");
             }
-            
 
             MessageDto createdMessage = await _service.MessageService.InsertMessageAsync(message);
             string groupName = ChatRoomHub.GetChatGroupName(createdMessage.ChatId);
@@ -64,22 +64,25 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpGet("latest")]
         [Authorize]
-        public async Task<IActionResult> GetLatestMessage(int chatId)
-        {
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetLatestMessage(int chatId) {
             MessageParameters messageParameters = new() {
                 PageNumber = 1,
                 PageSize = 1,
             };
             (IEnumerable<MessageDto> messages, MetaData? metaData) = await _service.MessageService.GetMessagesByChatIdAsync(messageParameters, chatId);
 
-            return Ok(messages.First());
+            return Ok(messages.FirstOrDefault());
         }
 
         [HttpDelete("{messageId}")]
         [Authorize]
-        public async Task<IActionResult> Delete(int messageId)
-        {
-            await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Delete(int messageId) {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            if (!await IsAuthorized(token, messageId)) {
+                throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
+            }
 
             MessageDto deletedMessage = await _service.MessageService.DeleteMessageAsync(messageId);
 
@@ -91,9 +94,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
         [HttpPut("{messageId}")]
         [Authorize]
-        public async Task<IActionResult> Update(int messageId, MessageForUpdateDto message)
-        {
-            await AuthorizedAction(Request.Headers.Authorization[0]!.Replace("Bearer ", ""), messageId);
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> Update(int messageId, MessageForUpdateDto message) {
+            string token = Request.Headers.Authorization[0]!.Replace("Bearer ", "");
+            if (!await IsAuthorized(token, messageId)) {
+                throw new UnauthorizedMessageDeletionException("Updating messages sent by other users are strictly prohibited.");
+            }
 
             MessageDto updatedMessage = await _service.MessageService.UpdateMessageAsync(message);
 
@@ -102,24 +108,12 @@ namespace ChatRoom.Backend.Presentation.Controllers {
 
             return Ok(updatedMessage);
         }
-        
-        private async Task AuthorizedAction(string token, int messageId)
-        {
+
+        private async Task<bool> IsAuthorized(string token, int messageId) {
             int userId = _service.AuthService.GetUserIdFromJwtToken(token);
             MessageDto message = await _service.MessageService.GetMessageByMessageIdAsync(messageId);
-            if (message.Sender?.UserId != userId)
-            {
-                throw new UnauthorizedMessageDeletionException("Deleting messages sent by other users are strictly prohibited.");
-            }
-        }
 
-        private async Task CheckChatExistance(int chatId)
-        {
-            ChatDto chatDto = await _service.ChatService.GetChatByChatIdAsync(chatId);
-            if (chatDto.StatusId == 3)
-            {
-                throw new ChatNotFoundException(chatId);
-            }
+            return message.Sender!.UserId == userId;
         }
     }
 }

@@ -1,11 +1,9 @@
 ﻿using ChatRoom.Backend.Presentation.ActionFilters;
 using ChatRoom.Backend.Presentation.Controllers;
 using ChatRoom.UnitTest.Helpers;
-using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NuGet.Frameworks;
 using Service.Contracts;
 using Shared.DataTransferObjects.Users;
 
