@@ -40,7 +40,7 @@ namespace ChatRoom.UITest.Tests
         }
 
         [Fact]
-        public async Task SignUp()
+        public void SignUp()
         {
             signUpPage.Navigate();
             signUpPage.PopulateForm("Test User", "testuser", "test@email.com", "password", "password");
@@ -52,7 +52,7 @@ namespace ChatRoom.UITest.Tests
         }
 
         [Fact]
-        public async Task SignIn()
+        public void SignIn()
         {
             signInPage.Navigate();
             signInPage.PopulateForm("testuser", "password");
