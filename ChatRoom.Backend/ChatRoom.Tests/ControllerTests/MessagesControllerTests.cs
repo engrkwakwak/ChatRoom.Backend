@@ -22,6 +22,8 @@ public class MessagesControllerTests {
     private readonly Mock<IClientProxy> _mockClientProxy;
     private readonly MessagesController _controller;
 
+    private readonly List<(string, object[])> _sendAsyncCalls;
+
     public MessagesControllerTests() {
         _mockService = new Mock<IServiceManager>();
         _mockHub = new Mock<IHubContext<ChatRoomHub>>();
@@ -33,6 +35,18 @@ public class MessagesControllerTests {
                 HttpContext = new DefaultHttpContext()
             }
         };
+
+        _controller.ControllerContext.HttpContext.Request.Headers.Authorization = "Bearer MockedToken";
+
+        _mockHub.Setup(hub => hub.Clients).Returns(_mockClients.Object);
+        _mockClients.Setup(clients => clients.Group(It.IsAny<string>())).Returns(_mockClientProxy.Object);
+        _mockClients.Setup(clients => clients.User(It.IsAny<string>())).Returns(_mockClientProxy.Object);
+
+        _sendAsyncCalls = new List<(string, object[])>();
+        _mockClientProxy
+            .Setup(x => x.SendCoreAsync(It.IsAny<string>(), It.IsAny<object[]>(), It.IsAny<CancellationToken>()))
+            .Callback<string, object[], CancellationToken>((method, args, token) => _sendAsyncCalls.Add((method, args)))
+            .Returns(Task.CompletedTask);
     }
 
     [Fact]
@@ -192,6 +206,8 @@ public class MessagesControllerTests {
             .ReturnsAsync(members);
         _mockService.Setup(x => x.ContactService.InsertContactsAsync(It.IsAny<int>(), It.IsAny<List<int>>()))
             .ReturnsAsync([]);
+        _mockService.Setup(x => x.MessageService.InsertMessageAsync(It.IsAny<MessageForCreationDto>()))
+            .ReturnsAsync(new MessageDto());
 
         // Act
         await _controller.SendMessage(messageToSend);
@@ -202,82 +218,273 @@ public class MessagesControllerTests {
 
     [Fact]
     public async Task SendMessage_ChatTypeIsP2P_ShouldNotifyTheSenderTheContactIsAdded() {
+        // Arrange
+        MessageForCreationDto messageToSend = CreateMessageForCreationDto();
+        ChatDto chat = CreateP2PChatDto();
 
+        IEnumerable<ChatMemberDto> members = CreateChatMembers();
+
+        _mockService.Setup(x => x.ChatService.GetChatByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(chat);
+        _mockService.Setup(x => x.ChatMemberService.GetActiveChatMembersByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(members);
+        _mockService.Setup(x => x.ContactService.InsertContactsAsync(It.IsAny<int>(), It.IsAny<List<int>>()))
+            .ReturnsAsync([]);
+        _mockService.Setup(x => x.MessageService.InsertMessageAsync(It.IsAny<MessageForCreationDto>()))
+            .ReturnsAsync(new MessageDto());
+
+        // Act
+        await _controller.SendMessage(messageToSend);
+
+        // Assert
+        _sendAsyncCalls.Should().Contain(call =>
+            call.Item1 == "ContactsUpdated" &&
+            call.Item2.Length == 0);
     }
 
     [Fact]
     public async Task SendMessage_ChatTypeIsGroupChat_ShouldNotInsertContacts() {
+        // Arrange
+        MessageForCreationDto messageToSend = CreateMessageForCreationDto();
+        ChatDto chat = CreateGCChatDto();
 
+        IEnumerable<ChatMemberDto> members = CreateChatMembers();
+
+        _mockService.Setup(x => x.ChatService.GetChatByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(chat);
+        _mockService.Setup(x => x.ChatMemberService.GetActiveChatMembersByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(members);
+        _mockService.Setup(x => x.MessageService.InsertMessageAsync(It.IsAny<MessageForCreationDto>()))
+            .ReturnsAsync(new MessageDto());
+
+        // Act
+        await _controller.SendMessage(messageToSend);
+
+        // Assert
+        _mockService.Verify(x => x.ContactService.InsertContactsAsync(It.IsAny<int>(), It.IsAny<List<int>>()), Times.Never);
     }
 
     [Fact]
     public async Task SendMessage_ServiceSuccessfullyInsertedTheMessage_ShouldNotifyMembersToReceiveNewMessage() {
+        // Arrange
+        MessageForCreationDto messageToSend = CreateMessageForCreationDto();
+        ChatDto chat = CreateGCChatDto();
 
+        IEnumerable<ChatMemberDto> members = CreateChatMembers();
+
+        _mockService.Setup(x => x.ChatService.GetChatByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(chat);
+        _mockService.Setup(x => x.ChatMemberService.GetActiveChatMembersByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(members);
+        _mockService.Setup(x => x.MessageService.InsertMessageAsync(It.IsAny<MessageForCreationDto>()))
+            .ReturnsAsync(new MessageDto());
+
+        // Act
+        await _controller.SendMessage(messageToSend);
+
+        // Assert
+        _sendAsyncCalls.Should().Contain(call =>
+            call.Item1 == "ReceiveMessage" &&
+            call.Item2.Length == 1);
     }
 
     [Fact]
     public async Task SendMessage_ServiceSuccessfullyInsertedTheMessage_ShouldReturnMessageDto() {
+        // Arrange
+        MessageForCreationDto messageToSend = CreateMessageForCreationDto();
+        ChatDto chat = CreateGCChatDto();
 
+        IEnumerable<ChatMemberDto> members = CreateChatMembers();
+
+        _mockService.Setup(x => x.ChatService.GetChatByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(chat);
+        _mockService.Setup(x => x.ChatMemberService.GetActiveChatMembersByChatIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(members);
+        _mockService.Setup(x => x.MessageService.InsertMessageAsync(It.IsAny<MessageForCreationDto>()))
+            .ReturnsAsync(new MessageDto());
+
+        // Act
+        var result = await _controller.SendMessage(messageToSend) as ObjectResult;
+
+        // Assert
+        result.Should().BeAssignableTo<OkObjectResult>();
+        result?.Value.Should().BeAssignableTo<MessageDto>();
     }
 
     [Fact]
-    public async Task SendMessage_ServiceSuccessfullyInsertedTheMessage_ShouldReturnTheMessageInfoCorrectly() {
+    public async Task GetLatestMessage_ServiceReturnsEmptyList_ShouldReturnNull() {
+        // Arrange
+        int chatId = 1;
+        MessageParameters msgParams = new();
+        IEnumerable<MessageDto> messages = [];
+        MetaData metaData = new();
+        _mockService.Setup(x => x.MessageService.GetMessagesByChatIdAsync(It.IsAny<MessageParameters>(), It.IsAny<int>()))
+            .ReturnsAsync((messages, metaData));
 
+        // Act
+        var result = await _controller.GetLatestMessage(chatId) as ObjectResult;
+
+        // Assert
+        result.Should().BeAssignableTo<OkObjectResult>();
+        result?.Value.Should().BeNull();
     }
 
     [Fact]
-    public async Task GetLatestMessage_ServiceReturnsEmptyMessageList_ShouldReturnNull() {
+    public async Task GetLatestMessage_ServiceReturnsMessageList_ShouldReturnOk() {
+        // Arrange
+        int chatId = 1;
+        MessageParameters msgParams = new();
+        IEnumerable<MessageDto> messages = CreateMessages();
+        MetaData metaData = new();
+        _mockService.Setup(x => x.MessageService.GetMessagesByChatIdAsync(It.IsAny<MessageParameters>(), It.IsAny<int>()))
+            .ReturnsAsync((messages, metaData));
 
-    }
+        // Act & Assert
+        var result = await _controller.GetLatestMessage(chatId) as ObjectResult;
 
-    [Fact]
-    public async Task GetLatestMessage_ServiceReturnsMessageSuccessfully_ShouldReturnOk() {
-
-    }
-
-    [Fact]
-    public async Task GetLatestMessage_ServiceReturnsMessageSuccessfully_ShouldReturnMessageDto() {
-
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(200, result.StatusCode);
+        Assert.Equal(messages.First(), result.Value);
     }
 
     [Fact]
     public async Task Delete_MessageSenderIsNotTheLoggedInUser_ShouldThrowUnauthorizedException() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 456 };
+        MessageDto message = new() { Sender = sender };
 
-    }
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
 
-    [Fact]
-    public async Task Delete_MessageSenderIsTheLoggedInUser_ShouldDeleteTheMessage() {
+        // Act
+        Func<Task> act = async() => await _controller.Delete(messageId);
 
+        // Assert
+        await act.Should().ThrowAsync<UnauthorizedMessageDeletionException>()
+            .WithMessage("Deleting messages sent by other users are strictly prohibited.");
     }
 
     [Fact]
     public async Task Delete_ServiceSuccessfullyDeletesTheMessage_ShouldNotifyGroupTheMessageIsDeleted() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 123 };
+        MessageDto message = new() { Sender = sender };
 
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+        _mockService.Setup(x => x.MessageService.DeleteMessageAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+
+        // Act
+        var result = await _controller.Delete(messageId);
+
+        // Assert
+        _sendAsyncCalls.Should().Contain(call =>
+            call.Item1 == "DeleteMessage" &&
+            call.Item2.Length == 1);
     }
 
     [Fact]
     public async Task Delete_ServiceSuccessfullyDeletesTheMessage_ShouldReturnNoContent() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 123 };
+        MessageDto message = new() { Sender = sender };
 
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+        _mockService.Setup(x => x.MessageService.DeleteMessageAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+
+        // Act
+        var result = await _controller.Delete(messageId);
+
+        // Assert
+        result.Should().BeAssignableTo<NoContentResult>();
     }
 
     [Fact]
     public async Task Update_MessageSenderIsNotTheLoggedInUser_ShouldThrowUnauthorizedException() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 456 };
+        MessageForUpdateDto messageForUpdate = CreateMessageForUpdateDto();
+        MessageDto message = new() { Sender = sender };
 
-    }
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
 
-    [Fact]
-    public async Task Update_MessageSenderIsTheLoggedInUser_ShouldUpdateTheMessage() {
+        // Act
+        Func<Task> act = async () => await _controller.Update(messageId, messageForUpdate);
 
+        // Assert
+        await act.Should().ThrowAsync<UnauthorizedMessageDeletionException>()
+            .WithMessage("Updating messages sent by other users are strictly prohibited.");
     }
 
     [Fact]
     public async Task Update_ServiceSuccessfullyUpdatesTheMessage_ShouldNotifyGroupTheMessageIsUpdated() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 123 };
+        MessageForUpdateDto messageForUpdate = CreateMessageForUpdateDto();
+        MessageDto message = new() { Sender = sender };
 
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+        _mockService.Setup(x => x.MessageService.UpdateMessageAsync(It.IsAny<MessageForUpdateDto>()))
+            .ReturnsAsync(message);
+
+        // Act
+        var result = await _controller.Update(messageId, messageForUpdate);
+
+        // Assert
+        _sendAsyncCalls.Should().Contain(call =>
+            call.Item1 == "UpdateMessage" &&
+            call.Item2.Length == 1);
     }
 
     [Fact]
     public async Task Update_ServiceSuccessfullyUpdatesTheMessage_ShouldReturnNoContent() {
+        // Arrange
+        int messageId = 1;
+        UserDto sessionUser = new() { UserId = 123, DisplayName = "", Email = "", Username = "" };
+        UserDisplayDto sender = new() { UserId = 123 };
+        MessageForUpdateDto messageForUpdate = CreateMessageForUpdateDto();
+        MessageDto message = new() { Sender = sender };
 
+        _mockService.Setup(x => x.AuthService.GetUserIdFromJwtToken(It.IsAny<string>()))
+            .Returns(123);
+        _mockService.Setup(x => x.MessageService.GetMessageByMessageIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(message);
+        _mockService.Setup(x => x.MessageService.UpdateMessageAsync(It.IsAny<MessageForUpdateDto>()))
+            .ReturnsAsync(message);
+
+        // Act
+        var result = await _controller.Update(messageId, messageForUpdate) as ObjectResult;
+
+        // Assert
+        result.Should().BeAssignableTo<OkObjectResult>();
+        result?.Value.Should().BeAssignableTo<MessageDto>();
     }
 
     private static IEnumerable<MessageDto> CreateMessages() {
@@ -319,11 +526,25 @@ public class MessagesControllerTests {
             SenderId = 1
         };
     }
+    private static MessageForUpdateDto CreateMessageForUpdateDto() {
+        return new MessageForUpdateDto {
+            MessageId = 1,
+            Content = "Updated content."
+        };
+    }
 
     private static ChatDto CreateP2PChatDto() {
         return new ChatDto {
             ChatId = 1,
             ChatTypeId = 1,
+            ChatName = "Chat Name"
+        };
+    }
+
+    private static ChatDto CreateGCChatDto() {
+        return new ChatDto {
+            ChatId = 1,
+            ChatTypeId = 2,
             ChatName = "Chat Name"
         };
     }
