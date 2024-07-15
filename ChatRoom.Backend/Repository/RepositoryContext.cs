@@ -53,6 +53,7 @@ namespace Repository {
             modelBuilder.ApplyConfiguration(new StatusConfiguration());
             modelBuilder.ApplyConfiguration(new ChatTypeConfiguration());
             modelBuilder.ApplyConfiguration(new MessageTypeConfiguration());
+            //modelBuilder.ApplyConfiguration(new TestUsersConfiguration());
         }
 
         public DbSet<Chat>? Chats { get; set; }
