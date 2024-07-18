@@ -1,5 +1,6 @@
 ﻿using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Repository.Configuration;
 
 namespace Repository {
@@ -53,6 +54,7 @@ namespace Repository {
             modelBuilder.ApplyConfiguration(new StatusConfiguration());
             modelBuilder.ApplyConfiguration(new ChatTypeConfiguration());
             modelBuilder.ApplyConfiguration(new MessageTypeConfiguration());
+
         }
 
         public DbSet<Chat>? Chats { get; set; }

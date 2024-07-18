@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -12,6 +13,8 @@ namespace ChatRoom.Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+
             migrationBuilder.InsertData(
                 table: "ChatTypes",
                 columns: new[] { "f_chat_type_id", "f_chat_type_description", "f_chat_type_name" },
@@ -39,6 +42,21 @@ namespace ChatRoom.Backend.Migrations
                     { 2, "Approved" },
                     { 3, "Deleted" }
                 });
+
+            if(environment == "Test")
+            {
+                migrationBuilder.InsertData(
+                    table: "Users",
+                    columns : new[] {"f_username", "f_display_name", "f_email", "f_password_hash", "f_is_email_verified"},
+                    values: new object[,]
+                    {
+                        { "the_flash", "Barry Allen", "barryallen@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
+                        { "batman", "Bruce Waynes", "brucewaynes@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
+                        { "captain_america", "Steve Rogers", "steverogers@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
+                        { "scarlet_witch", "Wanda Maximoff", "wandamaximoff@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
+                        { "iron_man", "Tony Stark", "tonystark@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
+                    });
+            }
         }
 
         /// <inheritdoc />

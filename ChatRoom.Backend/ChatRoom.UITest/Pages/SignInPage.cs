@@ -19,8 +19,10 @@ namespace ChatRoom.UITest.Pages
         private IWebElement UserNameInput => _driver.FindElement(By.Id("username"));
         private IWebElement PasswordInput => _driver.FindElement(By.Id("password"));
         private IWebElement SignInButton => _driver.FindElement(By.Id("signin_btn"));
+        public IEnumerable<IWebElement> ValidationErrors => _driver.FindElements(By.ClassName("validation-error"));
+        public IWebElement InvalidAuthAlert => _driver.FindElement(By.Id("invalid-auth-alert"));
 
-        public void Navigate()
+        public void NavigateToSignIn()
         {
             _driver.Navigate().GoToUrl($"{_rootUrl}/#/signin");
         }
@@ -32,11 +34,24 @@ namespace ChatRoom.UITest.Pages
 
         public void PopulateForm(string username, string password)
         {
-
             UserNameInput.Click();
             UserNameInput.Clear();
             UserNameInput.SendKeys(username);
 
+            PasswordInput.Click();
+            PasswordInput.Clear();
+            PasswordInput.SendKeys(password);
+        }
+
+        public void FillUsernameInput(string username)
+        {
+            UserNameInput.Click();
+            UserNameInput.Clear();
+            UserNameInput.SendKeys(username);
+        }
+
+        public void FillPasswordInput(string password)
+        {
             PasswordInput.Click();
             PasswordInput.Clear();
             PasswordInput.SendKeys(password);
