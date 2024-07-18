@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using ChatRoom.Backend.Presentation.Hubs;
+using ChatRoom.Backend.Seeders;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,5 +59,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<ChatRoomHub>("/chatRoomHub");
+
 
 app.Run();

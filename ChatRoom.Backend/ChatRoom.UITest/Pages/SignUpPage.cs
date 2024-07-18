@@ -1,9 +1,4 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatRoom.UITest.Pages
 {
@@ -24,8 +19,10 @@ namespace ChatRoom.UITest.Pages
         private IWebElement PasswordInput => _driver.FindElement(By.Id("password"));
         private IWebElement PasswordConfirmationInput => _driver.FindElement(By.Id("password-confirmation"));
         private IWebElement SignUpButton => _driver.FindElement(By.Id("signup_btn"));
+        private IWebElement NbCardBody => _driver.FindElement(By.TagName("nb-card-body"));
+        public IEnumerable<IWebElement> ValidationErrors => _driver.FindElements(By.ClassName("validation-error"));
 
-        public void Navigate()
+        public void NavigateToSignUp()
         {
             _driver.Navigate().GoToUrl($"{_rootUrl}/#/signup");
         }
@@ -56,6 +53,46 @@ namespace ChatRoom.UITest.Pages
             PasswordConfirmationInput.Click();
             PasswordConfirmationInput.Clear();
             PasswordConfirmationInput.SendKeys(passwordConfirmation);
+        }
+
+        public void FillDisplayNameInput(string displayName)
+        {
+            DisplayNameInput.Click();
+            DisplayNameInput.Clear();
+            DisplayNameInput.SendKeys(displayName);
+            NbCardBody.Click();
+        }
+
+        public void FillUsernameInput(string username)
+        {
+            UserNameInput.Click();
+            UserNameInput.Clear();
+            UserNameInput.SendKeys(username);
+            NbCardBody.Click();
+        }
+
+        public void FillEmailInput(string email)
+        {
+            EmailInput.Click();
+            EmailInput.Clear();
+            EmailInput.SendKeys(email);
+            NbCardBody.Click();
+        }
+
+        public void FillPasswordInput(string password)
+        {
+            PasswordInput.Click();
+            PasswordInput.Clear();
+            PasswordInput.SendKeys(password);
+            NbCardBody.Click();
+        }
+
+        public void FillPasswordConfirmationInput(string password)
+        {
+            PasswordConfirmationInput.Click();
+            PasswordConfirmationInput.Clear();
+            PasswordConfirmationInput.SendKeys(password);
+            NbCardBody.Click();
         }
     }
 }

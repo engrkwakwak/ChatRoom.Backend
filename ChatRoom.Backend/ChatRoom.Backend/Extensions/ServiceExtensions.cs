@@ -15,6 +15,9 @@ using LoggerService;
 using Entities.Exceptions;
 using Microsoft.Extensions.Azure;
 using SmtpClientService;
+using ChatRoom.Backend.Seeders;
+using System.Net;
+using Microsoft.Data.Sqlite;
 
 namespace ChatRoom.Backend.Extensions {
     public static class ServiceExtensions {
