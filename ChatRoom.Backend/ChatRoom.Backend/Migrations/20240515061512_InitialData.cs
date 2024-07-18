@@ -5,11 +5,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace ChatRoom.Backend.Migrations
-{
+namespace ChatRoom.Backend.Migrations {
     /// <inheritdoc />
-    public partial class InitialData : Migration
-    {
+    public partial class InitialData : Migration {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -60,8 +58,7 @@ namespace ChatRoom.Backend.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DeleteData(
                 table: "ChatTypes",
                 keyColumn: "f_chat_type_id",
