@@ -1,7 +1,5 @@
 ﻿using ChatRoom.UITest.Pages;
 using FluentAssertions;
-using OpenQA.Selenium;
-using SeleniumExtras.WaitHelpers;
 
 namespace ChatRoom.UITest.Tests; 
 public class ChatModuleTests : TestSetup {
@@ -282,18 +280,5 @@ public class ChatModuleTests : TestSetup {
 
         // Assert
         chatManagementPage.IsChatNameFieldPresent().Should().BeFalse();
-    }
-
-    private string CreateChat(string chatName) {
-        var chatsPage = new ChatsPage(Driver).Navigate(BaseUrl);
-        chatsPage.ClickCreateChat()
-            .PopulateChatName(chatName)
-            .ClickCreateChatContinue()
-            .SelectFirstFilteredUser() // Check the first user.
-            .ClickAddMemberComplete();
-
-        Driver.Url.Should().ContainAll($"{BaseUrl}/#/chat/view/from-chatlist/");
-
-        return Driver.Url;
     }
 }

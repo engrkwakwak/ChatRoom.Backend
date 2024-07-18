@@ -1,4 +1,5 @@
 ﻿using ChatRoom.UITest.Pages;
+using FluentAssertions;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -27,5 +28,18 @@ public abstract class TestSetup : IDisposable {
 
     public void Dispose() {
         Driver.Quit();
+    }
+
+    protected string CreateChat(string chatName) {
+        var chatsPage = new ChatsPage(Driver).Navigate(BaseUrl);
+        chatsPage.ClickCreateChat()
+            .PopulateChatName(chatName)
+            .ClickCreateChatContinue()
+            .SelectFirstFilteredUser() // Check the first user.
+            .ClickAddMemberComplete();
+
+        Driver.Url.Should().ContainAll($"{BaseUrl}/#/chat/view/from-chatlist/");
+
+        return Driver.Url;
     }
 }
