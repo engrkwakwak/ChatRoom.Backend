@@ -106,11 +106,11 @@ public class MessagePage(IWebDriver driver) {
         var deleteMessageButton = GetDeleteMessageButton(messageElement);
         deleteMessageButton.Click();
 
-        var continueButton = _driver.FindElement(By.Id("continue-button"));
+        var continueButton = _driver.FindElement(By.Id("continue_btn"));
         continueButton.Click();
 
         var wait = new WebDriverWait(_driver, _searchTimeout);
-        wait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("continue-button")));
+        wait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("continue_btn")));
 
         return this;
     }

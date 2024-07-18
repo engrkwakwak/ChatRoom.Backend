@@ -18,7 +18,7 @@ public class ChatManagementPage {
     public IWebElement MembersButton => _driver.FindElement(By.Id("members-button"));
     public IWebElement LeaveChatButton => _driver.FindElement(By.Id("leave-chat-button"));
     public IWebElement DeleteChatButton => _driver.FindElement(By.Id("delete-chat-button"));
-    public IWebElement ContinueConfirmationButton => _driver.FindElement(By.Id("continue-button"));
+    public IWebElement ContinueConfirmationButton => _driver.FindElement(By.Id("continue_btn"));
     public IWebElement CloseButton => _driver.FindElement(By.Id("close-button"));
     public IWebElement ChatSettingsButton => _driver.FindElement(By.Id("chat-settings-button"));
     public IWebElement UpdateChatButton => _driver.FindElement(By.Id("update-chat-button"));
@@ -57,7 +57,7 @@ public class ChatManagementPage {
         LeaveChatButton.Click();
         ContinueConfirmationButton.Click();
 
-        _wait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("continue-button")));
+        _wait.Until(ExpectedConditions.InvisibilityOfElementLocated(By.Id("continue_btn")));
         
         return this;
     }

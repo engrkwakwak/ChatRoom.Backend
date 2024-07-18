@@ -21,7 +21,7 @@ public abstract class TestSetup : IDisposable {
 
     protected void LoginToApplication(string username, string password) {
         var signinPage = new SignInPage(Driver);
-        signinPage.Navigate();
+        signinPage.NavigateToSignIn();
         signinPage.PopulateForm(username, password);
         signinPage.SubmitSignInForm();
     }
