@@ -3,6 +3,7 @@ using OpenQA.Selenium.Support.UI;
 using OpenQA.Selenium;
 
 using OpenQA.Selenium.Chrome;
+using CSharpVitamins;
 
 namespace ChatRoom.UITest.Tests
 {
@@ -37,8 +38,9 @@ namespace ChatRoom.UITest.Tests
         [Fact]
         public void SignUp_WithValidData_RedirectsToSignIn()
         {
+            var guid = DateTime.Now.Ticks;
             signUpPage.NavigateToSignUp();
-            signUpPage.PopulateForm("Test User", "testuser", "test@email.com", "password", "password");
+            signUpPage.PopulateForm("Test User", $"{guid}", $"test{guid}@email.com", "password", "password");
             signUpPage.SubmitSignUpForm();
             string oldUrl = driver.Url;
             wait.Until(d => d.Url != oldUrl);
@@ -47,15 +49,15 @@ namespace ChatRoom.UITest.Tests
         }
 
         [Fact]
-        public void SignIn_WithValidData_RedirectsToEmailVerification()
+        public void SignIn_WithValidData_RedirectsToChat()
         {
             signInPage.NavigateToSignIn();
-            signInPage.PopulateForm("testuser", "password");
+            signInPage.PopulateForm("the_flash", "password");
             signInPage.SubmitSignInForm();
             string oldUrl = driver.Url;
             wait.Until(d => d.Url != oldUrl);
 
-            Assert.Equal($"{rootUrl}/#/email-verification", driver.Url);
+            Assert.Equal($"{rootUrl}/#/chat", driver.Url);
         }
 
         [Fact]
