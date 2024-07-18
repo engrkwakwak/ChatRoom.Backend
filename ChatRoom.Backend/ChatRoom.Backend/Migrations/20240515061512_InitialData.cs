@@ -9,8 +9,7 @@ namespace ChatRoom.Backend.Migrations {
     /// <inheritdoc />
     public partial class InitialData : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
 
             migrationBuilder.InsertData(
@@ -41,11 +40,10 @@ namespace ChatRoom.Backend.Migrations {
                     { 3, "Deleted" }
                 });
 
-            if(environment == "Test")
-            {
+            if (environment == "Test") {
                 migrationBuilder.InsertData(
                     table: "Users",
-                    columns : new[] {"f_username", "f_display_name", "f_email", "f_password_hash", "f_is_email_verified"},
+                    columns: new[] { "f_username", "f_display_name", "f_email", "f_password_hash", "f_is_email_verified" },
                     values: new object[,]
                     {
                         { "the_flash", "Barry Allen", "barryallen@test.com", "$2a$11$VPWCJHM/qPtAcLipuJ4k9evJAJdpLDQyso4..iqFSrNHzJ71dYgIa", true },
