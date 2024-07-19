@@ -2,12 +2,9 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Repository;
 
-namespace ChatRoom.Backend.ContextFactory
-{
-    public class RepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext>
-    {
-        public RepositoryContext CreateDbContext(string[] args)
-        {
+namespace ChatRoom.Backend.ContextFactory {
+    public class RepositoryContextFactory : IDesignTimeDbContextFactory<RepositoryContext> {
+        public RepositoryContext CreateDbContext(string[] args) {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
             Console.WriteLine($"CurrentEnvironment: {environment}");
 
